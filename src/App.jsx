@@ -556,7 +556,7 @@ function App() {
   // Derive view from hierarchical URL: /europe, /europe/italy, /europe/italy/tiramisu
   const safePath = typeof path === 'string' ? path : '/';
   const parts = safePath.split('/').filter(Boolean);
-  const infoPages = ['blog','about','advertising','subscribe','privacy'];
+  const infoPages = ['blog','about','advertising','privacy'];
 
   let view = 'regions';
   let selectedRegion = null;
@@ -627,7 +627,7 @@ function App() {
         </div>
 
         {/* Main */}
-        {!["blog","about","advertising","subscribe","privacy"].includes(view) && (
+        {!["blog","about","advertising","privacy"].includes(view) && (
           <div style={{ padding:"32px 24px 60px", maxWidth:960, margin:"0 auto" }}>
             {view === "regions"  && <RegionMap onSelectRegion={goToRegion} />}
             {view === "region"   && selectedRegion && <RegionView regionId={selectedRegion} onBack={goToRegions} onSelectCountry={goToCountry} />}
@@ -640,12 +640,11 @@ function App() {
         )}
 
         {/* Info pages */}
-        {["blog","about","advertising","subscribe","privacy"].includes(view) && (
+        {["blog","about","advertising","privacy"].includes(view) && (
           <div style={{ padding:"32px 24px 60px", maxWidth:960, margin:"0 auto" }}>
             {view === "blog" && <BlogPage navigate={navigate} initialSlug={parts[1] || null} />}
             {view === "about" && <AboutPage />}
             {view === "advertising" && <AdvertisingPage />}
-            {view === "subscribe" && <SubscribePage />}
             {view === "privacy" && <PrivacyPage />}
           </div>
         )}
@@ -662,7 +661,7 @@ function App() {
                 </div>
               </div>
               <div style={{ display:"flex", gap:20, flexWrap:"wrap" }}>
-                {[["blog","Blog"],["about","About"],["advertising","Advertise"],["subscribe","Newsletter"],["privacy","Privacy"]].map(([v,label]) => (
+                {[["blog","Blog"],["about","About"],["advertising","Advertise"],["privacy","Privacy"]].map(([v,label]) => (
                   <span key={v} onClick={() => navigate(`/${v}`)}
                     style={{ fontSize:12, color:"#9a9088", cursor:"pointer", fontWeight:500, fontFamily:"Plus Jakarta Sans" }}>
                     {label}
@@ -874,36 +873,6 @@ function AdvertisingPage() {
         ))}
       </div>
       <AdUnit style={{ marginTop:24 }} />
-    </div>
-  );
-}
-
-function SubscribePage() {
-  const [submitted, setSubmitted] = useState(false);
-  return (
-    <div style={{ maxWidth:560, margin:"0 auto", textAlign:"center" }}>
-      <div style={{ fontSize:40, marginBottom:16 }}>✉️</div>
-      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,40px)", fontWeight:700, color:"#1a1714", marginBottom:12 }}>The Recipe Atlas Newsletter</h1>
-      <p style={{ fontSize:15, color:"#9a9088", lineHeight:1.75, marginBottom:32 }}>New recipes, cooking techniques and food stories from around the world — delivered every two weeks. No spam, ever.</p>
-      <AdUnit style={{ marginBottom:32 }} />
-      {submitted ? (
-        <div style={{ background:"#edf7f1", border:"1.5px solid #2a7a4a", borderRadius:12, padding:32 }}>
-          <div style={{ fontSize:32, marginBottom:12 }}>🎉</div>
-          <h2 style={{ fontFamily:"Fraunces", fontSize:22, color:"#2a7a4a", marginBottom:8 }}>You're on the list!</h2>
-          <p style={{ fontSize:14, color:"#6a6058" }}>Welcome to Recipe Atlas. Your first newsletter will arrive within the next two weeks.</p>
-        </div>
-      ) : (
-        <div style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, padding:32 }}>
-          <input type="text" placeholder="Your name" style={{ width:"100%", padding:"10px 14px", border:"1.5px solid #ece6db", borderRadius:8, fontSize:14, fontFamily:"Plus Jakarta Sans", outline:"none", marginBottom:12, boxSizing:"border-box" }} />
-          <input type="email" placeholder="Your email address" style={{ width:"100%", padding:"10px 14px", border:"1.5px solid #ece6db", borderRadius:8, fontSize:14, fontFamily:"Plus Jakarta Sans", outline:"none", marginBottom:20, boxSizing:"border-box" }} />
-          <button onClick={() => setSubmitted(true)}
-            style={{ width:"100%", padding:"12px", background:"#c2622a", color:"#fff", border:"none", borderRadius:8, fontSize:14, fontWeight:600, fontFamily:"Plus Jakarta Sans", cursor:"pointer" }}>
-            Subscribe — It's Free
-          </button>
-          <p style={{ fontSize:11, color:"#c8bfb0", marginTop:12 }}>Unsubscribe any time.</p>
-        </div>
-      )}
-      <AdUnit style={{ marginTop:32 }} />
     </div>
   );
 }
