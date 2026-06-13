@@ -453,7 +453,7 @@ function RecipeView({ country, dish, onBack }) {
 
   return (
     <div style={{ maxWidth:700, margin:"0 auto" }}>
-      <button className="btn-ghost" onClick={onBack} style={{ marginBottom:24 }}>← Back to {country}</button>
+      <button className="btn-ghost" onClick={onBack} style={{ marginBottom:24 }}>← Back to {country || recipeCountry}</button>
       <AdUnit />
       <div style={{ marginTop:24 }}>
         {loading ? (
@@ -464,9 +464,9 @@ function RecipeView({ country, dish, onBack }) {
         ) : recipe && !recipe.error ? (
           <div>
             <div style={{ marginBottom:28 }}>
-              <div style={{ display:"inline-block", background:"#fdf3ed", borderRadius:100, padding:"4px 12px", fontSize:11, color:"#c2622a", fontWeight:600, letterSpacing:".06em", textTransform:"uppercase", marginBottom:12 }}>
-                {flag} {country}
-              </div>
+              {country && <div style={{ display:"inline-block", background:"#fdf3ed", borderRadius:100, padding:"4px 12px", fontSize:11, color:"#c2622a", fontWeight:600, letterSpacing:".06em", textTransform:"uppercase", marginBottom:12 }}>
+                {country}
+              </div>}
               <h1 style={{ fontFamily:"Fraunces", fontSize:32, fontWeight:700, color:"#1a1714", marginBottom:10, lineHeight:1.2 }}>{recipe.name}</h1>
               {recipe.story && <p style={{ fontSize:13, color:"#b8b0a8", fontStyle:"italic", marginBottom:10, lineHeight:1.7 }}>{recipe.story}</p>}
               <p style={{ fontSize:15, color:"#6a6058", lineHeight:1.85, marginBottom:16 }}>{recipe.description}</p>
@@ -526,18 +526,70 @@ function RecipeView({ country, dish, onBack }) {
 }
 
 // ── MAIN APP ───────────────────────────────────────────────────────────
-export default function App() {
-  const [view, setView]               = useState("regions");
-  const [selectedRegion, setRegion]   = useState(null);
-  const [selectedCountry, setCountry] = useState(null);
-  const [selectedDish, setDish]       = useState(null);
+function slugify(s) {
+  if (!s || typeof s !== 'string') return '';
+  const map = {'à':'a','á':'a','â':'a','ã':'a','ä':'a','å':'a','è':'e','é':'e','ê':'e','ë':'e','ì':'i','í':'i','î':'i','ï':'i','ò':'o','ó':'o','ô':'o','õ':'o','ö':'o','ù':'u','ú':'u','û':'u','ü':'u','ý':'y','ÿ':'y','ñ':'n','ç':'c','ß':'ss','ž':'z','ż':'z','ź':'z','ł':'l','š':'s','ă':'a','ț':'t','ő':'o','ű':'u','ā':'a','ē':'e','ī':'i','ō':'o','ū':'u'};
+  return s.toLowerCase().split('').map(c => map[c] || c).join('').replace(/[^a-z0-9\s-]/g,'').replace(/[\s_]+/g,'-').trim();
+}
 
-  const goToRegion      = (rid)     => { setRegion(rid); setView("region"); window.scrollTo(0,0); };
-  const goToCountry     = (c)       => { setCountry(c); setView("country"); window.scrollTo(0,0); };
-  const goToDish        = (d)       => { setDish(d); setView("recipe"); window.scrollTo(0,0); };
-  const goToRegions     = ()        => { setView("regions"); setRegion(null); setCountry(null); setDish(null); };
-  const goToRegionBack  = ()        => { setView("region"); setDish(null); setCountry(null); window.scrollTo(0,0); };
-  const goToCountryBack = ()        => { setView("country"); setDish(null); window.scrollTo(0,0); };
+function unslugify(slug, lookup) {
+  if (!slug || !lookup) return null;
+  return Object.keys(lookup).find(k => slugify(k) === slug) || null;
+}
+
+// ── ROUTER ────────────────────────────────────────────────────────────
+function App() {
+  const [path, setPath] = useState('/');
+
+  useEffect(() => {
+    const knownPath = () => {
+      const p = window.location.pathname;
+      const known = ['/', '/blog', '/about', '/advertising', '/subscribe', '/privacy'];
+      const knownPrefixes = ['/region/', '/country/', '/recipe/'];
+      if (known.includes(p) || knownPrefixes.some(prefix => p.startsWith(prefix))) {
+        setPath(p);
+      }
+    };
+    knownPath();
+    const handler = knownPath;
+    window.addEventListener('popstate', handler);
+    return () => window.removeEventListener('popstate', handler);
+  }, []);
+
+  const navigate = (to) => {
+    window.history.pushState({}, '', to);
+    window.scrollTo(0, 0);
+    setPath(to);
+  };
+
+  // Derive view directly from path
+  const safePath = typeof path === 'string' ? path : '/';
+  const parts = safePath.split('/').filter(Boolean);
+  const segment = parts[0] || '';
+
+  let view = 'regions';
+  if (segment === 'region') view = 'region';
+  else if (segment === 'country') view = 'country';
+  else if (segment === 'recipe') view = 'recipe';
+  else if (['blog','about','advertising','subscribe','privacy'].includes(segment)) view = segment;
+
+  const selectedRegion  = segment === 'region'  ? parts[1] : null;
+  const selectedCountry = segment === 'country' ? unslugify(parts[1], COUNTRY_DISHES) : null;
+  const selectedDishKey = segment === 'recipe'  ? unslugify(parts[1], RECIPE_DB) : null;
+  const selectedDish    = selectedDishKey;
+  const recipeCountry   = selectedDishKey ? RECIPE_DB[selectedDishKey]?.country : null;
+
+  // Look up region for country page breadcrumb
+  const countryRegion = selectedCountry
+    ? REGIONS.find(r => r.countries?.includes(selectedCountry))
+    : null;
+
+  const goToRegion      = (rid) => navigate(`/region/${rid}`);
+  const goToCountry     = (c)   => navigate(`/country/${slugify(c)}`);
+  const goToDish        = (d)   => navigate(`/recipe/${slugify(d)}`);
+  const goToRegions     = ()    => navigate('/');
+  const goToRegionBack  = ()    => navigate(selectedRegion ? `/region/${selectedRegion}` : '/');
+  const goToCountryBack = ()    => navigate(selectedRegion ? `/region/${selectedRegion}` : '/');
 
   const region = REGIONS.find(r => r.id === selectedRegion);
 
@@ -556,10 +608,20 @@ export default function App() {
           </div>
           {view !== "regions" && (
             <div style={{ display:"flex", alignItems:"center", gap:6, fontSize:12, color:"#b8b0a8", flexWrap:"wrap" }}>
-              <span style={{ cursor:"pointer", color:"#9a9088", fontWeight:500 }} onClick={goToRegions}>Regions</span>
-              {selectedRegion && <><span>›</span><span style={{ cursor:"pointer", color: view!=="region"?"#9a9088":"#1a1714", fontWeight:500 }} onClick={goToRegionBack}>{region?.name}</span></>}
-              {selectedCountry && <><span>›</span><span style={{ cursor:"pointer", color: view!=="country"?"#9a9088":"#1a1714", fontWeight:500 }} onClick={goToCountryBack}>{selectedCountry}</span></>}
-              {selectedDish && <><span>›</span><span style={{ color:"#1a1714", fontWeight:600 }}>{selectedDish}</span></>}
+              {view === "recipe" && recipeCountry ? (
+                <>
+                  <span style={{ cursor:"pointer", color:"#9a9088", fontWeight:500 }} onClick={() => navigate(`/country/${slugify(recipeCountry)}`)}>{recipeCountry}</span>
+                  {selectedDish && <><span>›</span><span style={{ color:"#1a1714", fontWeight:600 }}>{selectedDish}</span></>}
+                </>
+              ) : (
+                <>
+                  <span style={{ cursor:"pointer", color:"#9a9088", fontWeight:500 }} onClick={goToRegions}>Regions</span>
+                  {selectedRegion && <><span>›</span><span style={{ cursor:"pointer", color: view!=="region"?"#9a9088":"#1a1714", fontWeight:500 }} onClick={goToRegionBack}>{region?.name}</span></>}
+                  {!selectedRegion && countryRegion && <><span>›</span><span style={{ cursor:"pointer", color:"#9a9088", fontWeight:500 }} onClick={() => navigate(`/region/${countryRegion.id}`)}>{countryRegion.name}</span></>}
+                  {selectedCountry && <><span>›</span><span style={{ cursor:"pointer", color: view!=="country"?"#9a9088":"#1a1714", fontWeight:500 }} onClick={goToCountryBack}>{selectedCountry}</span></>}
+                  {selectedDish && <><span>›</span><span style={{ color:"#1a1714", fontWeight:600 }}>{selectedDish}</span></>}
+                </>
+              )}
             </div>
           )}
         </div>
@@ -568,9 +630,12 @@ export default function App() {
         {!["blog","about","advertising","subscribe","privacy"].includes(view) && (
           <div style={{ padding:"32px 24px 60px", maxWidth:960, margin:"0 auto" }}>
             {view === "regions"  && <RegionMap onSelectRegion={goToRegion} />}
-            {view === "region"   && <RegionView regionId={selectedRegion} onBack={goToRegions} onSelectCountry={goToCountry} />}
-            {view === "country"  && <CountryView country={selectedCountry} onBack={goToRegionBack} onSelectDish={goToDish} />}
-            {view === "recipe"   && <RecipeView country={selectedCountry} dish={selectedDish} onBack={goToCountryBack} />}
+            {view === "region"   && selectedRegion && <RegionView regionId={selectedRegion} onBack={goToRegions} onSelectCountry={goToCountry} />}
+            {view === "country"  && selectedCountry && <CountryView country={selectedCountry} onBack={() => navigate(-1)} onSelectDish={goToDish} />}
+            {view === "recipe"   && selectedDish && <RecipeView country={recipeCountry || selectedCountry} dish={selectedDish} onBack={() => navigate(recipeCountry ? `/country/${slugify(recipeCountry)}` : '/')} />}
+            {(view === "region" && !selectedRegion) && <RegionMap onSelectRegion={goToRegion} />}
+            {(view === "country" && !selectedCountry) && <RegionMap onSelectRegion={goToRegion} />}
+            {(view === "recipe" && !selectedDish) && <RegionMap onSelectRegion={goToRegion} />}
           </div>
         )}
 
@@ -598,7 +663,7 @@ export default function App() {
               </div>
               <div style={{ display:"flex", gap:20, flexWrap:"wrap" }}>
                 {[["blog","Blog"],["about","About"],["advertising","Advertise"],["subscribe","Newsletter"],["privacy","Privacy"]].map(([v,label]) => (
-                  <span key={v} onClick={() => { setView(v); window.scrollTo(0,0); }}
+                  <span key={v} onClick={() => navigate(`/${v}`)}
                     style={{ fontSize:12, color:"#9a9088", cursor:"pointer", fontWeight:500, fontFamily:"Plus Jakarta Sans" }}>
                     {label}
                   </span>
@@ -851,3 +916,5 @@ function PrivacyPage() {
     </div>
   );
 }
+
+export default App;
