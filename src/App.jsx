@@ -17,7 +17,7 @@ const COUNTRY_DISHES = {
   "Lebanon":        { flag:"🇱🇧", dishes:["Hummus","Kibbeh","Tabbouleh","Fattoush","Shawarma","Knafeh"] },
   "Peru":           { flag:"🇵🇪", dishes:["Ceviche","Lomo Saltado","Aji de Gallina","Causa Rellena","Anticuchos","Arroz con Leche"] },
   "Ethiopia":       { flag:"🇪🇹", dishes:["Doro Wat","Injera","Tibs","Misir Wat","Kitfo","Shiro"] },
-  "Turkey":         { flag:"🇹🇷", dishes:["Iskender Kebab","Manti","Lahmacun","Mercimek Çorbası","Imam Bayildi","Baklava"] },
+  "Turkey":         { flag:"🇹🇷", dishes:["Iskender Kebab","Manti","Lahmacun","Mercimek Çorbası","Imam Bayildi"] },
   "South Korea":    { flag:"🇰🇷", dishes:["Bibimbap","Kimchi Jjigae","Bulgogi","Japchae","Tteokbokki","Samgyeopsal"] },
   "United Kingdom": { flag:"🇬🇧", dishes:["Beef Wellington","Fish and Chips","Shepherd's Pie","Chicken Tikka Masala","Full English Breakfast","Sticky Toffee Pudding"] },
   "United States":  { flag:"🇺🇸", dishes:["BBQ Brisket","Clam Chowder","Gumbo","Lobster Roll","Philly Cheesesteak","Key Lime Pie"] },
@@ -642,7 +642,7 @@ function App() {
         {/* Info pages */}
         {["blog","about","advertising","subscribe","privacy"].includes(view) && (
           <div style={{ padding:"32px 24px 60px", maxWidth:960, margin:"0 auto" }}>
-            {view === "blog" && <BlogPage />}
+            {view === "blog" && <BlogPage navigate={navigate} initialSlug={parts[1] || null} />}
             {view === "about" && <AboutPage />}
             {view === "advertising" && <AdvertisingPage />}
             {view === "subscribe" && <SubscribePage />}
@@ -684,6 +684,7 @@ function App() {
 // ── INFO PAGES ────────────────────────────────────────────────────────
 const BLOG_POSTS = [
   {
+    slug:"maillard-reaction",
     title:"The Maillard Reaction: Why Searing Meat Matters",
     date:"June 2025", tag:"Science",
     excerpt:"The science behind the browning reaction that creates hundreds of new flavour compounds — and why it's the difference between great and exceptional cooking.",
@@ -697,6 +698,7 @@ const BLOG_POSTS = [
     ]
   },
   {
+    slug:"chilli-peppers-guide",
     title:"A Guide to the World's Great Chilli Peppers",
     date:"May 2025", tag:"Ingredients",
     excerpt:"From Mexico's smoky ancho to Thailand's bird's eye and Peru's fruity ají amarillo — a tour of the peppers that define regional cuisines.",
@@ -710,6 +712,7 @@ const BLOG_POSTS = [
     ]
   },
   {
+    slug:"fermentation-guide",
     title:"Why Fermentation is the Secret Ingredient in Every Culture",
     date:"May 2025", tag:"Technique",
     excerpt:"Kimchi, miso, injera — across every continent, fermentation transforms simple ingredients into some of the world's most complex flavours.",
@@ -723,6 +726,7 @@ const BLOG_POSTS = [
     ]
   },
   {
+    slug:"spice-routes-history",
     title:"The Spice Routes That Changed World Food Forever",
     date:"April 2025", tag:"History",
     excerpt:"How the medieval spice trade didn't just make merchants rich — it fundamentally altered what every culture in the world ate and still eats today.",
@@ -736,6 +740,7 @@ const BLOG_POSTS = [
     ]
   },
   {
+    slug:"umami-fifth-taste",
     title:"Umami: The Fifth Taste and How to Cook With It",
     date:"April 2025", tag:"Science",
     excerpt:"Discovered in Japan in 1908, umami is the savoury depth in parmesan, anchovies, soy sauce and tomatoes — the secret behind the world's most satisfying dishes.",
@@ -749,6 +754,7 @@ const BLOG_POSTS = [
     ]
   },
   {
+    slug:"street-food-guide",
     title:"Street Food: Why the Best Meals Are Often the Cheapest",
     date:"March 2025", tag:"Culture",
     excerpt:"From Bangkok's night markets to Lagos's suya stalls and Mexico City's taquerias — why street food produces the world's most honest, flavourful cooking.",
@@ -763,16 +769,26 @@ const BLOG_POSTS = [
   },
 ];
 
-function BlogPage() {
-  const [activePost, setActivePost] = useState(null);
+function BlogPage({ initialSlug, navigate }) {
+  const slugToIndex = slug => BLOG_POSTS.findIndex(p => p.slug === slug);
+  const [activePost, setActivePost] = useState(() => initialSlug ? slugToIndex(initialSlug) : null);
 
   useEffect(() => { window.scrollTo(0, 0); }, [activePost]);
 
-  if (activePost !== null) {
+  const openPost = (i) => {
+    setActivePost(i);
+    if (navigate) navigate(`/blog/${BLOG_POSTS[i].slug}`);
+  };
+  const closePost = () => {
+    setActivePost(null);
+    if (navigate) navigate('/blog');
+  };
+
+  if (activePost !== null && activePost >= 0) {
     const post = BLOG_POSTS[activePost];
     return (
       <div style={{ maxWidth:680, margin:"0 auto" }}>
-        <button onClick={() => setActivePost(null)}
+        <button onClick={closePost}
           style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", marginBottom:20, padding:0, display:"flex", alignItems:"center", gap:6 }}>
           ← Back to Blog
         </button>
@@ -798,7 +814,7 @@ function BlogPage() {
       <AdUnit />
       <div style={{ display:"grid", gap:20, marginTop:24 }}>
         {BLOG_POSTS.map((p,i) => (
-          <div key={i} onClick={() => setActivePost(i)}
+          <div key={i} onClick={() => openPost(i)}
             style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, padding:24, cursor:"pointer", transition:"border-color .2s, box-shadow .2s" }}
             onMouseEnter={e => { e.currentTarget.style.borderColor="#c2622a"; e.currentTarget.style.boxShadow="0 2px 12px rgba(194,98,42,.08)"; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor="#ece6db"; e.currentTarget.style.boxShadow="none"; }}>
