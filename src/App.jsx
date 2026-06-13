@@ -542,16 +542,7 @@ function App() {
   const [path, setPath] = useState('/');
 
   useEffect(() => {
-    const knownPath = () => {
-      const p = window.location.pathname;
-      const known = ['/', '/blog', '/about', '/advertising', '/subscribe', '/privacy'];
-      const knownPrefixes = ['/region/', '/country/', '/recipe/'];
-      if (known.includes(p) || knownPrefixes.some(prefix => p.startsWith(prefix))) {
-        setPath(p);
-      }
-    };
-    knownPath();
-    const handler = knownPath;
+    const handler = () => setPath(window.location.pathname);
     window.addEventListener('popstate', handler);
     return () => window.removeEventListener('popstate', handler);
   }, []);
@@ -766,6 +757,8 @@ const BLOG_POSTS = [
 function BlogPage() {
   const [activePost, setActivePost] = useState(null);
 
+  useEffect(() => { window.scrollTo(0, 0); }, [activePost]);
+
   if (activePost !== null) {
     const post = BLOG_POSTS[activePost];
     return (
@@ -776,8 +769,7 @@ function BlogPage() {
         </button>
         <div style={{ display:"flex", gap:8, marginBottom:12, flexWrap:"wrap" }}>
           <span style={{ fontSize:11, background:"#fdf3ed", color:"#c2622a", padding:"3px 10px", borderRadius:20, fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>{post.tag}</span>
-          <span style={{ fontSize:11, color:"#c8bfb0", fontFamily:"Plus Jakarta Sans", padding:"3px 0" }}>{post.date}</span>
-        </div>
+              </div>
         <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(22px,3vw,36px)", fontWeight:700, color:"#1a1714", marginBottom:20, lineHeight:1.25 }}>{post.title}</h1>
         <AdUnit />
         <div style={{ marginTop:24 }}>
@@ -803,7 +795,6 @@ function BlogPage() {
             onMouseLeave={e => { e.currentTarget.style.borderColor="#ece6db"; e.currentTarget.style.boxShadow="none"; }}>
             <div style={{ display:"flex", gap:8, marginBottom:10, flexWrap:"wrap" }}>
               <span style={{ fontSize:11, background:"#fdf3ed", color:"#c2622a", padding:"3px 10px", borderRadius:20, fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>{p.tag}</span>
-              <span style={{ fontSize:11, color:"#c8bfb0", fontFamily:"Plus Jakarta Sans", padding:"3px 0" }}>{p.date}</span>
             </div>
             <h2 style={{ fontFamily:"Fraunces", fontSize:18, fontWeight:700, color:"#1a1714", marginBottom:8, lineHeight:1.3 }}>{p.title}</h2>
             <p style={{ fontSize:14, color:"#6a6058", lineHeight:1.75, margin:"0 0 12px" }}>{p.excerpt}</p>
