@@ -553,34 +553,43 @@ function App() {
     setPath(to);
   };
 
-  // Derive view directly from path
+  // Derive view from hierarchical URL: /europe, /europe/italy, /europe/italy/tiramisu
   const safePath = typeof path === 'string' ? path : '/';
   const parts = safePath.split('/').filter(Boolean);
-  const segment = parts[0] || '';
+  const infoPages = ['blog','about','advertising','subscribe','privacy'];
 
   let view = 'regions';
-  if (segment === 'region') view = 'region';
-  else if (segment === 'country') view = 'country';
-  else if (segment === 'recipe') view = 'recipe';
-  else if (['blog','about','advertising','subscribe','privacy'].includes(segment)) view = segment;
+  let selectedRegion = null;
+  let selectedCountry = null;
+  let selectedDish = null;
 
-  const selectedRegion  = segment === 'region'  ? parts[1] : null;
-  const selectedCountry = segment === 'country' ? unslugify(parts[1], COUNTRY_DISHES) : null;
-  const selectedDishKey = segment === 'recipe'  ? unslugify(parts[1], RECIPE_DB) : null;
-  const selectedDish    = selectedDishKey;
-  const recipeCountry   = selectedDishKey ? RECIPE_DB[selectedDishKey]?.country : null;
+  if (parts.length === 0) {
+    view = 'regions';
+  } else if (infoPages.includes(parts[0])) {
+    view = parts[0];
+  } else if (parts.length === 1) {
+    const region = REGIONS.find(r => r.id === parts[0]);
+    if (region) { view = 'region'; selectedRegion = parts[0]; }
+  } else if (parts.length === 2) {
+    const region = REGIONS.find(r => r.id === parts[0]);
+    const country = unslugify(parts[1], COUNTRY_DISHES);
+    if (region && country) { view = 'country'; selectedRegion = parts[0]; selectedCountry = country; }
+  } else if (parts.length === 3) {
+    const region = REGIONS.find(r => r.id === parts[0]);
+    const country = unslugify(parts[1], COUNTRY_DISHES);
+    const dish = unslugify(parts[2], RECIPE_DB);
+    if (region && country && dish) { view = 'recipe'; selectedRegion = parts[0]; selectedCountry = country; selectedDish = dish; }
+  }
 
-  // Look up region for country page breadcrumb
-  const countryRegion = selectedCountry
-    ? REGIONS.find(r => r.countries?.includes(selectedCountry))
-    : null;
+  const recipeCountry = selectedDish ? RECIPE_DB[selectedDish]?.country : null;
+  const countryRegion = selectedCountry ? REGIONS.find(r => r.countries?.includes(selectedCountry)) : null;
 
-  const goToRegion      = (rid) => navigate(`/region/${rid}`);
-  const goToCountry     = (c)   => navigate(`/country/${slugify(c)}`);
-  const goToDish        = (d)   => navigate(`/recipe/${slugify(d)}`);
+  const goToRegion      = (rid) => navigate(`/${rid}`);
+  const goToCountry     = (c)   => { const r = REGIONS.find(r => r.countries?.includes(c)); navigate(`/${r ? r.id : ""}/${slugify(c)}`); };
+  const goToDish        = (d)   => { const country = RECIPE_DB[d]?.country; const r = REGIONS.find(r => r.countries?.includes(country)); navigate(`/${r ? r.id : ""}/${slugify(country || "")}/${slugify(d)}`); };
   const goToRegions     = ()    => navigate('/');
-  const goToRegionBack  = ()    => navigate(selectedRegion ? `/region/${selectedRegion}` : '/');
-  const goToCountryBack = ()    => navigate(selectedRegion ? `/region/${selectedRegion}` : '/');
+  const goToRegionBack  = ()    => navigate(selectedRegion ? `/${selectedRegion}` : '/');
+  const goToCountryBack = ()    => navigate(selectedRegion && selectedCountry ? `/${selectedRegion}/${slugify(selectedCountry)}` : selectedRegion ? `/${selectedRegion}` : '/');
 
   const region = REGIONS.find(r => r.id === selectedRegion);
 
@@ -601,14 +610,14 @@ function App() {
             <div style={{ display:"flex", alignItems:"center", gap:6, fontSize:12, color:"#b8b0a8", flexWrap:"wrap" }}>
               {view === "recipe" && recipeCountry ? (
                 <>
-                  <span style={{ cursor:"pointer", color:"#9a9088", fontWeight:500 }} onClick={() => navigate(`/country/${slugify(recipeCountry)}`)}>{recipeCountry}</span>
+                  <span style={{ cursor:"pointer", color:"#9a9088", fontWeight:500 }} onClick={() => { const r = REGIONS.find(r => r.countries?.includes(recipeCountry)); navigate(`/${r ? r.id : ""}/${slugify(recipeCountry)}`); }}>{recipeCountry}</span>
                   {selectedDish && <><span>›</span><span style={{ color:"#1a1714", fontWeight:600 }}>{selectedDish}</span></>}
                 </>
               ) : (
                 <>
                   <span style={{ cursor:"pointer", color:"#9a9088", fontWeight:500 }} onClick={goToRegions}>Regions</span>
                   {selectedRegion && <><span>›</span><span style={{ cursor:"pointer", color: view!=="region"?"#9a9088":"#1a1714", fontWeight:500 }} onClick={goToRegionBack}>{region?.name}</span></>}
-                  {!selectedRegion && countryRegion && <><span>›</span><span style={{ cursor:"pointer", color:"#9a9088", fontWeight:500 }} onClick={() => navigate(`/region/${countryRegion.id}`)}>{countryRegion.name}</span></>}
+                  {!selectedRegion && countryRegion && <><span>›</span><span style={{ cursor:"pointer", color:"#9a9088", fontWeight:500 }} onClick={() => navigate(`/${countryRegion.id}`)}>{countryRegion.name}</span></>}
                   {selectedCountry && <><span>›</span><span style={{ cursor:"pointer", color: view!=="country"?"#9a9088":"#1a1714", fontWeight:500 }} onClick={goToCountryBack}>{selectedCountry}</span></>}
                   {selectedDish && <><span>›</span><span style={{ color:"#1a1714", fontWeight:600 }}>{selectedDish}</span></>}
                 </>
@@ -623,7 +632,7 @@ function App() {
             {view === "regions"  && <RegionMap onSelectRegion={goToRegion} />}
             {view === "region"   && selectedRegion && <RegionView regionId={selectedRegion} onBack={goToRegions} onSelectCountry={goToCountry} />}
             {view === "country"  && selectedCountry && <CountryView country={selectedCountry} onBack={() => navigate(-1)} onSelectDish={goToDish} />}
-            {view === "recipe"   && selectedDish && <RecipeView country={recipeCountry || selectedCountry} dish={selectedDish} onBack={() => navigate(recipeCountry ? `/country/${slugify(recipeCountry)}` : '/')} />}
+            {view === "recipe"   && selectedDish && <RecipeView country={recipeCountry || selectedCountry} dish={selectedDish} onBack={() => { const r = REGIONS.find(r => r.countries?.includes(recipeCountry)); navigate(recipeCountry && r ? `/${r.id}/${slugify(recipeCountry)}` : '/'); }} />}
             {(view === "region" && !selectedRegion) && <RegionMap onSelectRegion={goToRegion} />}
             {(view === "country" && !selectedCountry) && <RegionMap onSelectRegion={goToRegion} />}
             {(view === "recipe" && !selectedDish) && <RegionMap onSelectRegion={goToRegion} />}
