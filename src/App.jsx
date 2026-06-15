@@ -519,7 +519,7 @@ function RegionMap({ onSelectRegion }) {
       </div>
       <AdUnit />
       <RecipeInspiration recipes={getRandomRecipes(Object.keys(RECIPE_DB), 3)} pool={Object.keys(RECIPE_DB)} title="Recipe Inspiration" />
-      <AdUnit style={{ marginTop:8 }} />
+      <AdUnit style={{ marginTop:24 }} />
     </div>
   );
 }
@@ -555,7 +555,7 @@ function RegionView({ regionId, onBack, onSelectCountry }) {
       </div>
       <AdUnit />
       <RecipeInspiration recipes={getRandomRecipes(regionRecipeKeys, 3)} pool={regionRecipeKeys} title="Recipe Inspiration" />
-      <AdUnit style={{ marginTop:8 }} />
+      <AdUnit style={{ marginTop:24 }} />
     </div>
   );
 }
@@ -591,7 +591,7 @@ function CountryView({ country, onBack, onSelectDish }) {
       </div>
       <AdUnit />
       <RecipeInspiration recipes={getRandomRecipes(countryRecipeKeys, 3)} pool={countryRecipeKeys} title="Recipe Inspiration" />
-      <AdUnit style={{ marginTop:8 }} />
+      <AdUnit style={{ marginTop:24 }} />
     </div>
   );
 }
