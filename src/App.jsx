@@ -741,6 +741,71 @@ function App() {
   const recipeCountry = selectedDish ? RECIPE_DB[selectedDish]?.country : null;
   const countryRegion = selectedCountry ? REGIONS.find(r => r.countries?.includes(selectedCountry)) : null;
 
+  // ── DYNAMIC TITLE & META DESCRIPTION ──────────────────────────────────
+  useEffect(() => {
+    let title = 'Recipe Atlas — World Cuisine Explorer';
+    let description = 'Explore authentic recipes from 44 countries and 7 regions. From Italian carbonara to Georgian khachapuri — discover the world through food.';
+
+    if (view === 'recipe' && selectedDish) {
+      const recipe = RECIPE_DB[selectedDish];
+      const country = recipeCountry || recipe?.country || '';
+      title = `${selectedDish} — Authentic ${country} Recipe | Recipe Atlas`;
+      description = recipe?.description
+        ? `${recipe.description.replace(/\.+$/, '')}.`
+        : `Learn how to make ${selectedDish}, an authentic ${country} dish. Full recipe with ingredients, steps and cultural background.`;
+    } else if (view === 'country' && selectedCountry) {
+      const flag = COUNTRY_DISHES[selectedCountry]?.flag || '';
+      const dishes = COUNTRY_DISHES[selectedCountry]?.dishes?.slice(0, 3).join(', ') || '';
+      title = `${selectedCountry} Recipes — Authentic ${selectedCountry} Dishes & Cuisine | Recipe Atlas`;
+      description = `Explore authentic ${selectedCountry} recipes including ${dishes} and more. Discover the flavours, techniques and stories behind ${selectedCountry}'s greatest dishes.`;
+    } else if (view === 'region' && selectedRegion) {
+      const region = REGIONS.find(r => r.id === selectedRegion);
+      const regionName = region?.name || selectedRegion;
+      const countries = region?.countries?.slice(0, 4).join(', ') || '';
+      title = `${regionName} Recipes — Authentic Dishes from ${countries} & More | Recipe Atlas`;
+      description = `${region?.description || `Explore the best recipes from ${regionName}`}. Browse authentic dishes from every country in the region.`;
+    } else if (view === 'blog') {
+      title = 'The Recipe Atlas Blog — Food Stories, Techniques & History';
+      description = 'In-depth articles on cooking science, world food history, ingredients and techniques. Stories from the world\'s great food cultures.';
+    } else if (view === 'about') {
+      title = 'About Recipe Atlas — World Cuisine Explorer';
+      description = 'Recipe Atlas celebrates the extraordinary diversity of world cuisine across 44 countries and 7 regions. Learn about our mission and approach.';
+    } else if (view === 'advertising') {
+      title = 'Advertise on Recipe Atlas — Reach Food Lovers Worldwide';
+      description = 'Connect with engaged food lovers, home cooks and culinary explorers. Learn about advertising opportunities on Recipe Atlas.';
+    } else if (view === 'privacy') {
+      title = 'Privacy Policy | Recipe Atlas';
+      description = 'Read the Recipe Atlas privacy policy covering data collection, cookies, analytics and advertising.';
+    }
+
+    // Ensure title ends cleanly and description ends with full stop
+    if (description && !description.endsWith('.')) description += '.';
+
+    document.title = title;
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (!metaDesc) {
+      metaDesc = document.createElement('meta');
+      metaDesc.name = 'description';
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.content = description;
+
+    // Open Graph tags for social sharing
+    const setOG = (property, content) => {
+      let tag = document.querySelector(`meta[property="${property}"]`);
+      if (!tag) { tag = document.createElement('meta'); tag.setAttribute('property', property); document.head.appendChild(tag); }
+      tag.content = content;
+    };
+    setOG('og:title', title);
+    setOG('og:description', description);
+    setOG('og:type', 'website');
+    setOG('og:url', window.location.href);
+    if (view === 'recipe' && selectedDish && RECIPE_DB[selectedDish]?.image) {
+      setOG('og:image', RECIPE_DB[selectedDish].image);
+    }
+  }, [view, selectedDish, selectedCountry, selectedRegion]);
+  // ── END DYNAMIC META ───────────────────────────────────────────────────
+
   const goToRegion      = (rid) => navigate(`/${rid}`);
   const goToCountry     = (c)   => { const r = REGIONS.find(r => r.countries?.includes(c)); navigate(`/${r ? r.id : ""}/${slugify(c)}`); };
   const goToDish        = (d)   => { const country = RECIPE_DB[d]?.country; const r = REGIONS.find(r => r.countries?.includes(country)); navigate(`/${r ? r.id : ""}/${slugify(country || "")}/${slugify(d)}`); };
@@ -928,6 +993,15 @@ const BLOG_POSTS = [
 function BlogPage({ initialSlug, navigate }) {
   const slugToIndex = slug => BLOG_POSTS.findIndex(p => p.slug === slug);
   const [activePost, setActivePost] = useState(() => initialSlug ? slugToIndex(initialSlug) : null);
+
+  useEffect(() => {
+    if (activePost !== null && activePost >= 0) {
+      const post = BLOG_POSTS[activePost];
+      document.title = `${post.title} | Recipe Atlas`;
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) metaDesc.content = `${post.excerpt.replace(/\.+$/, '')}.`;
+    }
+  }, [activePost]);
 
   useEffect(() => { window.scrollTo(0, 0); }, [activePost]);
 
