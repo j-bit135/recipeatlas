@@ -478,6 +478,8 @@ function RegionMap({ onSelectRegion }) {
       if (!window.d3 || !window.topojson) return;
       const d3 = window.d3;
       const topojson = window.topojson;
+      const w = container.offsetWidth;
+      if (!w) return; // don't render if container has no width yet
       container.innerHTML = '';
 
       const COUNTRY_REGION = {
@@ -543,7 +545,6 @@ function RegionMap({ onSelectRegion }) {
       };
 
       const ANTARCTICA = 10;
-      const w = container.offsetWidth;
 
       // Use a sphere-fitted projection so map fills container edge to edge
       const projection = d3.geoNaturalEarth1().rotate([-10, 0]);
@@ -670,7 +671,22 @@ function RegionMap({ onSelectRegion }) {
       document.head.appendChild(s1);
     };
 
-    loadScripts(loadMap);
+    // Small delay on first render so mobile layout has settled
+    let resizeTimer;
+    const handleResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(loadMap, 100);
+    };
+
+    loadScripts(() => {
+      setTimeout(loadMap, 100);
+      window.addEventListener('resize', handleResize);
+    });
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(resizeTimer);
+    };
   }, []);
 
   return (
