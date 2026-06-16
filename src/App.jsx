@@ -479,8 +479,9 @@ function RegionMap({ onSelectRegion }) {
       const d3 = window.d3;
       const topojson = window.topojson;
       const w = container.offsetWidth;
-      if (!w) return; // don't render if container has no width yet
+      if (!w) return;
       container.innerHTML = '';
+      container.style.height = '0px';
 
       const COUNTRY_REGION = {
         8:'europe',20:'europe',40:'europe',56:'europe',70:'europe',100:'europe',
@@ -704,7 +705,7 @@ function RegionMap({ onSelectRegion }) {
       </div>
 
       {/* Interactive world map */}
-      <div id="ra-world-map" style={{ width:"100%", minHeight:300, borderRadius:12, overflow:"hidden", background:"transparent", marginBottom:24 }}></div>
+      <div id="ra-world-map" style={{ width:"100%", borderRadius:12, overflow:"hidden", background:"transparent", marginBottom:24 }}></div>
       <div id="ra-map-tip" style={{ position:"fixed", background:"rgba(26,23,20,.9)", color:"#fff", padding:"6px 14px", borderRadius:8, fontSize:13, fontWeight:600, pointerEvents:"none", display:"none", zIndex:999, whiteSpace:"nowrap" }}></div>
 
       {/* First ad */}
