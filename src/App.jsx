@@ -469,43 +469,243 @@ function useAppNavigate() {
 
 function RegionMap({ onSelectRegion }) {
   const [hovered, setHovered] = useState(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const loadMap = () => {
+      const container = document.getElementById('ra-world-map');
+      if (!container) return;
+      if (!window.d3 || !window.topojson) return;
+      const d3 = window.d3;
+      const topojson = window.topojson;
+      container.innerHTML = '';
+
+      const COUNTRY_REGION = {
+        8:'europe',20:'europe',40:'europe',56:'europe',70:'europe',100:'europe',
+        112:'europe',191:'europe',203:'europe',208:'europe',233:'europe',246:'europe',
+        250:'europe',276:'europe',292:'europe',300:'europe',336:'europe',348:'europe',
+        352:'europe',372:'europe',380:'europe',428:'europe',438:'europe',440:'europe',
+        442:'europe',470:'europe',492:'europe',498:'europe',499:'europe',528:'europe',
+        578:'europe',616:'europe',620:'europe',642:'europe',674:'europe',688:'europe',
+        703:'europe',705:'europe',724:'europe',752:'europe',756:'europe',804:'europe',
+        807:'europe',826:'europe',831:'europe',832:'europe',833:'europe',
+        268:'europe',643:'europe',51:'europe',383:'europe',
+        28:'north_america',44:'north_america',52:'north_america',84:'north_america',
+        124:'north_america',136:'north_america',188:'north_america',192:'north_america',
+        212:'north_america',214:'north_america',222:'north_america',304:'north_america',
+        308:'north_america',312:'north_america',316:'north_america',320:'north_america',
+        332:'north_america',340:'north_america',388:'north_america',474:'north_america',
+        484:'north_america',500:'north_america',531:'north_america',533:'north_america',
+        534:'north_america',535:'north_america',558:'north_america',570:'north_america',
+        591:'north_america',652:'north_america',659:'north_america',660:'north_america',
+        662:'north_america',663:'north_america',670:'north_america',780:'north_america',
+        796:'north_america',840:'north_america',850:'north_america',
+        32:'south_america',68:'south_america',76:'south_america',152:'south_america',
+        170:'south_america',218:'south_america',238:'south_america',239:'south_america',
+        254:'south_america',328:'south_america',600:'south_america',604:'south_america',
+        740:'south_america',858:'south_america',862:'south_america',
+        12:'africa',24:'africa',72:'africa',86:'africa',108:'africa',120:'africa',
+        132:'africa',140:'africa',148:'africa',174:'africa',175:'africa',178:'africa',
+        180:'africa',204:'africa',231:'africa',232:'africa',262:'africa',266:'africa',
+        270:'africa',288:'africa',324:'africa',384:'africa',404:'africa',426:'africa',
+        430:'africa',434:'africa',450:'africa',454:'africa',466:'africa',478:'africa',
+        480:'africa',504:'africa',508:'africa',516:'africa',562:'africa',566:'africa',
+        624:'africa',638:'africa',646:'africa',654:'africa',686:'africa',694:'africa',
+        706:'africa',710:'africa',716:'africa',720:'africa',728:'africa',729:'africa',
+        732:'africa',736:'africa',768:'africa',788:'africa',800:'africa',818:'africa',
+        834:'africa',854:'africa',894:'africa',
+        31:'europe',48:'middle_east',196:'middle_east',275:'middle_east',
+        364:'middle_east',368:'middle_east',376:'middle_east',400:'middle_east',
+        414:'middle_east',422:'middle_east',512:'middle_east',634:'middle_east',
+        682:'middle_east',760:'middle_east',784:'middle_east',792:'middle_east',
+        887:'middle_east',
+        4:'asia',50:'asia',64:'asia',96:'asia',104:'asia',116:'asia',
+        144:'asia',156:'asia',158:'asia',344:'asia',356:'asia',360:'asia',
+        392:'asia',398:'asia',408:'asia',410:'asia',417:'asia',418:'asia',
+        446:'asia',458:'asia',462:'asia',496:'asia',524:'asia',586:'asia',
+        608:'asia',626:'asia',702:'asia',704:'asia',762:'asia',764:'asia',
+        795:'asia',860:'asia',
+        36:'oceania',90:'oceania',184:'oceania',242:'oceania',258:'oceania',
+        296:'oceania',316:'oceania',520:'oceania',540:'oceania',548:'oceania',
+        554:'oceania',570:'oceania',574:'oceania',580:'oceania',581:'oceania',
+        583:'oceania',585:'oceania',598:'oceania',612:'oceania',772:'oceania',
+        776:'oceania',798:'oceania',876:'oceania',882:'oceania',
+      };
+
+      const REGIONS = {
+        europe:        { color:'#4a6fa5', label:'🏰 Europe' },
+        north_america: { color:'#c2622a', label:'🌎 North America' },
+        south_america: { color:'#2a7a4a', label:'🌿 South America' },
+        africa:        { color:'#b5820a', label:'🌍 Africa' },
+        middle_east:   { color:'#8b4513', label:'🕌 Middle East' },
+        asia:          { color:'#6a3d8a', label:'🏯 Asia' },
+        oceania:       { color:'#2a8a7a', label:'🦘 Oceania' },
+      };
+
+      const ANTARCTICA = 10;
+      const w = container.offsetWidth;
+
+      // Use a sphere-fitted projection so map fills container edge to edge
+      const projection = d3.geoNaturalEarth1().rotate([-10, 0]);
+      const path = d3.geoPath().projection(projection);
+
+      // Fit projection tightly to all land (excluding Antarctica)
+      const getRegionByCoords = (d, path, projection) => {
+        const centroid = path.centroid(d);
+        if (!projection.invert) return null;
+        const projected = projection.invert(centroid);
+        if (!projected) return null;
+        const [lon, lat] = projected;
+        if (lon > -82 && lon < -33 && lat > -60 && lat < 7) return 'south_america';
+        if (lon > -80 && lon < -60 && lat >= 7 && lat < 12) return 'south_america';
+        if (lon > -170 && lon < -60) return 'north_america';
+        if (lon > 25 && lon < 65 && lat > 10 && lat < 42) return 'middle_east';
+        if (lon > -25 && lon < 45 && lat > 35 && lat < 72) return 'europe';
+        if (lon > 100 && lat < -10) return 'oceania';
+        if (lon > 60 && lon < 180 && lat > -15 && lat < 55) return 'asia';
+        if (lon > -20 && lon < 55 && lat > -35 && lat < 38) return 'africa';
+        return null;
+      };
+
+      fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+        .then(r => r.json())
+        .then(world => {
+          const countries = topojson.feature(world, world.objects.countries);
+          const land = {
+            type: 'FeatureCollection',
+            features: countries.features.filter(d => +d.id !== ANTARCTICA)
+          };
+
+          // Fit projection symmetrically — use fitSize so D3 centres automatically
+          const h = Math.round(w * 0.52);
+          projection.fitSize([w, h], land);
+          container.style.height = h + 'px';
+
+          const svg = d3.select(container).append('svg')
+            .attr('width', w).attr('height', h)
+            .style('display', 'block');
+
+          svg.append('rect').attr('width', w).attr('height', h).attr('fill', 'none');
+
+          const tip = document.getElementById('ra-map-tip');
+
+          // Explode MultiPolygon features into individual polygons so each
+          // gets coloured by its own centroid (fixes France/French Guiana etc.)
+          const exploded = [];
+          land.features.forEach(f => {
+            if (f.geometry.type === 'MultiPolygon') {
+              f.geometry.coordinates.forEach(coords => {
+                exploded.push({
+                  ...f,
+                  geometry: { type: 'Polygon', coordinates: coords }
+                });
+              });
+            } else {
+              exploded.push(f);
+            }
+          });
+
+          svg.selectAll('.country')
+            .data(exploded)
+            .enter().append('path')
+            .attr('d', path)
+            .attr('fill', d => {
+              // Check coordinates first ONLY for South America to fix French Guiana
+              const centroid = path.centroid(d);
+              const projected = projection.invert ? projection.invert(centroid) : null;
+              if (projected) {
+                const [lon, lat] = projected;
+                if (lon > -82 && lon < -33 && lat > -60 && lat < 7) return REGIONS.south_america.color;
+                if (lon > -80 && lon < -60 && lat >= 7 && lat < 12) return REGIONS.south_america.color;
+              }
+              // Use ID lookup for everything else
+              const rid = COUNTRY_REGION[+d.id];
+              if (rid) return REGIONS[rid].color;
+              // Coordinate fallback for truly unmapped countries
+              return getRegionByCoords(d, path, projection)
+                ? REGIONS[getRegionByCoords(d, path, projection)].color
+                : '#c8bfb0';
+            })
+            .attr('stroke', '#fdf8f3')
+            .attr('stroke-width', 0.5)
+            .style('cursor', 'pointer')
+            .style('transition', 'opacity .15s')
+            .on('mouseover', function(event, d) {
+              const rid = getRegionByCoords(d, path, projection) || COUNTRY_REGION[+d.id];
+              if (!rid) return;
+              d3.select(this).attr('opacity', 0.75);
+              if (tip) { tip.textContent = REGIONS[rid].label; tip.style.display = 'block'; }
+            })
+            .on('mousemove', function(event) {
+              if (tip) { tip.style.left = (event.clientX + 14) + 'px'; tip.style.top = (event.clientY - 36) + 'px'; }
+            })
+            .on('mouseout', function(event, d) {
+              d3.select(this).attr('opacity', 1);
+              if (tip) tip.style.display = 'none';
+            })
+            .on('click', function(event, d) {
+              const rid = getRegionByCoords(d, path, projection) || COUNTRY_REGION[+d.id];
+              if (!rid) return;
+              if (tip) tip.style.display = 'none';
+              onSelectRegion(rid);
+            });
+
+          svg.append('path')
+            .datum(topojson.mesh(world, world.objects.countries, (a,b) => a !== b && +a.id !== ANTARCTICA && +b.id !== ANTARCTICA))
+            .attr('fill', 'none').attr('stroke', '#fdf8f3').attr('stroke-width', 0.4).attr('d', path);
+        })
+        .catch(() => {});
+    };
+
+    const loadScripts = (cb) => {
+      if (window.d3 && window.topojson) { cb(); return; }
+      const s1 = document.createElement('script');
+      s1.src = 'https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js';
+      s1.onload = () => {
+        const s2 = document.createElement('script');
+        s2.src = 'https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js';
+        s2.onload = cb;
+        document.head.appendChild(s2);
+      };
+      document.head.appendChild(s1);
+    };
+
+    loadScripts(loadMap);
+  }, []);
+
   return (
     <div>
       <div style={{ textAlign:"center", marginBottom:16, paddingTop:8 }}>
-        <div style={{ display:"inline-block", background:"#fdf3ed", borderRadius:100, padding:"6px 16px", fontSize:12, color:"#c2622a", fontWeight:600, letterSpacing:".06em", textTransform:"uppercase", marginBottom:14 }}>
+        <div style={{ display:"inline-block", background:"#fdf3ed", borderRadius:100, padding:"6px 16px", fontSize:11, fontWeight:700, color:"#c2622a", letterSpacing:".08em", textTransform:"uppercase", fontFamily:"Plus Jakarta Sans", marginBottom:12 }}>
           🌍 World Cuisine Explorer
         </div>
-        <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(26px,4vw,48px)", fontWeight:700, color:"#1a1714", marginBottom:12, lineHeight:1.15 }}>
+        <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(26px,4vw,48px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>
           What would you like to cook?
         </h1>
-        <p style={{ fontSize:15, color:"#9a9088", maxWidth:460, margin:"0 auto", lineHeight:1.75 }}>
-          Choose a region to explore its most beloved dishes and get the full recipe
+        <p style={{ fontSize:"clamp(13px,1.5vw,16px)", color:"#9a9088", maxWidth:480, margin:"0 auto 24px", lineHeight:1.7 }}>
+          Choose a region to explore its most beloved dishes and get the full recipe.
         </p>
       </div>
+
+      {/* Interactive world map */}
+      <div id="ra-world-map" style={{ width:"100%", minHeight:300, borderRadius:12, overflow:"hidden", background:"transparent", marginBottom:24 }}></div>
+      <div id="ra-map-tip" style={{ position:"fixed", background:"rgba(26,23,20,.9)", color:"#fff", padding:"6px 14px", borderRadius:8, fontSize:13, fontWeight:600, pointerEvents:"none", display:"none", zIndex:999, whiteSpace:"nowrap" }}></div>
+
+      {/* First ad */}
       <AdUnit />
+
+      {/* Region buttons */}
       <div className="region-grid" style={{ marginTop:24, display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(260px, 1fr))", gap:12, marginBottom:28 }}>
         {REGIONS.map(region => (
           <div key={region.id} onClick={() => onSelectRegion(region.id)}
-            onMouseEnter={() => setHovered(region.id)}
-            onMouseLeave={() => setHovered(null)}
-            style={{
-              background: hovered === region.id ? region.light : "#fff",
-              border: `1.5px solid ${hovered === region.id ? region.color : "#ece6db"}`,
-              borderRadius:16, padding:"20px 22px", cursor:"pointer",
-              transition:"all .2s",
-              transform: hovered === region.id ? "translateY(-3px)" : "none",
-              boxShadow: hovered === region.id ? `0 8px 24px ${region.color}20` : "0 1px 4px rgba(0,0,0,.05)",
-            }}>
-            <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:8 }}>
-              <div style={{ fontSize:28, lineHeight:1 }}>{region.emoji}</div>
-              <div>
-                <div style={{ fontFamily:"Fraunces", fontSize:17, fontWeight:700, color:"#1a1714" }}>{region.name}</div>
-                <div style={{ fontSize:10, color:region.color, fontWeight:600, letterSpacing:".07em", textTransform:"uppercase", marginTop:1 }}>
-                  {region.countries.length} {region.countries.length === 1 ? "cuisine" : "cuisines"}
-                </div>
-              </div>
+            onMouseEnter={e => e.currentTarget.style.borderColor=region.color}
+            onMouseLeave={e => e.currentTarget.style.borderColor="#ece6db"}
+            style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, padding:"16px 18px", cursor:"pointer", transition:"border-color .2s, box-shadow .2s" }}>
+            <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
+              <span style={{ fontSize:22 }}>{region.emoji}</span>
+              <span style={{ fontFamily:"Fraunces", fontSize:17, fontWeight:700, color:"#1a1714" }}>{region.name}</span>
             </div>
-            <p style={{ fontSize:13, color:"#9a9088", lineHeight:1.6, marginBottom:10 }}>{region.description}</p>
+            <p style={{ fontSize:13, color:"#6a6058", lineHeight:1.6, marginBottom:10 }}>{region.description}</p>
             <div style={{ display:"flex", flexWrap:"wrap", gap:4 }}>
               {region.countries.slice(0,5).map(c => (
                 <span key={c} style={{ fontSize:11, background:"#faf7f3", border:"1px solid #ece6db", borderRadius:6, padding:"2px 8px", color:"#9a9088" }}>
@@ -517,14 +717,19 @@ function RegionMap({ onSelectRegion }) {
           </div>
         ))}
       </div>
+
+      {/* Second ad */}
       <AdUnit />
+
+      {/* Recipe inspiration */}
       <RecipeInspiration recipes={getRandomRecipes(Object.keys(RECIPE_DB), 3)} pool={Object.keys(RECIPE_DB)} title="Recipe Inspiration" />
+
+      {/* Third ad */}
       <AdUnit style={{ marginTop:24 }} />
     </div>
   );
 }
 
-// ── REGION VIEW ────────────────────────────────────────────────────────
 function RegionView({ regionId, onBack, onSelectCountry }) {
   const region = REGIONS.find(r => r.id === regionId);
   if (!region) return null;
