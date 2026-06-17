@@ -324,4 +324,14 @@
   <url><loc>https://recipeatlas.co.uk/blog/umami-fifth-taste</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
   <url><loc>https://recipeatlas.co.uk/blog/street-food-guide</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
 
+  <url>
+    <loc>https://recipeatlas.co.uk/contact</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/terms</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
 </urlset>
