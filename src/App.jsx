@@ -913,7 +913,10 @@ function slugify(s) {
 
 function unslugify(slug, lookup) {
   if (!slug || !lookup) return null;
-  return Object.keys(lookup).find(k => slugify(k) === slug) || null;
+  return Object.keys(lookup).find(k =>
+    slugify(k) === slug ||
+    (lookup[k] && lookup[k].name && slugify(lookup[k].name) === slug)
+  ) || null;
 }
 
 // ── ROUTER ────────────────────────────────────────────────────────────
@@ -930,6 +933,8 @@ function App() {
     if (to === -1) { window.history.back(); return; }
     window.history.pushState({}, '', to);
     window.scrollTo(0, 0);
+    document.documentElement.scrollTo(0, 0);
+    document.body.scrollTo(0, 0);
     setPath(to);
   };
 
@@ -1031,7 +1036,14 @@ function App() {
 
   const goToRegion      = (rid) => navigate(`/${rid}`);
   const goToCountry     = (c)   => { const r = REGIONS.find(r => r.countries?.includes(c)); navigate(`/${r ? r.id : ""}/${slugify(c)}`); };
-  const goToDish        = (d)   => { const country = RECIPE_DB[d]?.country; const r = REGIONS.find(r => r.countries?.includes(country)); navigate(`/${r ? r.id : ""}/${slugify(country || "")}/${slugify(d)}`); };
+  const goToDish        = (d)   => {
+    // d may be a display name like "Pan-Fried Barramundi" or a DB key like "Barramundi"
+    // Find the actual DB key by checking both direct match and name match
+    const key = RECIPE_DB[d] ? d : Object.keys(RECIPE_DB).find(k => RECIPE_DB[k].name === d || slugify(RECIPE_DB[k].name) === slugify(d)) || d;
+    const country = RECIPE_DB[key]?.country;
+    const r = REGIONS.find(r => r.countries?.includes(country));
+    navigate(`/${r ? r.id : ""}/${slugify(country || "")}/${slugify(RECIPE_DB[key]?.name || key)}`);
+  };
   const goToRegions     = ()    => navigate('/');
   const goToRegionBack  = ()    => navigate(selectedRegion ? `/${selectedRegion}` : '/');
   const goToCountryBack = ()    => navigate(selectedRegion && selectedCountry ? `/${selectedRegion}/${slugify(selectedCountry)}` : selectedRegion ? `/${selectedRegion}` : '/');
