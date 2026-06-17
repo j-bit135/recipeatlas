@@ -918,7 +918,7 @@ function unslugify(slug, lookup) {
 
 // ── ROUTER ────────────────────────────────────────────────────────────
 function App() {
-  const [path, setPath] = useState('/');
+  const [path, setPath] = useState(() => window.location.pathname);
 
   useEffect(() => {
     const handler = () => setPath(window.location.pathname);
@@ -927,6 +927,7 @@ function App() {
   }, []);
 
   const navigate = (to) => {
+    if (to === -1) { window.history.back(); return; }
     window.history.pushState({}, '', to);
     window.scrollTo(0, 0);
     setPath(to);
@@ -935,7 +936,7 @@ function App() {
   // Derive view from hierarchical URL: /europe, /europe/italy, /europe/italy/tiramisu
   const safePath = typeof path === 'string' ? path : '/';
   const parts = safePath.split('/').filter(Boolean);
-  const infoPages = ['blog','about','advertising','privacy'];
+  const infoPages = ['blog','about','contact','privacy','terms'];
 
   let view = 'regions';
   let selectedRegion = null;
@@ -992,9 +993,9 @@ function App() {
     } else if (view === 'about') {
       title = 'About Recipe Atlas — World Cuisine Explorer';
       description = 'Recipe Atlas celebrates the extraordinary diversity of world cuisine across 44 countries and 7 regions. Learn about our mission and approach.';
-    } else if (view === 'advertising') {
-      title = 'Advertise on Recipe Atlas — Reach Food Lovers Worldwide';
-      description = 'Connect with engaged food lovers, home cooks and culinary explorers. Learn about advertising opportunities on Recipe Atlas.';
+    } else if (view === 'contact') {
+      title = 'Contact Recipe Atlas — Get in Touch';
+      description = 'Get in touch with Recipe Atlas for general enquiries, advertising opportunities, recipe submissions or partnerships. We\'d love to hear from you.';
     } else if (view === 'privacy') {
       title = 'Privacy Policy | Recipe Atlas';
       description = 'Read the Recipe Atlas privacy policy covering data collection, cookies, analytics and advertising.';
@@ -1071,11 +1072,11 @@ function App() {
         </div>
 
         {/* Main */}
-        {!["blog","about","advertising","privacy"].includes(view) && (
+        {!["blog","about","contact","privacy","terms"].includes(view) && (
           <div style={{ padding:"32px 24px 60px", maxWidth:960, margin:"0 auto" }}>
             {view === "regions"  && <RegionMap onSelectRegion={goToRegion} />}
             {view === "region"   && selectedRegion && <RegionView regionId={selectedRegion} onBack={goToRegions} onSelectCountry={goToCountry} />}
-            {view === "country"  && selectedCountry && <CountryView country={selectedCountry} onBack={() => navigate(-1)} onSelectDish={goToDish} />}
+            {view === "country"  && selectedCountry && <CountryView country={selectedCountry} onBack={goToRegionBack} onSelectDish={goToDish} />}
             {view === "recipe"   && selectedDish && <RecipeView country={recipeCountry || selectedCountry} dish={selectedDish} onBack={() => { const r = REGIONS.find(r => r.countries?.includes(recipeCountry)); navigate(recipeCountry && r ? `/${r.id}/${slugify(recipeCountry)}` : '/'); }} />}
             {(view === "region" && !selectedRegion) && <RegionMap onSelectRegion={goToRegion} />}
             {(view === "country" && !selectedCountry) && <RegionMap onSelectRegion={goToRegion} />}
@@ -1084,11 +1085,15 @@ function App() {
         )}
 
         {/* Info pages */}
-        {["blog","about","advertising","privacy"].includes(view) && (
+        {["blog","about","contact","privacy","terms"].includes(view) && (
           <div style={{ padding:"32px 24px 60px", maxWidth:960, margin:"0 auto" }}>
+            <div style={{ maxWidth:680, margin:"0 auto 32px" }}>
+              <AdUnit />
+            </div>
             {view === "blog" && <BlogPage navigate={navigate} initialSlug={parts[1] || null} />}
             {view === "about" && <AboutPage />}
-            {view === "advertising" && <AdvertisingPage />}
+            {view === "contact" && <ContactPage />}
+            {view === "terms" && <TermsPage />}
             {view === "privacy" && <PrivacyPage />}
           </div>
         )}
@@ -1105,7 +1110,7 @@ function App() {
                 </div>
               </div>
               <div style={{ display:"flex", gap:20, flexWrap:"wrap" }}>
-                {[["blog","Blog"],["about","About"],["advertising","Advertise"],["privacy","Privacy"]].map(([v,label]) => (
+                {[["blog","Blog"],["about","About"],["contact","Contact"],["privacy","Privacy"],["terms","Terms"]].map(([v,label]) => (
                   <span key={v} onClick={() => navigate(`/${v}`)}
                     style={{ fontSize:12, color:"#9a9088", cursor:"pointer", fontWeight:500, fontFamily:"Plus Jakarta Sans" }}>
                     {label}
@@ -1247,14 +1252,13 @@ function BlogPage({ initialSlug, navigate }) {
         <div style={{ display:"flex", gap:8, marginBottom:12, flexWrap:"wrap" }}>
           <span style={{ fontSize:11, background:"#fdf3ed", color:"#c2622a", padding:"3px 10px", borderRadius:20, fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>{post.tag}</span>
               </div>
-        <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(22px,3vw,36px)", fontWeight:700, color:"#1a1714", marginBottom:20, lineHeight:1.25 }}>{post.title}</h1>
-        <AdUnit />
+        <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(22px,3vw,36px)", fontWeight:700, color:"#1a1714", marginBottom:20, lineHeight:1.25 }}>{ post.title}</h1>
         <div style={{ marginTop:24 }}>
           {post.body.map((para, i) => (
             <p key={i} style={{ fontSize:15, color:"#3a3028", lineHeight:1.9, marginBottom:20 }}>{para}</p>
           ))}
         </div>
-        <AdUnit style={{ marginTop:8 }} />
+        <AdUnit style={{ marginTop:24 }} />
       </div>
     );
   }
@@ -1263,7 +1267,6 @@ function BlogPage({ initialSlug, navigate }) {
     <div>
       <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,40px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>The Recipe Atlas Blog</h1>
       <p style={{ fontSize:15, color:"#9a9088", lineHeight:1.7, marginBottom:24 }}>Stories, techniques and histories from the world's great food cultures.</p>
-      <AdUnit />
       <div style={{ display:"grid", gap:20, marginTop:24 }}>
         {BLOG_POSTS.map((p,i) => (
           <div key={i} onClick={() => openPost(i)}
@@ -1279,7 +1282,9 @@ function BlogPage({ initialSlug, navigate }) {
           </div>
         ))}
       </div>
-      <AdUnit style={{ marginTop:24 }} />
+      <div style={{ maxWidth:680, margin:"24px auto 0" }}>
+        <AdUnit />
+      </div>
     </div>
   );
 }
@@ -1288,13 +1293,12 @@ function AboutPage() {
   return (
     <div style={{ maxWidth:680, margin:"0 auto" }}>
       <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,40px)", fontWeight:700, color:"#1a1714", marginBottom:16 }}>About Recipe Atlas</h1>
-      <AdUnit />
-      <div style={{ marginTop:24, display:"flex", flexDirection:"column", gap:20 }}>
+      <div style={{ marginTop:16, display:"flex", flexDirection:"column", gap:20 }}>
         {[
           ["Our Mission","Recipe Atlas exists to celebrate the extraordinary diversity of world cuisine — from the intricate spice blends of Ethiopian berbere to the precise techniques of Japanese ramen. We believe that cooking another culture's food is one of the most respectful and joyful ways to understand it."],
           ["What We Cover","We currently feature 178 recipes across 30 countries and 7 regions. Every recipe is written to be genuinely achievable at home, with honest notes on technique, cultural context and the history behind each dish."],
           ["Our Approach","We research each recipe carefully, consulting multiple sources and traditional methods. Where a dish has strong regional variations we explain the differences and choose the most widely celebrated version as our baseline."],
-          ["Get In Touch","We love hearing from readers — whether you've cooked one of our recipes, spotted an error, or want to suggest a dish we're missing. Reach us at hello@recipeatlas.co.uk"],
+          ["Get In Touch","We love hearing from readers — whether you've cooked one of our recipes, spotted an error, or want to suggest a dish we're missing. Reach us at contact.jwgroup@proton.me"],
         ].map(([title, text]) => (
           <div key={title} style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, padding:24 }}>
             <h2 style={{ fontFamily:"Fraunces", fontSize:18, fontWeight:700, color:"#1a1714", marginBottom:10 }}>{title}</h2>
@@ -1307,23 +1311,56 @@ function AboutPage() {
   );
 }
 
-function AdvertisingPage() {
+function ContactPage() {
   return (
     <div style={{ maxWidth:680, margin:"0 auto" }}>
-      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,40px)", fontWeight:700, color:"#1a1714", marginBottom:16 }}>Advertise on Recipe Atlas</h1>
-      <AdUnit />
-      <div style={{ marginTop:24, display:"flex", flexDirection:"column", gap:20 }}>
+      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,36px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>Contact Us</h1>
+      <p style={{ fontSize:15, color:"#6a6058", lineHeight:1.8, marginBottom:32, marginTop:16 }}>
+        Whether you have a question, a suggestion, or want to talk about advertising — we'd love to hear from you. Get in touch at <a href="mailto:contact.jwgroup@proton.me" style={{ color:"#c2622a", fontWeight:600 }}>contact.jwgroup@proton.me</a> and we'll get back to you as soon as possible.
+      </p>
+
+      <div style={{ marginTop:16, display:"flex", flexDirection:"column", gap:20 }}>
         {[
-          ["Our Audience","Recipe Atlas attracts food lovers, home cooks and culinary explorers actively seeking to expand their repertoire. Our readers are engaged, curious and spend significant time exploring recipes across multiple countries and regions."],
-          ["Ad Placements","We offer display advertising across all pages of the site, including recipe pages, region and country browse pages, and blog posts. Ad units are clearly labelled and positioned to be visible without disrupting the reading experience."],
-          ["Brand Partnerships","We welcome partnerships with food brands, kitchen equipment companies, ingredient suppliers, travel companies and culinary schools whose products are genuinely relevant to our audience."],
-          ["Get In Touch","To discuss advertising opportunities, rates and packages, please contact us at advertising@recipeatlas.co.uk and we'll get back to you within 2 business days."],
+          ["General Enquiries", "Have a question about Recipe Atlas, a recipe suggestion, or feedback on the site? We're always looking to improve and love hearing from our community of food lovers. Drop us a line at contact.jwgroup@proton.me"],
+          ["Advertising & Partnerships", "Recipe Atlas attracts a passionate audience of home cooks, food explorers and culinary enthusiasts from around the world. We offer advertising opportunities including display advertising, sponsored content and brand collaborations. To discuss rates, email contact.jwgroup@proton.me"],
+          ["Content & Recipe Submissions", "Are you a chef, food writer or culinary expert with a recipe or story to share? We'd love to feature authentic regional dishes and the stories behind them. Reach out at contact.jwgroup@proton.me"],
         ].map(([title, text]) => (
           <div key={title} style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, padding:24 }}>
             <h2 style={{ fontFamily:"Fraunces", fontSize:18, fontWeight:700, color:"#1a1714", marginBottom:10 }}>{title}</h2>
             <p style={{ fontSize:14, color:"#6a6058", lineHeight:1.8, margin:0 }}>{text}</p>
           </div>
         ))}
+      </div>
+      <AdUnit style={{ marginTop:24 }} />
+    </div>
+  );
+}
+
+
+function TermsPage() {
+  return (
+    <div style={{ maxWidth:680, margin:"0 auto" }}>
+      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,36px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>Terms of Service</h1>
+      <p style={{ fontSize:13, color:"#9a9088", marginBottom:28, marginTop:16 }}>Last updated: June 2025</p>
+
+      <div style={{ marginTop:24, display:"flex", flexDirection:"column", gap:20 }}>
+      {[
+        { title:"1. Acceptance of Terms", text:"By accessing and using Recipe Atlas (recipeatlas.co.uk), you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our website." },
+        { title:"2. Use of Content", text:"All recipes, articles, text, images and other content on Recipe Atlas are provided for personal, non-commercial use only. You may not reproduce, distribute, modify or republish any content from this site without prior written permission from Recipe Atlas." },
+        { title:"3. Accuracy of Information", text:"Recipes and nutritional information on Recipe Atlas are provided in good faith for informational purposes only. We make no warranties regarding the accuracy, completeness or suitability of any recipe or content for any particular purpose. Always use your own judgement when preparing food, particularly with regard to allergies, dietary requirements and food safety." },
+        { title:"4. Advertising", text:"Recipe Atlas displays third-party advertisements, including those served by Google AdSense. We are not responsible for the content of third-party advertisements. Clicking on advertisements may take you to external websites that are not under our control." },
+        { title:"5. Third-Party Links", text:"Recipe Atlas may contain links to third-party websites. These links are provided for your convenience and we have no control over the content of those sites. We accept no responsibility or liability for third-party websites." },
+        { title:"6. Intellectual Property", text:"The Recipe Atlas name, logo and all original content on this website are the intellectual property of Recipe Atlas and JW Group. All rights are reserved." },
+        { title:"7. Limitation of Liability", text:"Recipe Atlas and its operators shall not be liable for any direct, indirect, incidental or consequential damages arising from your use of this website or any content found on it, including but not limited to damages arising from errors in recipes or nutritional information." },
+        { title:"8. Changes to Terms", text:"We reserve the right to update these Terms of Service at any time. Changes will be posted on this page with an updated date. Your continued use of Recipe Atlas following any changes constitutes acceptance of the revised terms." },
+        { title:"9. Governing Law", text:"These Terms of Service are governed by the laws of England and Wales. Any disputes arising from your use of Recipe Atlas shall be subject to the exclusive jurisdiction of the courts of England and Wales." },
+        { title:"10. Contact", text:"If you have any questions about these Terms of Service, please contact us at contact.jwgroup@proton.me." },
+      ].map(({ title, text }) => (
+        <div key={title} style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, padding:24 }}>
+          <h2 style={{ fontFamily:"Fraunces", fontSize:18, fontWeight:700, color:"#1a1714", marginBottom:10 }}>{title}</h2>
+          <p style={{ fontSize:14, color:"#6a6058", lineHeight:1.8, margin:0 }}>{text}</p>
+        </div>
+      ))}
       </div>
       <AdUnit style={{ marginTop:24 }} />
     </div>
@@ -1335,14 +1372,13 @@ function PrivacyPage() {
     <div style={{ maxWidth:680, margin:"0 auto" }}>
       <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,40px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>Privacy Policy</h1>
       <p style={{ fontSize:12, color:"#c8bfb0", marginBottom:24, fontFamily:"Plus Jakarta Sans" }}>Last updated: June 2025</p>
-      <AdUnit />
       <div style={{ marginTop:24, display:"flex", flexDirection:"column", gap:16 }}>
         {[
           ["Information We Collect","Recipe Atlas collects minimal data. If you subscribe to our newsletter, we collect your name and email address solely for sending you the newsletter. We do not sell, rent or share your personal information with third parties."],
           ["Cookies and Analytics","We use Google Analytics to understand how visitors use our site. This involves cookies which collect anonymous information about your visit. No personally identifiable information is collected through analytics."],
           ["Advertising","Recipe Atlas displays advertisements. Our advertising partners may use cookies to serve ads based on your interests. You can opt out of personalised advertising through your browser settings."],
-          ["Your Rights","You have the right to access, correct or delete any personal data we hold about you. To exercise these rights, please contact us at privacy@recipeatlas.co.uk"],
-          ["Contact","For any privacy-related questions, please contact us at privacy@recipeatlas.co.uk and we will respond within 5 business days."],
+          ["Your Rights","You have the right to access, correct or delete any personal data we hold about you. To exercise these rights, please contact us at contact.jwgroup@proton.me"],
+          ["Contact","For any privacy-related questions, please contact us at contact.jwgroup@proton.me and we will respond within 5 business days."],
         ].map(([title, text]) => (
           <div key={title} style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, padding:20 }}>
             <h2 style={{ fontFamily:"Fraunces", fontSize:16, fontWeight:700, color:"#1a1714", marginBottom:8 }}>{title}</h2>
