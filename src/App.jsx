@@ -1010,6 +1010,17 @@ function App() {
     if (description && !description.endsWith('.')) description += '.';
 
     document.title = title;
+
+    // Canonical URL
+    const canonicalHref = 'https://recipeatlas.co.uk' + window.location.pathname;
+    let canonicalTag = document.querySelector('link[rel="canonical"]');
+    if (!canonicalTag) {
+      canonicalTag = document.createElement('link');
+      canonicalTag.rel = 'canonical';
+      document.head.appendChild(canonicalTag);
+    }
+    canonicalTag.href = canonicalHref;
+
     let metaDesc = document.querySelector('meta[name="description"]');
     if (!metaDesc) {
       metaDesc = document.createElement('meta');
