@@ -694,7 +694,16 @@ function RegionMap({ onSelectRegion }) {
     <div>
       <div style={{ textAlign:"center", marginBottom:16, paddingTop:8 }}>
         <div style={{ display:"inline-block", background:"#fdf3ed", borderRadius:100, padding:"6px 16px", fontSize:11, fontWeight:700, color:"#c2622a", letterSpacing:".08em", textTransform:"uppercase", fontFamily:"Plus Jakarta Sans", marginBottom:12 }}>
-          🌍 World Cuisine Explorer
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{display:"inline",verticalAlign:"middle",marginRight:4}}>
+                <circle cx="14" cy="12" r="8" stroke="#c2622a" strokeWidth="2" fill="none"/>
+                <path d="M6 12 Q14 8 22 12" stroke="#c2622a" strokeWidth="1.5" fill="none"/>
+                <path d="M6 12 Q14 16 22 12" stroke="#c2622a" strokeWidth="1.5" fill="none"/>
+                <line x1="14" y1="4" x2="14" y2="20" stroke="#c2622a" strokeWidth="1.5"/>
+                <line x1="3" y1="4" x2="3" y2="20" stroke="#c2622a" strokeWidth="2" strokeLinecap="round"/>
+                <line x1="1" y1="4" x2="1" y2="9" stroke="#c2622a" strokeWidth="1.5" strokeLinecap="round"/>
+                <line x1="5" y1="4" x2="5" y2="9" stroke="#c2622a" strokeWidth="1.5" strokeLinecap="round"/>
+                <path d="M1 9 Q3 13 5 9" stroke="#c2622a" strokeWidth="1.5" fill="none"/>
+              </svg> World Cuisine Explorer
         </div>
         <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(26px,4vw,48px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>
           What would you like to cook?
@@ -1137,7 +1146,16 @@ function App() {
           <div style={{ maxWidth:960, margin:"0 auto" }}>
             <div style={{ display:"flex", flexWrap:"wrap", justifyContent:"space-between", alignItems:"center", gap:16, marginBottom:16 }}>
               <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                <span style={{ fontSize:22 }}>🌍</span>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="14" cy="12" r="8" stroke="#c2622a" strokeWidth="1.8" fill="none"/>
+                  <path d="M6 12 Q14 8 22 12" stroke="#c2622a" strokeWidth="1.4" fill="none"/>
+                  <path d="M6 12 Q14 16 22 12" stroke="#c2622a" strokeWidth="1.4" fill="none"/>
+                  <line x1="14" y1="4" x2="14" y2="20" stroke="#c2622a" strokeWidth="1.4"/>
+                  <line x1="3" y1="4" x2="3" y2="20" stroke="#c2622a" strokeWidth="2" strokeLinecap="round"/>
+                  <line x1="1" y1="4" x2="1" y2="9" stroke="#c2622a" strokeWidth="1.6" strokeLinecap="round"/>
+                  <line x1="5" y1="4" x2="5" y2="9" stroke="#c2622a" strokeWidth="1.6" strokeLinecap="round"/>
+                  <path d="M1 9 Q3 13 5 9" stroke="#c2622a" strokeWidth="1.6" fill="none"/>
+                </svg>
                 <div>
                   <div style={{ fontFamily:"Fraunces", fontSize:15, fontWeight:700, color:"#1a1714" }}>Recipe Atlas</div>
                   <div style={{ fontSize:10, color:"#b8b0a8", letterSpacing:".1em", textTransform:"uppercase" }}>World Cuisine Explorer</div>
