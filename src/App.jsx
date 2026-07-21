@@ -1068,7 +1068,18 @@ function App() {
         {/* Header */}
         <div style={{ background:"#fff", borderBottom:"1.5px solid #ece6db", padding:"13px 28px", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12, position:"sticky", top:0, zIndex:50, boxShadow:"0 1px 8px rgba(0,0,0,.05)" }}>
           <div style={{ cursor:"pointer", display:"flex", alignItems:"center", gap:12 }} onClick={goToRegions}>
-            <div style={{ width:36, height:36, background:"linear-gradient(135deg,#c2622a,#e8832a)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0, boxShadow:"0 2px 8px rgba(194,98,42,.35)" }}>🌍</div>
+            <div style={{ width:36, height:36, background:"linear-gradient(135deg,#c2622a,#e8832a)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, boxShadow:"0 2px 8px rgba(194,98,42,.35)" }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="14" cy="12" r="8" stroke="#fff" strokeWidth="1.8" fill="none"/>
+                <path d="M6 12 Q14 8 22 12" stroke="#fff" strokeWidth="1.4" fill="none"/>
+                <path d="M6 12 Q14 16 22 12" stroke="#fff" strokeWidth="1.4" fill="none"/>
+                <line x1="14" y1="4" x2="14" y2="20" stroke="#fff" strokeWidth="1.4"/>
+                <line x1="3" y1="4" x2="3" y2="20" stroke="#fff" strokeWidth="2" strokeLinecap="round"/>
+                <line x1="1" y1="4" x2="1" y2="9" stroke="#fff" strokeWidth="1.6" strokeLinecap="round"/>
+                <line x1="5" y1="4" x2="5" y2="9" stroke="#fff" strokeWidth="1.6" strokeLinecap="round"/>
+                <path d="M1 9 Q3 13 5 9" stroke="#fff" strokeWidth="1.6" fill="none"/>
+              </svg>
+            </div>
             <div>
               <div style={{ fontFamily:"Fraunces", fontSize:18, fontWeight:700, color:"#1a1714" }}>Recipe Atlas</div>
               <div style={{ fontSize:10, color:"#b8b0a8", letterSpacing:".1em", textTransform:"uppercase", fontWeight:500 }}>World Cuisine Explorer</div>
