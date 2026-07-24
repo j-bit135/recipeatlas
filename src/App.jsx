@@ -1051,6 +1051,46 @@ function App() {
     if (view === 'recipe' && selectedDish && RECIPE_DB[selectedDish]?.image) {
       setOG('og:image', RECIPE_DB[selectedDish].image);
     }
+
+    // ── RECIPE JSON-LD STRUCTURED DATA ──────────────────────────────────
+    let jsonLd = document.querySelector('script[data-schema="recipe"]');
+    if (view === 'recipe' && selectedDish && RECIPE_DB[selectedDish]) {
+      const r = RECIPE_DB[selectedDish];
+      const schemaData = {
+        "@context": "https://schema.org",
+        "@type": "Recipe",
+        "name": r.name,
+        "image": [r.image],
+        "description": r.description || '',
+        "keywords": `${r.name}, ${r.country} recipe, authentic ${r.country} food, ${r.name.toLowerCase()} recipe`,
+        "recipeCategory": "Main Course",
+        "recipeCuisine": r.country,
+        "prepTime": r.prepTime ? "PT" + r.prepTime.replace(/\s*mins?/i, 'M').replace(/\s*hours?/i, 'H') : undefined,
+        "cookTime": r.cookTime ? "PT" + r.cookTime.replace(/\s*mins?/i, 'M').replace(/\s*hours?/i, 'H') : undefined,
+        "recipeYield": r.serves ? `${r.serves} servings` : undefined,
+        "recipeIngredient": r.ingredients ? r.ingredients.map(ing => `${ing.amount} ${ing.item}`) : [],
+        "recipeInstructions": r.steps ? r.steps.map((step, i) => ({
+          "@type": "HowToStep",
+          "position": i + 1,
+          "text": step
+        })) : [],
+        "author": { "@type": "Organization", "name": "Recipe Atlas" },
+        "publisher": { "@type": "Organization", "name": "Recipe Atlas", "url": "https://recipeatlas.co.uk" },
+        "url": "https://recipeatlas.co.uk" + window.location.pathname,
+      };
+      // Remove undefined fields
+      Object.keys(schemaData).forEach(k => schemaData[k] === undefined && delete schemaData[k]);
+      if (!jsonLd) {
+        jsonLd = document.createElement('script');
+        jsonLd.type = 'application/ld+json';
+        jsonLd.setAttribute('data-schema', 'recipe');
+        document.head.appendChild(jsonLd);
+      }
+      jsonLd.textContent = JSON.stringify(schemaData);
+    } else {
+      // Remove schema when not on a recipe page
+      if (jsonLd) jsonLd.remove();
+    }
   }, [view, selectedDish, selectedCountry, selectedRegion]);
   // ── END DYNAMIC META ───────────────────────────────────────────────────
 
