@@ -1232,6 +1232,9 @@ function App() {
         </div>
 
         {/* Main */}
+        <div style={{ position:"relative", backgroundImage:"url(https://images.pexels.com/photos/17232863/pexels-photo-17232863.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1)", backgroundSize:"cover", backgroundPosition:"center", backgroundAttachment:"fixed" }}>
+          <div style={{ position:"absolute", inset:0, background:"rgba(253,252,249,0.88)", mixBlendMode:"normal" }} />
+          <div style={{ position:"relative", zIndex:1 }}>
         {!["blog","about","contact","privacy","terms"].includes(view) && (
           <div style={{ padding:"32px 24px 60px", maxWidth:960, margin:"0 auto" }}>
             {view === "regions"  && <RegionMap onSelectRegion={goToRegion} />}
@@ -1258,6 +1261,8 @@ function App() {
           </div>
         )}
 
+          </div>
+        </div>
         {/* Footer */}
         <div style={{ borderTop:"1.5px solid #ece6db", padding:"28px", background:"#fdfcf9" }}>
           <div style={{ maxWidth:960, margin:"0 auto" }}>
