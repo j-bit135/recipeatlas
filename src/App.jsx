@@ -444,7 +444,7 @@ function RecipeInspiration({ recipes: initialRecipes, pool, title }) {
               onMouseEnter={e => { e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow="0 6px 20px rgba(0,0,0,.08)"; }}
               onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="none"; }}>
               <div style={{ width:"100%", height:160, overflow:"hidden", background:"#f0e8e0" }}>
-                <img src={recipe.image} alt={recipe.name} style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
+                <img src={recipe.image} alt={`Authentic ${recipe.country} ${recipe.name} recipe`} style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
               </div>
               <div style={{ padding:"12px 14px 14px" }}>
                 <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:6 }}>
@@ -860,7 +860,7 @@ function RecipeView({ country, dish, onBack }) {
               <p style={{ fontSize:15, color:"#6a6058", lineHeight:1.85, marginBottom:16 }}>{recipe.description}</p>
               {recipe.image && (
                 <div style={{ marginBottom:20, borderRadius:12, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.08)", background:"#f0e8e0" }}>
-                  <img src={recipe.image} alt={recipe.name}
+                  <img src={recipe.image} alt={`Authentic ${recipe.country} ${recipe.name} recipe`}
                     style={{ width:"100%", height:260, objectFit:"cover", display:"block" }}
                     crossOrigin="anonymous"
                   />
@@ -1091,6 +1091,83 @@ function App() {
       // Remove schema when not on a recipe page
       if (jsonLd) jsonLd.remove();
     }
+
+    // ── BREADCRUMB JSON-LD ───────────────────────────────────────────────
+    let breadcrumbLd = document.querySelector('script[data-schema="breadcrumb"]');
+    const breadcrumbs = [{ name: 'Home', url: 'https://recipeatlas.co.uk/' }];
+    if (view === 'region' && selectedRegion) {
+      const region = REGIONS.find(r => r.id === selectedRegion);
+      if (region) breadcrumbs.push({ name: region.name + ' Recipes', url: 'https://recipeatlas.co.uk/' + selectedRegion });
+    } else if (view === 'country' && selectedCountry) {
+      const region = REGIONS.find(r => r.countries?.includes(selectedCountry));
+      if (region) breadcrumbs.push({ name: region.name + ' Recipes', url: 'https://recipeatlas.co.uk/' + region.id });
+      breadcrumbs.push({ name: selectedCountry + ' Recipes', url: 'https://recipeatlas.co.uk/' + (region?.id || '') + '/' + selectedCountry.toLowerCase().replace(/\s+/g, '-') });
+    } else if (view === 'recipe' && selectedDish) {
+      const recipe = RECIPE_DB[selectedDish];
+      const country = recipeCountry || recipe?.country || '';
+      const region = REGIONS.find(r => r.countries?.includes(country));
+      if (region) breadcrumbs.push({ name: region.name + ' Recipes', url: 'https://recipeatlas.co.uk/' + region.id });
+      breadcrumbs.push({ name: country + ' Recipes', url: 'https://recipeatlas.co.uk/' + (region?.id || '') + '/' + country.toLowerCase().replace(/\s+/g, '-') });
+      breadcrumbs.push({ name: selectedDish, url: 'https://recipeatlas.co.uk' + window.location.pathname });
+    }
+    if (breadcrumbs.length > 1) {
+      const breadcrumbSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        'itemListElement': breadcrumbs.map((crumb, i) => ({
+          '@type': 'ListItem',
+          'position': i + 1,
+          'name': crumb.name,
+          'item': crumb.url
+        }))
+      };
+      if (!breadcrumbLd) {
+        breadcrumbLd = document.createElement('script');
+        breadcrumbLd.type = 'application/ld+json';
+        breadcrumbLd.setAttribute('data-schema', 'breadcrumb');
+        document.head.appendChild(breadcrumbLd);
+      }
+      breadcrumbLd.textContent = JSON.stringify(breadcrumbSchema);
+    } else {
+      if (breadcrumbLd) breadcrumbLd.remove();
+    }
+
+    // ── WEBSITE + ORGANIZATION SCHEMAS (injected once) ───────────────────
+    if (!document.querySelector('script[data-schema="website"]')) {
+      const websiteSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        'name': 'Recipe Atlas',
+        'url': 'https://recipeatlas.co.uk',
+        'description': 'Explore authentic recipes from 44 countries and 7 regions. Discover the world through food.',
+        'potentialAction': {
+          '@type': 'SearchAction',
+          'target': { '@type': 'EntryPoint', 'urlTemplate': 'https://recipeatlas.co.uk/?q={search_term_string}' },
+          'query-input': 'required name=search_term_string'
+        }
+      };
+      const wsTag = document.createElement('script');
+      wsTag.type = 'application/ld+json';
+      wsTag.setAttribute('data-schema', 'website');
+      wsTag.textContent = JSON.stringify(websiteSchema);
+      document.head.appendChild(wsTag);
+    }
+    if (!document.querySelector('script[data-schema="organization"]')) {
+      const orgSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        'name': 'Recipe Atlas',
+        'url': 'https://recipeatlas.co.uk',
+        'logo': 'https://recipeatlas.co.uk/favicon.svg',
+        'contactPoint': { '@type': 'ContactPoint', 'email': 'contact.jwgroup@proton.me', 'contactType': 'customer support' }
+      };
+      const orgTag = document.createElement('script');
+      orgTag.type = 'application/ld+json';
+      orgTag.setAttribute('data-schema', 'organization');
+      orgTag.textContent = JSON.stringify(orgSchema);
+      document.head.appendChild(orgTag);
+    }
+
   }, [view, selectedDish, selectedCountry, selectedRegion]);
   // ── END DYNAMIC META ───────────────────────────────────────────────────
 
