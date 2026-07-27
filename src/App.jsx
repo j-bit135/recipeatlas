@@ -904,6 +904,61 @@ function RecipeView({ country, dish, onBack }) {
               </div>
             )}
             <div style={{ marginTop:20 }}><AdUnit /></div>
+
+            {/* You may also like */}
+            {(() => {
+              const currentCountry = recipe.country;
+              const region = REGIONS.find(r => r.countries?.includes(currentCountry));
+              // Same country first, excluding current recipe
+              const sameCountry = Object.keys(RECIPE_DB)
+                .filter(k => RECIPE_DB[k].country === currentCountry && RECIPE_DB[k].name !== recipe.name);
+              // Fill from same region if needed
+              const sameRegion = region
+                ? Object.keys(RECIPE_DB).filter(k =>
+                    region.countries?.includes(RECIPE_DB[k].country) &&
+                    RECIPE_DB[k].country !== currentCountry &&
+                    RECIPE_DB[k].name !== recipe.name)
+                : [];
+              const pool = [...sameCountry, ...sameRegion];
+              const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, 3);
+              if (shuffled.length === 0) return null;
+              return (
+                <div style={{ marginTop:32 }}>
+                  <div style={{ marginBottom:16 }}>
+                    <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,24px)", fontWeight:700, color:"#1a1714", margin:0 }}>You may also like</h2>
+                    <p style={{ fontSize:13, color:"#9a9088", margin:"4px 0 0" }}>More recipes you might enjoy</p>
+                  </div>
+                  <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(220px, 1fr))", gap:16 }}>
+                    {shuffled.map((key, i) => {
+                      const rec = RECIPE_DB[key];
+                      const reg = REGIONS.find(r => r.countries?.includes(rec.country));
+                      return (
+                        <div key={i}
+                          onClick={() => { window.scrollTo(0,0); navigate(`/${reg?.id || ""}/${slugify(rec.country)}/${slugify(rec.name)}`); }}
+                          style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, overflow:"hidden", cursor:"pointer", transition:"transform .15s, box-shadow .15s" }}
+                          onMouseEnter={e => { e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow="0 6px 20px rgba(0,0,0,.08)"; }}
+                          onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="none"; }}>
+                          <div style={{ width:"100%", height:160, overflow:"hidden", background:"#f0e8e0" }}>
+                            <img src={rec.image} alt={`Authentic ${rec.country} ${rec.name} recipe`} style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
+                          </div>
+                          <div style={{ padding:"12px 14px 14px" }}>
+                            <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:6 }}>
+                              <span style={{ fontSize:14 }}>{COUNTRY_DISHES[rec.country]?.flag}</span>
+                              <span style={{ fontSize:11, color:"#9a9088", fontFamily:"Plus Jakarta Sans", fontWeight:500 }}>{rec.country}</span>
+                            </div>
+                            <div style={{ fontFamily:"Fraunces", fontSize:16, fontWeight:700, color:"#1a1714", lineHeight:1.3, marginBottom:4 }}>{rec.name}</div>
+                            <div style={{ fontSize:12, color:"#c2622a", fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>View recipe →</div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Third ad unit */}
+            <div style={{ marginTop:24 }}><AdUnit /></div>
           </div>
         ) : (
           <div style={{ textAlign:"center", padding:"40px 0", color:"#b8b0a8" }}>Couldn't load this recipe — please try again.</div>
