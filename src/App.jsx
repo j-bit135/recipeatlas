@@ -47,6 +47,54 @@ const COUNTRY_DISHES = {
   "Mongolia":       { flag:"🇲🇳", dishes:["Buuz","Khuushuur","Tsuivan","Guriltai Shul","Bantan","Boodog"] },
   "New Zealand":    { flag:"🇳🇿", dishes:["Hāngī","Rewena Bread","Boil Up","Cheese Rolls","Hokey Pokey Ice Cream","Lolly Cake"] },
   "Poland":         { flag:"🇵🇱", dishes:["Pierogi","Bigos","Żurek","Gołąbki","Kotlet Schabowy","Sernik"] },
+
+  // ── NEW COUNTRIES ────────────────────────────────────────────────────
+  // Europe
+  "Sweden":         { flag:"🇸🇪", dishes:["Swedish Meatballs","Gravlax","Smörgåsbord","Janssons Frestelse","Prinsesstårta","Surströmming","Raggmunk","Semla","Kroppkakor","Ärtsoppa","Flammkuchen","Knäckebröd"] },
+  "Netherlands":    { flag:"🇳🇱", dishes:["Stroopwafel","Bitterballen","Stamppot","Erwtensoep","Haring","Poffertjes","Appeltaart","Kroketten","Oliebollen","Hutspot","Zuurvlees","Boterkoek"] },
+  "Belgium":        { flag:"🇧🇪", dishes:["Moules Frites","Belgian Waffles","Carbonnade Flamande","Waterzooi","Stoofvlees","Speculoos","Vol-au-Vent","Chicons au Gratin","Paling in 't Groen","Liège Salade","Bloedpens","Gentse Stoverij"] },
+  "Switzerland":    { flag:"🇨🇭", dishes:["Fondue","Raclette","Rösti","Bircher Muesli","Zürcher Geschnetzeltes","Älplermagronen","Leckerli","Malakoff","Bündner Nusstorte","Gerstensuppe","Landjäger","Meringues with Cream"] },
+  "Austria":        { flag:"🇦🇹", dishes:["Sachertorte","Apfelstrudel","Tafelspitz","Kaiserschmarrn","Gulasch","Leberkäse","Linzer Torte","Knödel","Marillenknödel","Esterhazy Torte","Wiener Backhendl","Zwiebelrostbraten"] },
+  "Czech Republic": { flag:"🇨🇿", dishes:["Svíčková","Trdelník","Bramboráky","Smažený Sýr","Kulajda","Vepřo Knedlo Zelo","Chlebíčky","Medovník","Lokše","Guláš","Svíčková na Smetaně","Koprovka"] },
+  "Ukraine":        { flag:"🇺🇦", dishes:["Varenyky","Chicken Kyiv","Borscht","Salo","Holubtsi","Pampushky","Banosh","Kovbasa","Deruny","Kapusniak","Medivnyk","Kholodets"] },
+  "Norway":         { flag:"🇳🇴", dishes:["Fårikål","Rakfisk","Lefse","Lutefisk","Raspeball","Pinnekjøtt","Kjøttkaker","Fiskesuppe","Brunost","Rømmegrøt","Torsk","Kransekake"] },
+  "Finland":        { flag:"🇫🇮", dishes:["Karjalanpiirakka","Lohikeitto","Korvapuusti","Sautéed Reindeer","Silakka","Mämmi","Hernekeitto","Ruisleipä","Mustikkapiirakka","Vorschmack","Kalakukko","Joulutorttu"] },
+  "Denmark":        { flag:"🇩🇰", dishes:["Smørrebrød","Frikadeller","Stegt Flæsk","Æbleskiver","Rødgrød med Fløde","Rugbrød","Flæskesteg","Koldskål","Brunede Kartofler","Danish Pastry","Biksemad","Leverpostej"] },
+  "Croatia":        { flag:"🇭🇷", dishes:["Peka","Pašticada","Štrukli","Crni Rižot","Brodet","Soparnik","Fuži","Čevapi","Roštiljada","Fritule","Kulen","Boškarinova Juha"] },
+  // Asia
+  "Philippines":    { flag:"🇵🇭", dishes:["Adobo","Sinigang","Lechon","Kare-Kare","Pancit","Halo-Halo","Sisig","Tinola","Tocino","Dinuguan","Bibingka","Balut"] },
+  "Sri Lanka":      { flag:"🇱🇰", dishes:["Hoppers","Kottu Roti","Sri Lankan Fish Curry","Lamprais","Pol Sambol","Watalappan","String Hoppers","Kiri Bath","Pittu","Mulligatawny","Coconut Roti","Devilled Cashews"] },
+  "Myanmar":        { flag:"🇲🇲", dishes:["Mohinga","Laphet Thoke","Shan Noodles","Ohno Khao Swè","Mont Di","Pazun Kyaw","Nan Gyi Thoke","Kyay Oh","Htamin Jin","Samusa Thoke","Balachaung","Pe Byok"] },
+  "Nepal":          { flag:"🇳🇵", dishes:["Dal Bhat","Momos","Thukpa","Sel Roti","Gundruk","Dhido","Kwati","Chatamari","Juju Dhau","Bara","Aloo Tama","Sukuti"] },
+  "Pakistan":       { flag:"🇵🇰", dishes:["Nihari","Haleem","Seekh Kebab","Chapli Kebab","Karahi","Paya","Sajji","Lahori Chargha","Daal Chawal","Sheer Khurma","Kulfi","Biryani"] },
+  "Bangladesh":     { flag:"🇧🇩", dishes:["Hilsa Curry","Kacchi Biryani","Bhuna Khichuri","Panta Bhat","Shorshe Ilish","Mutton Rezala","Mishti Doi","Rasgolla","Patishapta","Fuchka","Halwa","Dalim"] },
+  "Cambodia":       { flag:"🇰🇭", dishes:["Amok Trey","Bai Sach Chrouk","Num Banh Chok","Lok Lak","Kuy Teav","Samlor Korko","Beef Loc Lac","Lort Cha","Bok L'Hong","Kralan","Nom Plae Ai","Banh Chao"] },
+  "Uzbekistan":     { flag:"🇺🇿", dishes:["Plov","Samsa","Shashlik","Lagman","Manti","Chuchvara","Dimlama","Norin","Naryn","Mastava","Somsa","Halim"] },
+  "Taiwan":         { flag:"🇹🇼", dishes:["Beef Noodle Soup","Lu Rou Fan","Oyster Vermicelli","Bubble Tea","Pineapple Cake","Stinky Tofu","Gua Bao","Three Cup Chicken","Tian Bu La","Mochi","Scallion Pancakes","Tangyuan"] },
+  "Singapore":      { flag:"🇸🇬", dishes:["Hainanese Chicken Rice","Chilli Crab","Laksa","Bak Kut Teh","Char Kway Teow","Satay","Rojak","Carrot Cake","Ice Kacang","Oyster Omelette","Kaya Toast","Nasi Lemak"] },
+  "Kazakhstan":     { flag:"🇰🇿", dishes:["Beshbarmak","Kuyrdak","Kurt","Samsa","Naryn","Sorpa","Baursaki","Shelpek","Kazy","Chak-Chak","Shashlik","Kuurdak"] },
+  "Armenia":        { flag:"🇦🇲", dishes:["Khorovats","Dolma","Harissa","Lahmajoun","Basturma","Zhingyalov Hats","Ghapama","Sujuk","Anoushabour","Gata","Manti","Spas"] },
+  "Azerbaijan":     { flag:"🇦🇿", dishes:["Plov","Dolma","Pakhlava","Dushbara","Qutab","Lavangi","Bozbash","Dovga","Buglama","Shekerbura","Bozartma","Saj Ichi"] },
+  // Africa
+  "Ghana":          { flag:"🇬🇭", dishes:["Fufu","Jollof Rice","Kelewele","Groundnut Soup","Banku","Kontomire Stew","Waakye","Tuo Zaafi","Chinchinga","Red Red","Omo Tuo","Akara"] },
+  "Kenya":          { flag:"🇰🇪", dishes:["Nyama Choma","Ugali","Sukuma Wiki","Githeri","Mandazi","Pilau","Maharagwe","Mukimo","Kachumbari","Irio","Matoke","Mutura"] },
+  "Tanzania":       { flag:"🇹🇿", dishes:["Ugali na Nyama","Zanzibar Pizza","Pilau wa Pwani","Ndizi na Nyama","Chips Mayai","Urojo","Wali wa Nazi","Mshikaki","Mchuzi wa Samaki","Vitumbua","Kaimati","Maharage"] },
+  "Tunisia":        { flag:"🇹🇳", dishes:["Brik","Shakshuka","Couscous Tunisien","Lablabi","Mechouia","Ojja","Fricassée Tunisienne","Bambalouni","Makroudh","Asida","Merguez","Chorba"] },
+  "Ivory Coast":    { flag:"🇨🇮", dishes:["Attiéké","Poulet Braisé","Foutou","Garba","Kedjenou","Alloco","Sauce Graine","Soupe Kanja","Placali","Bangui","Djoumblé","Aloko"] },
+  // Middle East
+  "Israel":         { flag:"🇮🇱", dishes:["Shakshuka","Falafel","Sabich","Cholent","Jachnun","Malawach","Kubeh","Bourekas","Knafeh","Rugelach","Gondi","Hummus"] },
+  "Iraq":           { flag:"🇮🇶", dishes:["Masgouf","Kubba","Tashreeb","Quzi","Dolma","Pacha","Kleicha","Margat Bamia","Tepsi Baytinijan","Fatayer","Samoon","Chabab"] },
+  "Saudi Arabia":   { flag:"🇸🇦", dishes:["Kabsa","Mandi","Jareesh","Saleeg","Mutabbaq","Harees","Madfoon","Margoog","Masoob","Fatteh","Luqaimat","Sambosa"] },
+  "Yemen":          { flag:"🇾🇪", dishes:["Saltah","Bint al Sahn","Fahsa","Aseed","Zurbian","Maraq","Jachnun","Lahoh","Fattah","Balaleet","Mandi","Samak Mofa"] },
+  // Americas
+  "Cuba":           { flag:"🇨🇺", dishes:["Ropa Vieja","Moros y Cristianos","Lechón Asado","Tostones","Vaca Frita","Picadillo","Arroz con Pollo","Tamales Cubanos","Buñuelos Cubanos","Flan","Fricase de Pollo","Congrí"] },
+  "Venezuela":      { flag:"🇻🇪", dishes:["Pabellón Criollo","Arepas","Hallacas","Cachapas","Tequeños","Mondongo","Hervido","Mandocas","Bienmesabe","Caraotas Negras","Cazuela de Mariscos","Chicha"] },
+  "Chile":          { flag:"🇨🇱", dishes:["Empanadas de Pino","Cazuela","Curanto","Pastel de Choclo","Humitas","Asado Chileno","Sopaipillas","Ceviche Chileno","Pollo Arvejado","Mote con Huesillo","Charquicán","Kuchen"] },
+  "Bolivia":        { flag:"🇧🇴", dishes:["Salteñas","Pique Macho","Sopa de Maní","Api","Anticuchos","Fricasé","Humintas","Tucumanas","Silpancho","Majadito","Llajwa","Chupe de Camarones"] },
+  "Paraguay":       { flag:"🇵🇾", dishes:["Sopa Paraguaya","Chipa","Bori Bori","Mbeju","Puchero","Chipa Guazú","Kivevé","Payagua Mascada","Locro Paraguayo","Arroz Quesu","Mbeyú","Asado Paraguayo"] },
+  "Trinidad and Tobago": { flag:"🇹🇹", dishes:["Doubles","Roti","Pelau","Callaloo","Bake and Shark","Curry Crab","Macaroni Pie","Pastelles","Black Cake","Oil Down","Souse","Stewed Peas"] },
+  // Oceania
+  "Fiji":           { flag:"🇫🇯", dishes:["Kokoda","Lovo","Rourou","Palusami","Ika Vakalolo","Vakalolo","Nama","Ota Ika","Fijian Curry","Cassava Cake","Duruka","Kava"] },
 };
 
 // ── RECIPE DATABASE ────────────────────────────────────────────────────
@@ -302,13 +350,13 @@ const RECIPE_DB = {
 
 // ── REGIONS ────────────────────────────────────────────────────────────
 const REGIONS = [
-  { id:"europe", name:"Europe", emoji:"🏰", color:"#4a6fa5", light:"#f0f4fb", description:"From rustic Italian trattorias to French bistros and Spanish paella", countries:["Italy","France","Spain","Portugal","Germany","Greece","United Kingdom","Poland","Russia","Romania","Hungary","Georgia"] },
-  { id:"north_america", name:"North America", emoji:"🌎", color:"#c2622a", light:"#fdf3ed", description:"Bold flavours from Mexico City street stalls to Texas smokepits", countries:["United States","Mexico","Canada","Jamaica"] },
-  { id:"south_america", name:"South America", emoji:"🌿", color:"#2a7a4a", light:"#edf7f1", description:"Vibrant cuisines from the Amazon to Patagonia", countries:["Brazil","Argentina","Peru","Colombia","Ecuador"] },
-  { id:"africa", name:"Africa", emoji:"🌍", color:"#b5820a", light:"#fdf8e8", description:"Spiced, slow-cooked and deeply flavourful traditions", countries:["Morocco","Nigeria","Ethiopia","Egypt","South Africa","Senegal"] },
-  { id:"middle_east", name:"Middle East", emoji:"🕌", color:"#8a4a9a", light:"#f8f0fb", description:"Ancient spice routes and legendary hospitality", countries:["Lebanon","Turkey","Iran","Jordan","Syria"] },
-  { id:"asia", name:"Asia", emoji:"🏯", color:"#c0392b", light:"#fdf0ef", description:"The world's most diverse culinary continent", countries:["Japan","China","India","Thailand","Vietnam","South Korea","Indonesia","Malaysia","Mongolia"] },
-  { id:"oceania", name:"Oceania", emoji:"🦘", color:"#1a7a8a", light:"#eaf6f8", description:"Fresh, bold and uniquely antipodean", countries:["Australia","New Zealand"] },
+  { id:"europe", name:"Europe", emoji:"🏰", color:"#4a6fa5", light:"#f0f4fb", description:"From rustic Italian trattorias to French bistros and Spanish paella", countries:["Italy","France","Spain","Portugal","Germany","Greece","United Kingdom","Poland","Russia","Romania","Hungary","Georgia","Sweden","Netherlands","Belgium","Switzerland","Austria","Czech Republic","Ukraine","Norway","Finland","Denmark","Croatia"] },
+  { id:"north_america", name:"North America", emoji:"🌎", color:"#c2622a", light:"#fdf3ed", description:"Bold flavours from Mexico City street stalls to Texas smokepits", countries:["United States","Mexico","Canada","Jamaica","Cuba","Trinidad and Tobago"] },
+  { id:"south_america", name:"South America", emoji:"🌿", color:"#2a7a4a", light:"#edf7f1", description:"Vibrant cuisines from the Amazon to Patagonia", countries:["Brazil","Argentina","Peru","Colombia","Ecuador","Venezuela","Chile","Bolivia","Paraguay"] },
+  { id:"africa", name:"Africa", emoji:"🌍", color:"#b5820a", light:"#fdf8e8", description:"Spiced, slow-cooked and deeply flavourful traditions", countries:["Morocco","Nigeria","Ethiopia","Egypt","South Africa","Senegal","Ghana","Kenya","Tanzania","Tunisia","Ivory Coast"] },
+  { id:"middle_east", name:"Middle East", emoji:"🕌", color:"#8a4a9a", light:"#f8f0fb", description:"Ancient spice routes and legendary hospitality", countries:["Lebanon","Turkey","Iran","Jordan","Syria","Israel","Iraq","Saudi Arabia","Yemen"] },
+  { id:"asia", name:"Asia", emoji:"🏯", color:"#c0392b", light:"#fdf0ef", description:"The world's most diverse culinary continent", countries:["Japan","China","India","Thailand","Vietnam","South Korea","Indonesia","Malaysia","Mongolia","Philippines","Sri Lanka","Myanmar","Nepal","Pakistan","Bangladesh","Cambodia","Uzbekistan","Taiwan","Singapore","Kazakhstan","Armenia","Azerbaijan"] },
+  { id:"oceania", name:"Oceania", emoji:"🦘", color:"#1a7a8a", light:"#eaf6f8", description:"Fresh, bold and uniquely antipodean", countries:["Australia","New Zealand","Fiji"] },
 ];
 
 const ACCENT = "#c2622a";
@@ -828,7 +876,7 @@ function CountryView({ country, onBack, onSelectDish }) {
 }
 
 // ── RECIPE VIEW ────────────────────────────────────────────────────────
-function RecipeView({ country, dish, onBack }) {
+function RecipeView({ country, dish, onBack, navigate }) {
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
   const flag = COUNTRY_DISHES[country]?.flag || "🌍";
@@ -934,7 +982,7 @@ function RecipeView({ country, dish, onBack }) {
                       const reg = REGIONS.find(r => r.countries?.includes(rec.country));
                       return (
                         <div key={i}
-                          onClick={() => { window.scrollTo(0,0); navigate(`/${reg?.id || ""}/${slugify(rec.country)}/${slugify(rec.name)}`); }}
+                          onClick={() => navigate(`/${reg?.id || ""}/${slugify(rec.country)}/${slugify(rec.name)}`)}
                           style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, overflow:"hidden", cursor:"pointer", transition:"transform .15s, box-shadow .15s" }}
                           onMouseEnter={e => { e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow="0 6px 20px rgba(0,0,0,.08)"; }}
                           onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="none"; }}>
@@ -1232,6 +1280,7 @@ function App() {
     // d may be a display name like "Pan-Fried Barramundi" or a DB key like "Barramundi"
     // Find the actual DB key by checking both direct match and name match
     const key = RECIPE_DB[d] ? d : Object.keys(RECIPE_DB).find(k => RECIPE_DB[k].name === d || slugify(RECIPE_DB[k].name) === slugify(d)) || d;
+    if (!RECIPE_DB[key]) return; // recipe not yet available
     const country = RECIPE_DB[key]?.country;
     const r = REGIONS.find(r => r.countries?.includes(country));
     navigate(`/${r ? r.id : ""}/${slugify(country || "")}/${slugify(RECIPE_DB[key]?.name || key)}`);
@@ -1295,7 +1344,7 @@ function App() {
             {view === "regions"  && <RegionMap onSelectRegion={goToRegion} />}
             {view === "region"   && selectedRegion && <RegionView regionId={selectedRegion} onBack={goToRegions} onSelectCountry={goToCountry} />}
             {view === "country"  && selectedCountry && <CountryView country={selectedCountry} onBack={goToRegionBack} onSelectDish={goToDish} />}
-            {view === "recipe"   && selectedDish && <RecipeView country={recipeCountry || selectedCountry} dish={selectedDish} onBack={() => { const r = REGIONS.find(r => r.countries?.includes(recipeCountry)); navigate(recipeCountry && r ? `/${r.id}/${slugify(recipeCountry)}` : '/'); }} />}
+            {view === "recipe"   && selectedDish && <RecipeView country={recipeCountry || selectedCountry} dish={selectedDish} navigate={navigate} onBack={() => { const r = REGIONS.find(r => r.countries?.includes(recipeCountry)); navigate(recipeCountry && r ? `/${r.id}/${slugify(recipeCountry)}` : '/'); }} />}
             {(view === "region" && !selectedRegion) && <RegionMap onSelectRegion={goToRegion} />}
             {(view === "country" && !selectedCountry) && <RegionMap onSelectRegion={goToRegion} />}
             {(view === "recipe" && !selectedDish) && <RegionMap onSelectRegion={goToRegion} />}
