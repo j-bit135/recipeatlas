@@ -596,11 +596,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/south_america/brazil/moqueca</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/asia/vietnam/goi-cuon</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -3906,11 +3901,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/south_america/argentina/empanadas-argentinas</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/south_america/argentina/milanesa</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -4436,11 +4426,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/south_america/venezuela/cachapas</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/south_america/venezuela/caraotas-negras</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -4942,11 +4927,6 @@
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/south_america/colombia/mondongo-colombiano</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/south_america/colombia/bunuelos-colombianos</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -5497,6 +5477,26 @@
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/oceania/australia/bush-tucker-kangaroo-skewers</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/south_america/argentina/matambre</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/south_america/brazil/tapioca</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/south_america/colombia/patacones</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/south_america/venezuela/pan-de-jamon</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
