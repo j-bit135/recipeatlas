@@ -906,11 +906,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/north_america/canada/peameal-bacon</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/north_america/canada/nanaimo-bars</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -4116,11 +4111,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/north_america/canada/nanaimo-bar</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/north_america/canada/montreal-smoked-meat</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -5497,6 +5487,16 @@
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/south_america/brazil/tapioca-pudding</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/canada/cretons</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/canada/nova-scotia-lobster-rolls</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
