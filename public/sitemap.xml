@@ -2621,11 +2621,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/north_america/cuba/lechon-asado</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/north_america/cuba/picadillo</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -5497,6 +5492,11 @@
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/north_america/canada/nova-scotia-lobster-rolls</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/cuba/cubano</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
