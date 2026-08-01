@@ -1852,7 +1852,6 @@ function RecipeView({ country, dish, onBack, navigate }) {
                 <div style={{ marginBottom:6, borderRadius:12, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.08)", background:"#f0e8e0" }}>
                   <img src={recipe.image} alt={`Authentic ${recipe.country} ${recipe.name} recipe`}
                     style={{ width:"100%", height:260, objectFit:"cover", display:"block" }}
-                    crossOrigin="anonymous"
                   />
                 </div>
               )}
