@@ -166,6 +166,11 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://recipeatlas.co.uk/north_america/costa-rica</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://recipeatlas.co.uk/south_america</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -2841,11 +2846,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/north_america/trinidad-and-tobago/stewed-chicken</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/north_america/trinidad-and-tobago/coconut-bake</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -4236,26 +4236,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/north_america/haiti/bouillon-haitien</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/north_america/haiti/legim</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/north_america/haiti/pain-patate</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/north_america/haiti/tasso</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/north_america/haiti/soup-joumou</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -4267,16 +4247,6 @@
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/north_america/haiti/diri-kole</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/north_america/haiti/mais-moulin</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/north_america/haiti/peze-kole</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -4437,11 +4407,6 @@
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/north_america/trinidad-and-tobago/curry-crab</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/north_america/trinidad-and-tobago/oil-down</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -5497,6 +5462,46 @@
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/north_america/cuba/cubano</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/costa-rica/gallo-pinto</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/costa-rica/casado</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/costa-rica/chifrijo</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/costa-rica/tres-leches-cake</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/costa-rica/sopa-negra</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/costa-rica/rondon</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/costa-rica/olla-de-carne</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/costa-rica/arroz-con-leche</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
