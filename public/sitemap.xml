@@ -3656,11 +3656,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/middle_east/iran/zereshk-polo</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/middle_east/iran/ash-reshteh</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -5502,6 +5497,11 @@
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/north_america/costa-rica/arroz-con-leche</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/middle_east/iran/joojeh-kabab</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
