@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 
 // ── COUNTRY DATA ───────────────────────────────────────────────────────
 const COUNTRY_DISHES = {
@@ -1374,6 +1374,35 @@ const styles = `
     .stat-row { flex-wrap: wrap; }
     .ing-grid { grid-template-columns: 1fr !important; }
   }
+
+  .ptp-card {
+    background: #fff; border: 1.5px solid #ece6db; border-radius: 12px;
+    padding: 14px 16px; cursor: pointer; transition: all .2s;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.04);
+  }
+  .ptp-card:hover { border-color: #c2622a; box-shadow: 0 4px 16px rgba(194,98,42,.12); transform: translateY(-2px); }
+  .ptp-card.selected { background: #fdf3ed; border-color: #c2622a; }
+  .ptp-card.disabled { opacity: .4; cursor: not-allowed; }
+  .ptp-card.disabled:hover { border-color: #ece6db; box-shadow: 0 1px 3px rgba(0,0,0,.04); transform: none; }
+  .ptp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+  .ptp-recipe-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+  .ptp-recipe-card { background: #fff; border: 1.5px solid #ece6db; border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform .15s, box-shadow .15s; }
+  .ptp-recipe-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.08); }
+  .ptp-chip { display: inline-flex; align-items: center; gap: 6px; background: #c2622a; color: #fff; padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .ptp-chip:hover { background: #a8501f; }
+  @media (max-width: 640px) {
+    .ptp-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important; }
+  }
+
+  .header-nav-mobile { display: none; }
+  @media (max-width: 768px) {
+    .header-nav-desktop { display: none !important; }
+    .header-nav-mobile { display: flex !important; }
+  }
+  @media (min-width: 769px) {
+    .header-nav-mobile-panel { display: none !important; }
+  }
 `;
 
 // ── NO AI CALLS — fully hardcoded site ─────────────────────────────
@@ -1836,7 +1865,137 @@ function CountryView({ country, onBack, onSelectDish }) {
 }
 
 // ── RECIPE VIEW ────────────────────────────────────────────────────────
-function RecipeView({ country, dish, onBack, navigate }) {
+// ── RATINGS (Firebase Realtime Database) ────────────────────────────────
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDJaYnVc7bEwImpkWtP73SCVcJRcvTcxAA",
+  authDomain: "recipe-atlas-57923.firebaseapp.com",
+  databaseURL: "https://recipe-atlas-57923-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "recipe-atlas-57923",
+  storageBucket: "recipe-atlas-57923.firebasestorage.app",
+  messagingSenderId: "705176176210",
+  appId: "1:705176176210:web:ebc47f13be5b55712b018b"
+};
+
+let _firebasePromise = null;
+function loadFirebaseDB() {
+  if (!_firebasePromise) {
+    _firebasePromise = (async () => {
+      const { initializeApp } = await import("https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js");
+      const { getDatabase, ref, get, runTransaction } = await import("https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js");
+      const app = initializeApp(FIREBASE_CONFIG);
+      const db = getDatabase(app);
+      return { db, ref, get, runTransaction };
+    })();
+  }
+  return _firebasePromise;
+}
+
+function ratingKeyFor(dishKey) {
+  return (dishKey || "").replace(/[.#$\[\]/]/g, "_");
+}
+
+function StarRating({ dish, onRatingLoaded }) {
+  const [ratingData, setRatingData] = useState(null);
+  const [myRating, setMyRating] = useState(null);
+  const [hoverStar, setHoverStar] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(false);
+
+  const key = ratingKeyFor(dish);
+  const localKey = `rated_${key}`;
+
+  useEffect(() => {
+    let cancelled = false;
+    setRatingData(null);
+    setError(false);
+    setHoverStar(0);
+    const stored = localStorage.getItem(localKey);
+    setMyRating(stored ? parseInt(stored, 10) : null);
+
+    loadFirebaseDB().then(async ({ db, ref, get }) => {
+      try {
+        const snap = await get(ref(db, `ratings/${key}`));
+        if (cancelled) return;
+        const val = snap.exists() ? snap.val() : { total: 0, count: 0 };
+        setRatingData(val);
+        if (onRatingLoaded) {
+          onRatingLoaded(val.count > 0 ? { value: val.total / val.count, count: val.count } : null);
+        }
+      } catch (e) {
+        if (!cancelled) setError(true);
+      }
+    }).catch(() => { if (!cancelled) setError(true); });
+
+    return () => { cancelled = true; };
+    // eslint-disable-next-line
+  }, [dish]);
+
+  const submitRating = async (value) => {
+    if (myRating || submitting) return;
+    setSubmitting(true);
+    try {
+      const { db, ref, runTransaction } = await loadFirebaseDB();
+      const result = await runTransaction(ref(db, `ratings/${key}`), (current) => {
+        if (!current) current = { total: 0, count: 0 };
+        current.total = (current.total || 0) + value;
+        current.count = (current.count || 0) + 1;
+        return current;
+      });
+      const newVal = result.snapshot.val();
+      setRatingData(newVal);
+      setMyRating(value);
+      localStorage.setItem(localKey, String(value));
+      if (onRatingLoaded) {
+        onRatingLoaded(newVal.count > 0 ? { value: newVal.total / newVal.count, count: newVal.count } : null);
+      }
+    } catch (e) {
+      setError(true);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (error) return null;
+
+  const average = ratingData && ratingData.count > 0 ? ratingData.total / ratingData.count : 0;
+  const displayStars = myRating || hoverStar || Math.round(average);
+
+  return (
+    <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:20, flexWrap:"wrap" }}>
+      <div style={{ display:"flex", gap:2 }}>
+        {[1,2,3,4,5].map(n => (
+          <span key={n}
+            onClick={() => submitRating(n)}
+            onMouseEnter={() => !myRating && !submitting && setHoverStar(n)}
+            onMouseLeave={() => setHoverStar(0)}
+            style={{
+              cursor: myRating || submitting ? "default" : "pointer",
+              fontSize: 22,
+              lineHeight: 1,
+              color: n <= displayStars ? "#c2622a" : "#e0d8cc",
+              transition: "color .15s"
+            }}
+            aria-label={`Rate ${n} star${n === 1 ? "" : "s"}`}>
+            ★
+          </span>
+        ))}
+      </div>
+      <div style={{ fontSize:12, color:"#9a9088", fontFamily:"Plus Jakarta Sans" }}>
+        {ratingData === null ? (
+          "Loading ratings…"
+        ) : ratingData.count > 0 ? (
+          <>{average.toFixed(1)} ({ratingData.count} rating{ratingData.count === 1 ? "" : "s"})</>
+        ) : (
+          "No ratings yet — be the first!"
+        )}
+        {myRating && <span style={{ color:"#c2622a", fontWeight:600, marginLeft:6 }}>· You rated this {myRating}★</span>}
+      </div>
+    </div>
+  );
+}
+
+
+function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
   const flag = COUNTRY_DISHES[country]?.flag || "🌍";
@@ -1867,7 +2026,7 @@ function RecipeView({ country, dish, onBack, navigate }) {
               {recipe.story && <p style={{ fontSize:13, color:"#b8b0a8", fontStyle:"italic", marginBottom:10, lineHeight:1.7 }}>{recipe.story}</p>}
               <p style={{ fontSize:15, color:"#6a6058", lineHeight:1.85, marginBottom:16 }}>{recipe.description}</p>
               {recipe.image && (
-                <div style={{ marginBottom:6, borderRadius:12, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.08)", background:"#f0e8e0" }}>
+                <div style={{ marginBottom: recipe.photoCredit ? 6 : 20, borderRadius:12, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.08)", background:"#f0e8e0" }}>
                   <img src={recipe.image} alt={`Authentic ${recipe.country} ${recipe.name} recipe`}
                     style={{ width:"100%", height:260, objectFit:"cover", display:"block" }}
                   />
@@ -1888,6 +2047,9 @@ function RecipeView({ country, dish, onBack, navigate }) {
                     <div style={{ fontSize:13, fontWeight:600, color:"#1a1714" }}>{v}</div>
                   </div>
                 ))}
+              </div>
+              <div style={{ marginTop:18 }}>
+                <StarRating dish={dish} onRatingLoaded={onRatingChange} />
               </div>
             </div>
             <div style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:14, padding:24, marginBottom:12, boxShadow:"0 1px 4px rgba(0,0,0,.04)" }}>
@@ -1999,13 +2161,453 @@ function unslugify(slug, lookup) {
 }
 
 // ── ROUTER ────────────────────────────────────────────────────────────
+// ── SITE SEARCH ──────────────────────────────────────────────────────────
+function searchRecipes(query, limit) {
+  const q = (query || "").trim().toLowerCase();
+  if (!q) return [];
+  const results = [];
+  for (const key of Object.keys(RECIPE_DB)) {
+    const r = RECIPE_DB[key];
+    const nameMatch = (r.name || key).toLowerCase().includes(q);
+    const countryMatch = (r.country || "").toLowerCase().includes(q);
+    const ingredientMatch = !nameMatch && !countryMatch && (r.ingredients || []).some(i => (i.item || "").toLowerCase().includes(q));
+    if (!nameMatch && !countryMatch && !ingredientMatch) continue;
+    const priority = nameMatch ? 3 : countryMatch ? 2 : 1;
+    results.push({ key, ...r, priority });
+  }
+  results.sort((a, b) => b.priority - a.priority || (a.name || a.key).localeCompare(b.name || b.key));
+  return typeof limit === "number" ? results.slice(0, limit) : results;
+}
+
+function SearchBox({ navigate }) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const inputRef = useRef(null);
+  const boxRef = useRef(null);
+
+  useEffect(() => {
+    if (open && inputRef.current) inputRef.current.focus();
+  }, [open]);
+
+  useEffect(() => {
+    const onClickOutside = (e) => {
+      if (boxRef.current && !boxRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    const onKey = (e) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", onClickOutside);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onClickOutside);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, []);
+
+  const results = useMemo(() => searchRecipes(query, 8), [query]);
+
+  const goToRecipe = (r) => {
+    const region = REGIONS.find(rg => rg.countries?.includes(r.country));
+    navigate(`/${region ? region.id : ""}/${slugify(r.country)}/${slugify(r.name || r.key)}`);
+    setOpen(false);
+    setQuery("");
+  };
+
+  const submitSearch = () => {
+    const q = query.trim();
+    if (!q) return;
+    navigate(`/search/${encodeURIComponent(q)}`);
+    setOpen(false);
+    setQuery("");
+  };
+
+  return (
+    <div ref={boxRef} style={{ position: "relative", display: "flex", alignItems: "center" }}>
+      {!open ? (
+        <span onClick={() => setOpen(true)}
+          style={{ cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: "50%", color: "#9a9088" }}
+          onMouseEnter={e => { e.currentTarget.style.background = "#fdf3ed"; e.currentTarget.style.color = "#c2622a"; }}
+          onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#9a9088"; }}
+          aria-label="Search recipes">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <circle cx="11" cy="11" r="7" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+        </span>
+      ) : (
+        <div style={{ display: "flex", alignItems: "center", background: "#fdf3ed", border: "1.5px solid #e8c9b0", borderRadius: 20, padding: "6px 12px", gap: 8, width: 220 }}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c2622a" strokeWidth="2.2" strokeLinecap="round" style={{ flexShrink: 0 }}>
+            <circle cx="11" cy="11" r="7" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            ref={inputRef}
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter") submitSearch(); }}
+            placeholder="Search recipes..."
+            style={{ border: "none", outline: "none", background: "transparent", fontSize: 13, fontFamily: "Plus Jakarta Sans", color: "#1a1714", width: "100%" }}
+          />
+        </div>
+      )}
+
+      {open && query.trim() && (
+        <div style={{ position: "absolute", top: "calc(100% + 8px)", right: 0, width: 300, background: "#fff", border: "1.5px solid #ece6db", borderRadius: 12, boxShadow: "0 8px 28px rgba(0,0,0,.12)", overflow: "hidden", zIndex: 100 }}>
+          {results.length === 0 ? (
+            <div style={{ padding: "16px 18px", fontSize: 13, color: "#b8b0a8", fontStyle: "italic" }}>No recipes found.</div>
+          ) : (
+            <>
+              {results.map(r => (
+                <div key={r.key} onClick={() => goToRecipe(r)}
+                  style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", cursor: "pointer", borderBottom: "1px solid #f5f0e8" }}
+                  onMouseEnter={e => e.currentTarget.style.background = "#faf7f3"}
+                  onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                  <div style={{ width: 36, height: 36, borderRadius: 8, overflow: "hidden", flexShrink: 0, background: "#f0e8e0" }}>
+                    <img src={r.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  </div>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontFamily: "Fraunces", fontSize: 13.5, fontWeight: 700, color: "#1a1714", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.name || r.key}</div>
+                    <div style={{ fontSize: 11, color: "#9a9088" }}>{r.country}</div>
+                  </div>
+                </div>
+              ))}
+              <div onClick={submitSearch}
+                style={{ padding: "10px 14px", fontSize: 12, fontWeight: 600, color: "#c2622a", cursor: "pointer", textAlign: "center" }}
+                onMouseEnter={e => e.currentTarget.style.background = "#fdf3ed"}
+                onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                See all results for "{query.trim()}" →
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SearchResultsPage({ query, navigate }) {
+  const results = useMemo(() => searchRecipes(query), [query]);
+
+  const goToRecipe = (r) => {
+    const region = REGIONS.find(rg => rg.countries?.includes(r.country));
+    navigate(`/${region ? region.id : ""}/${slugify(r.country)}/${slugify(r.name || r.key)}`);
+  };
+
+  return (
+    <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 28px 80px" }}>
+      <div style={{ maxWidth: 680, margin: "0 auto 32px" }}>
+        <AdUnit />
+      </div>
+      <h1 style={{ fontFamily: "Fraunces", fontSize: "clamp(26px,3.5vw,40px)", fontWeight: 700, marginBottom: 8 }}>
+        {query ? <>Results for "{query}"</> : "Search"}
+      </h1>
+      <p style={{ fontSize: 14, color: "#9a9088", marginBottom: 32 }}>
+        {results.length === 0
+          ? "No recipes found — try a different name, country or ingredient."
+          : `${results.length} recipe${results.length === 1 ? "" : "s"} found.`}
+      </p>
+
+      {results.length > 0 && (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16 }}>
+          {results.map(r => (
+            <div key={r.key} onClick={() => goToRecipe(r)}
+              style={{ background: "#fff", border: "1.5px solid #ece6db", borderRadius: 12, overflow: "hidden", cursor: "pointer", transition: "transform .15s, box-shadow .15s" }}
+              onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 6px 20px rgba(0,0,0,.08)"; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}>
+              <div style={{ width: "100%", height: 160, overflow: "hidden", background: "#f0e8e0" }}>
+                <img src={r.image} alt={`Authentic ${r.country} ${r.name} recipe`} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              </div>
+              <div style={{ padding: "12px 14px 14px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+                  <span style={{ fontSize: 14 }}>{COUNTRY_DISHES[r.country]?.flag}</span>
+                  <span style={{ fontSize: 11, color: "#9a9088", fontFamily: "Plus Jakarta Sans", fontWeight: 500 }}>{r.country}</span>
+                </div>
+                <div style={{ fontFamily: "Fraunces", fontSize: 16, fontWeight: 700, color: "#1a1714", lineHeight: 1.3, marginBottom: 4 }}>{r.name}</div>
+                <div style={{ fontSize: 12, color: "#c2622a", fontWeight: 600, fontFamily: "Plus Jakarta Sans" }}>View recipe →</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div style={{ maxWidth: 680, margin: "44px auto 0" }}>
+        <AdUnit />
+      </div>
+    </div>
+  );
+}
+
+
+// ── PANTRY TO PLATE ─────────────────────────────────────────────────────
+const PTP_CATEGORIES = [
+  {
+    name: "Proteins",
+    items: [
+      { label: "Chicken", re: /\bchicken\b/i },
+      { label: "Beef", re: /\bbeef\b/i },
+      { label: "Pork", re: /\bpork\b/i },
+      { label: "Lamb", re: /\blamb\b/i },
+      { label: "Fish", re: /\bfish\b/i },
+      { label: "Shrimp", re: /\b(shrimp|prawns?)\b/i },
+      { label: "Eggs", re: /\beggs?\b/i },
+      { label: "Beans", re: /\bbeans?\b/i },
+      { label: "Tofu", re: /\btofu\b/i },
+      { label: "Sausage", re: /\bsausages?\b/i },
+      { label: "Bacon", re: /\bbacon\b/i },
+      { label: "Ham", re: /\bham\b/i },
+      { label: "Duck", re: /\bduck\b/i },
+      { label: "Goat", re: /\bgoat\b/i },
+      { label: "Crab", re: /\bcrabs?\b/i },
+      { label: "Squid", re: /\b(squid|octopus|cuttlefish)\b/i },
+      { label: "Chorizo", re: /\bchorizo\b/i },
+      { label: "Salmon", re: /\bsalmon\b/i },
+    ],
+  },
+  {
+    name: "Fruits and Vegetables",
+    items: [
+      { label: "Onion", re: /\bonions?\b/i },
+      { label: "Garlic", re: /\bgarlic\b/i },
+      { label: "Tomato", re: /\btomatoes?\b/i },
+      { label: "Potato", re: /\bpotato(es)?\b/i },
+      { label: "Carrot", re: /\bcarrots?\b/i },
+      { label: "Bell Pepper", re: /\b(bell pepper|red pepper|green pepper|yellow pepper|capsicum)s?\b/i },
+      { label: "Chilli", re: /\b(chilli|chili|chile|scotch bonnet|jalape[nñ]o|habanero)s?\b/i },
+      { label: "Spinach", re: /\bspinach\b/i },
+      { label: "Lemon", re: /\blemons?\b/i },
+      { label: "Coconut", re: /\bcoconut\b(?!\s*(milk|oil))/i },
+      { label: "Cabbage", re: /\bcabbage\b/i },
+      { label: "Aubergine", re: /\b(aubergine|eggplant)s?\b/i },
+      { label: "Mushroom", re: /\bmushrooms?\b/i },
+      { label: "Avocado", re: /\bavocados?\b/i },
+      { label: "Lime", re: /\blimes?\b/i },
+      { label: "Ginger", re: /\bginger\b/i },
+      { label: "Cucumber", re: /\bcucumbers?\b/i },
+      { label: "Sweet Potato", re: /\bsweet potato(es)?\b/i },
+    ],
+  },
+  {
+    name: "Carbohydrates (Grains/Starchy Foods)",
+    items: [
+      { label: "Rice", re: /\brice\b/i },
+      { label: "Flour", re: /\bflour\b/i },
+      { label: "Bread", re: /\bbread\b/i },
+      { label: "Noodles", re: /\b(noodles?|pasta|spaghetti|macaroni|vermicelli)\b/i },
+      { label: "Cornmeal", re: /\bcornmeal\b/i },
+      { label: "Plantain", re: /\bplantains?\b/i },
+      { label: "Cassava", re: /\b(cassava|yuca)\b/i },
+      { label: "Couscous", re: /\bcouscous\b/i },
+      { label: "Bulgur", re: /\bbulgur\b/i },
+      { label: "Semolina", re: /\bsemolina\b/i },
+    ],
+  },
+  {
+    name: "Dairy and Alternatives",
+    items: [
+      { label: "Milk", re: /\bmilk\b/i },
+      { label: "Butter", re: /\bbutter\b/i },
+      { label: "Cheese", re: /\bcheese\b/i },
+      { label: "Cream", re: /\bcream\b/i },
+      { label: "Yoghurt", re: /\byog?hurt\b/i },
+      { label: "Coconut Milk", re: /\bcoconut milk\b/i },
+      { label: "Sour Cream", re: /\bsour cream\b/i },
+      { label: "Parmesan", re: /\bparmesan\b/i },
+      { label: "Mozzarella", re: /\bmozzarella\b/i },
+      { label: "Feta", re: /\bfeta\b/i },
+    ],
+  },
+  {
+    name: "Fats and Oils",
+    items: [
+      { label: "Olive Oil", re: /\bolive oil\b/i },
+      { label: "Vegetable Oil", re: /\bvegetable oil\b/i },
+      { label: "Sesame Oil", re: /\bsesame oil\b/i },
+      { label: "Coconut Oil", re: /\bcoconut oil\b/i },
+      { label: "Ghee", re: /\bghee\b/i },
+      { label: "Lard", re: /\blard\b/i },
+      { label: "Palm Oil", re: /\bpalm oil\b/i },
+      { label: "Peanut Oil", re: /\bpeanut oil\b/i },
+      { label: "Tahini", re: /\btahini\b/i },
+      { label: "Mayonnaise", re: /\bmayonnaise\b/i },
+    ],
+  },
+];
+
+const PTP_MAX_SELECTED = 5;
+const PTP_MAX_RESULTS = 24;
+
+function PantryToPlate({ navigate }) {
+  const [selected, setSelected] = useState([]);
+
+  const toggle = (label) => {
+    setSelected((prev) => {
+      if (prev.includes(label)) return prev.filter((l) => l !== label);
+      if (prev.length >= PTP_MAX_SELECTED) return prev;
+      return [...prev, label];
+    });
+  };
+
+  const selectedItems = useMemo(() => {
+    const all = PTP_CATEGORIES.flatMap((c) => c.items);
+    return selected.map((label) => all.find((i) => i.label === label)).filter(Boolean);
+  }, [selected]);
+
+  const matches = useMemo(() => {
+    if (selectedItems.length === 0) return [];
+    const results = [];
+    for (const key of Object.keys(RECIPE_DB)) {
+      const r = RECIPE_DB[key];
+      const text = (r.ingredients || []).map(i => i.item).join(" | ");
+      let count = 0;
+      for (const item of selectedItems) {
+        if (item.re.test(text)) count++;
+      }
+      if (count > 0) results.push({ key, ...r, matchCount: count });
+    }
+    results.sort((a, b) => b.matchCount - a.matchCount);
+    return results;
+  }, [selectedItems]);
+
+  const atLimit = selected.length >= PTP_MAX_SELECTED;
+
+  const goToRecipe = (r) => {
+    const region = REGIONS.find(rg => rg.countries?.includes(r.country));
+    navigate(`/${region ? region.id : ""}/${slugify(r.country)}/${slugify(r.name || r.key)}`);
+  };
+
+  return (
+    <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 28px 80px" }}>
+      <div style={{ maxWidth: 680, margin: "0 auto 32px" }}>
+        <AdUnit />
+      </div>
+      <h1 style={{ fontFamily: "Fraunces", fontSize: "clamp(30px,4vw,48px)", fontWeight: 700, marginBottom: 4 }}>Pantry to Plate</h1>
+      <h2 style={{ fontFamily: "Fraunces", fontSize: "clamp(16px,2vw,20px)", fontWeight: 600, color: "#c2622a", marginBottom: 12 }}>What's in your kitchen?</h2>
+      <p style={{ fontSize: 14, color: "#9a9088", marginBottom: 32, maxWidth: 560 }}>
+        Pick up to {PTP_MAX_SELECTED} ingredients you've got on hand, and we'll surface real recipes from every corner of the world that use them.
+      </p>
+
+      {/* Ingredients (selected) */}
+      <div style={{ marginBottom: 36 }}>
+        <h3 style={{ fontFamily: "Fraunces", fontSize: 20, fontWeight: 700, marginBottom: 12 }}>Ingredients</h3>
+        {selected.length === 0 ? (
+          <div style={{ fontSize: 13, color: "#b8b0a8", fontStyle: "italic" }}>
+            Nothing selected yet — tap up to {PTP_MAX_SELECTED} ingredients below to get started.
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {selected.map((label) => (
+              <div key={label} className="ptp-chip" onClick={() => toggle(label)}>
+                {label} <span style={{ fontSize: 15, lineHeight: 1 }}>×</span>
+              </div>
+            ))}
+            <div style={{ fontSize: 12, color: "#b8b0a8", alignSelf: "center", marginLeft: 4 }}>
+              {selected.length}/{PTP_MAX_SELECTED} selected
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Category pickers */}
+      {PTP_CATEGORIES.map((cat) => (
+        <div key={cat.name} style={{ marginBottom: 28 }}>
+          <h3 style={{ fontFamily: "Fraunces", fontSize: 16, fontWeight: 700, marginBottom: 12, color: "#1a1714" }}>{cat.name}</h3>
+          <div className="ptp-grid">
+            {cat.items.map((item) => {
+              const isSelected = selected.includes(item.label);
+              const isDisabled = atLimit && !isSelected;
+              return (
+                <div
+                  key={item.label}
+                  className={`ptp-card ${isSelected ? "selected" : ""} ${isDisabled ? "disabled" : ""}`}
+                  onClick={() => !isDisabled && toggle(item.label)}
+                >
+                  <span style={{ fontFamily: "Plus Jakarta Sans", fontSize: 13.5, fontWeight: 600, color: "#1a1714" }}>{item.label}</span>
+                  <span style={{ fontSize: 13, color: isSelected ? "#c2622a" : "#c8bfb0", fontWeight: 700 }}>{isSelected ? "✓" : "+"}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+
+      {/* Recipe Suggestions */}
+      <div style={{ marginTop: 44, paddingTop: 32, borderTop: "1px solid #ece6db" }}>
+        <h2 style={{ fontFamily: "Fraunces", fontSize: "clamp(20px,2.5vw,28px)", fontWeight: 700, marginBottom: 4 }}>Recipe Suggestions</h2>
+        <p style={{ fontSize: 13, color: "#9a9088", marginBottom: 20 }}>
+          {selected.length === 0
+            ? "Select ingredients above to see matching recipes here."
+            : matches.length === 0
+            ? "No recipes found containing those ingredients — try a different combination."
+            : `${matches.length} recipe${matches.length === 1 ? "" : "s"} found, ranked by how many of your ingredients they use.`}
+        </p>
+
+        {matches.length > 0 && (
+          <div className="ptp-recipe-grid">
+            {matches.slice(0, PTP_MAX_RESULTS).map((r) => (
+              <div key={r.key} className="ptp-recipe-card" onClick={() => goToRecipe(r)}>
+                <div style={{ width: "100%", height: 160, overflow: "hidden", background: "#f0e8e0" }}>
+                  <img src={r.image} alt={`Authentic ${r.country} ${r.name} recipe`} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                </div>
+                <div style={{ padding: "12px 14px 14px" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                    <span style={{ fontSize: 11, color: "#9a9088", fontFamily: "Plus Jakarta Sans", fontWeight: 500 }}>{r.country}</span>
+                    <span style={{ fontSize: 10, color: "#c2622a", background: "#fdf3ed", border: "1px solid #e8c9b0", borderRadius: 10, padding: "2px 8px", fontWeight: 700 }}>
+                      {r.matchCount}/{selected.length} match{r.matchCount === 1 ? "" : "es"}
+                    </span>
+                  </div>
+                  <div style={{ fontFamily: "Fraunces", fontSize: 16, fontWeight: 700, color: "#1a1714", lineHeight: 1.3, marginBottom: 4 }}>{r.name}</div>
+                  <div style={{ fontSize: 12, color: "#c2622a", fontWeight: 600, fontFamily: "Plus Jakarta Sans" }}>View recipe →</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {matches.length > PTP_MAX_RESULTS && (
+          <div style={{ textAlign: "center", fontSize: 12, color: "#b8b0a8", marginTop: 16 }}>
+            Showing top {PTP_MAX_RESULTS} of {matches.length} matches.
+          </div>
+        )}
+      </div>
+
+      <div style={{ maxWidth: 680, margin: "44px auto 0" }}>
+        <AdUnit />
+      </div>
+    </div>
+  );
+}
+
+
 function App() {
   const [path, setPath] = useState(() => window.location.pathname);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const mobileMenuRef = useRef(null);
+  const mobileMenuBtnRef = useRef(null);
+  const [currentRating, setCurrentRating] = useState(null);
+
+  useEffect(() => { setCurrentRating(null); }, [path]);
 
   useEffect(() => {
     const handler = () => setPath(window.location.pathname);
     window.addEventListener('popstate', handler);
     return () => window.removeEventListener('popstate', handler);
+  }, []);
+
+  useEffect(() => { setMobileMenuOpen(false); }, [path]);
+
+  useEffect(() => {
+    const onClickOutside = (e) => {
+      if (
+        mobileMenuRef.current && !mobileMenuRef.current.contains(e.target) &&
+        mobileMenuBtnRef.current && !mobileMenuBtnRef.current.contains(e.target)
+      ) {
+        setMobileMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onClickOutside);
+    return () => document.removeEventListener('mousedown', onClickOutside);
   }, []);
 
   const navigate = (to) => {
@@ -2020,15 +2622,19 @@ function App() {
   // Derive view from hierarchical URL: /europe, /europe/italy, /europe/italy/tiramisu
   const safePath = typeof path === 'string' ? path : '/';
   const parts = safePath.split('/').filter(Boolean);
-  const infoPages = ['blog','about','contact','privacy','terms'];
+  const infoPages = ['blog','about','contact','privacy','terms','pantry-to-plate'];
 
   let view = 'regions';
   let selectedRegion = null;
   let selectedCountry = null;
   let selectedDish = null;
+  let searchQuery = null;
 
   if (parts.length === 0) {
     view = 'regions';
+  } else if (parts[0] === 'search') {
+    view = 'search';
+    searchQuery = parts[1] ? decodeURIComponent(parts[1]) : '';
   } else if (infoPages.includes(parts[0])) {
     view = parts[0];
   } else if (parts.length === 1) {
@@ -2051,7 +2657,7 @@ function App() {
   // ── DYNAMIC TITLE & META DESCRIPTION ──────────────────────────────────
   useEffect(() => {
     let title = 'Recipe Atlas — World Cuisine Explorer';
-    let description = 'Explore authentic recipes from 44 countries and 7 regions. From Italian carbonara to Georgian khachapuri — discover the world through food.';
+    let description = 'Explore authentic recipes from 85 countries and 7 regions. From Italian carbonara to Georgian khachapuri — discover the world through food.';
 
     if (view === 'recipe' && selectedDish) {
       const recipe = RECIPE_DB[selectedDish];
@@ -2071,12 +2677,18 @@ function App() {
       const countries = region?.countries?.slice(0, 4).join(', ') || '';
       title = `${regionName} Recipes — Authentic Dishes from ${countries} & More | Recipe Atlas`;
       description = `${region?.description || `Explore the best recipes from ${regionName}`}. Browse authentic dishes from every country in the region.`;
+    } else if (view === 'search') {
+      title = searchQuery ? `"${searchQuery}" — Search Results | Recipe Atlas` : 'Search Recipes | Recipe Atlas';
+      description = searchQuery ? `Recipes matching "${searchQuery}" from around the world.` : 'Search 1,000+ authentic recipes from every corner of the world by name, country or ingredient.';
+    } else if (view === 'pantry-to-plate') {
+      title = 'Pantry to Plate — Find Recipes by Ingredient | Recipe Atlas';
+      description = 'Tell us what\'s in your kitchen and discover real recipes from around the world that use it. Pick your ingredients, find your next meal.';
     } else if (view === 'blog') {
       title = 'The Recipe Atlas Blog — Food Stories, Techniques & History';
       description = 'In-depth articles on cooking science, world food history, ingredients and techniques. Stories from the world\'s great food cultures.';
     } else if (view === 'about') {
       title = 'About Recipe Atlas — World Cuisine Explorer';
-      description = 'Recipe Atlas celebrates the extraordinary diversity of world cuisine across 44 countries and 7 regions. Learn about our mission and approach.';
+      description = 'Recipe Atlas celebrates the extraordinary diversity of world cuisine across 85 countries and 7 regions. Learn about our mission and approach.';
     } else if (view === 'contact') {
       title = 'Contact Recipe Atlas — Get in Touch';
       description = 'Get in touch with Recipe Atlas for general enquiries, advertising opportunities, recipe submissions or partnerships. We\'d love to hear from you.';
@@ -2147,6 +2759,13 @@ function App() {
         "author": { "@type": "Organization", "name": "Recipe Atlas" },
         "publisher": { "@type": "Organization", "name": "Recipe Atlas", "url": "https://recipeatlas.co.uk" },
         "url": "https://recipeatlas.co.uk" + window.location.pathname,
+        "aggregateRating": currentRating ? {
+          "@type": "AggregateRating",
+          "ratingValue": currentRating.value.toFixed(1),
+          "reviewCount": currentRating.count,
+          "bestRating": "5",
+          "worstRating": "1"
+        } : undefined,
       };
       // Remove undefined fields
       Object.keys(schemaData).forEach(k => schemaData[k] === undefined && delete schemaData[k]);
@@ -2209,7 +2828,7 @@ function App() {
         '@type': 'WebSite',
         'name': 'Recipe Atlas',
         'url': 'https://recipeatlas.co.uk',
-        'description': 'Explore authentic recipes from 44 countries and 7 regions. Discover the world through food.',
+        'description': 'Explore authentic recipes from 85 countries and 7 regions. Discover the world through food.',
         'potentialAction': {
           '@type': 'SearchAction',
           'target': { '@type': 'EntryPoint', 'urlTemplate': 'https://recipeatlas.co.uk/?q={search_term_string}' },
@@ -2238,7 +2857,7 @@ function App() {
       document.head.appendChild(orgTag);
     }
 
-  }, [view, selectedDish, selectedCountry, selectedRegion]);
+  }, [view, selectedDish, selectedCountry, selectedRegion, searchQuery, currentRating]);
   // ── END DYNAMIC META ───────────────────────────────────────────────────
 
   const goToRegion      = (rid) => navigate(`/${rid}`);
@@ -2257,6 +2876,45 @@ function App() {
   const goToCountryBack = ()    => navigate(selectedRegion && selectedCountry ? `/${selectedRegion}/${slugify(selectedCountry)}` : selectedRegion ? `/${selectedRegion}` : '/');
 
   const region = REGIONS.find(r => r.id === selectedRegion);
+
+  const breadcrumbContent = (
+    <div style={{ display:"flex", alignItems:"center", gap:6, fontSize:12, color:"#b8b0a8", flexWrap:"wrap" }}>
+      {view === "recipe" && recipeCountry ? (
+        <>
+          <span style={{ cursor:"pointer", color:"#9a9088", fontWeight:500 }} onClick={() => { const r = REGIONS.find(r => r.countries?.includes(recipeCountry)); navigate(`/${r ? r.id : ""}/${slugify(recipeCountry)}`); }}>{recipeCountry}</span>
+          {selectedDish && <><span>›</span><span style={{ color:"#1a1714", fontWeight:600 }}>{selectedDish}</span></>}
+        </>
+      ) : (
+        <>
+          <span style={{ cursor:"pointer", color:"#9a9088", fontWeight:500 }} onClick={goToRegions}>Regions</span>
+          {selectedRegion && <><span>›</span><span style={{ cursor:"pointer", color: view!=="region"?"#9a9088":"#1a1714", fontWeight:500 }} onClick={goToRegionBack}>{region?.name}</span></>}
+          {!selectedRegion && countryRegion && <><span>›</span><span style={{ cursor:"pointer", color:"#9a9088", fontWeight:500 }} onClick={() => navigate(`/${countryRegion.id}`)}>{countryRegion.name}</span></>}
+          {selectedCountry && <><span>›</span><span style={{ cursor:"pointer", color: view!=="country"?"#9a9088":"#1a1714", fontWeight:500 }} onClick={goToCountryBack}>{selectedCountry}</span></>}
+          {selectedDish && <><span>›</span><span style={{ color:"#1a1714", fontWeight:600 }}>{selectedDish}</span></>}
+        </>
+      )}
+    </div>
+  );
+
+  const pantryPill = (
+    <span onClick={() => navigate('/pantry-to-plate')}
+      style={{ display:"inline-flex", alignItems:"center", gap:6, cursor:"pointer", fontSize:12, fontWeight:700, fontFamily:"Plus Jakarta Sans",
+        color: view==="pantry-to-plate" ? "#fff" : "#c2622a",
+        background: view==="pantry-to-plate" ? "#c2622a" : "#fdf3ed",
+        border: "1.5px solid #e8c9b0", borderRadius:20, padding:"7px 14px" }}>
+      🥕 Pantry to Plate
+    </span>
+  );
+
+  const blogPill = (
+    <span onClick={() => navigate('/blog')}
+      style={{ display:"inline-flex", alignItems:"center", gap:6, cursor:"pointer", fontSize:12, fontWeight:700, fontFamily:"Plus Jakarta Sans",
+        color: view==="blog" ? "#fff" : "#c2622a",
+        background: view==="blog" ? "#c2622a" : "#fdf3ed",
+        border: "1.5px solid #e8c9b0", borderRadius:20, padding:"7px 14px" }}>
+      📖 Blog
+    </span>
+  );
 
   return (
     <>
@@ -2282,36 +2940,47 @@ function App() {
               <div style={{ fontSize:10, color:"#b8b0a8", letterSpacing:".1em", textTransform:"uppercase", fontWeight:500 }}>World Cuisine Explorer</div>
             </div>
           </div>
-          {view !== "regions" && (
-            <div style={{ display:"flex", alignItems:"center", gap:6, fontSize:12, color:"#b8b0a8", flexWrap:"wrap" }}>
-              {view === "recipe" && recipeCountry ? (
-                <>
-                  <span style={{ cursor:"pointer", color:"#9a9088", fontWeight:500 }} onClick={() => { const r = REGIONS.find(r => r.countries?.includes(recipeCountry)); navigate(`/${r ? r.id : ""}/${slugify(recipeCountry)}`); }}>{recipeCountry}</span>
-                  {selectedDish && <><span>›</span><span style={{ color:"#1a1714", fontWeight:600 }}>{selectedDish}</span></>}
-                </>
-              ) : (
-                <>
-                  <span style={{ cursor:"pointer", color:"#9a9088", fontWeight:500 }} onClick={goToRegions}>Regions</span>
-                  {selectedRegion && <><span>›</span><span style={{ cursor:"pointer", color: view!=="region"?"#9a9088":"#1a1714", fontWeight:500 }} onClick={goToRegionBack}>{region?.name}</span></>}
-                  {!selectedRegion && countryRegion && <><span>›</span><span style={{ cursor:"pointer", color:"#9a9088", fontWeight:500 }} onClick={() => navigate(`/${countryRegion.id}`)}>{countryRegion.name}</span></>}
-                  {selectedCountry && <><span>›</span><span style={{ cursor:"pointer", color: view!=="country"?"#9a9088":"#1a1714", fontWeight:500 }} onClick={goToCountryBack}>{selectedCountry}</span></>}
-                  {selectedDish && <><span>›</span><span style={{ color:"#1a1714", fontWeight:600 }}>{selectedDish}</span></>}
-                </>
-              )}
-            </div>
-          )}
+          <div className="header-nav-desktop" style={{ display:"flex", alignItems:"center", gap:16, flexWrap:"wrap" }}>
+            {pantryPill}
+            {blogPill}
+            <SearchBox navigate={navigate} />
+            {view !== "regions" && breadcrumbContent}
+          </div>
+          <div className="header-nav-mobile" style={{ alignItems:"center", gap:10 }}>
+            <SearchBox navigate={navigate} />
+            <span ref={mobileMenuBtnRef} onClick={() => setMobileMenuOpen(o => !o)}
+              style={{ cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", width:34, height:34, borderRadius:8,
+                color: mobileMenuOpen ? "#fff" : "#9a9088", background: mobileMenuOpen ? "#c2622a" : "transparent" }}
+              aria-label="Menu">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <line x1="4" y1="7" x2="20" y2="7" />
+                <line x1="4" y1="12" x2="20" y2="12" />
+                <line x1="4" y1="17" x2="20" y2="17" />
+              </svg>
+            </span>
+          </div>
         </div>
+
+        {mobileMenuOpen && (
+          <div ref={mobileMenuRef} className="header-nav-mobile-panel"
+            style={{ background:"#fff", borderBottom:"1.5px solid #ece6db", padding:"14px 20px 18px", display:"flex", flexDirection:"column", gap:14, position:"sticky", top:62, zIndex:49, boxShadow:"0 6px 20px rgba(0,0,0,.08)" }}
+            onClick={() => setMobileMenuOpen(false)}>
+            {pantryPill}
+            {blogPill}
+            {view !== "regions" && breadcrumbContent}
+          </div>
+        )}
 
         {/* Main */}
         <div style={{ position:"relative", backgroundImage:"url(https://images.pexels.com/photos/13832265/pexels-photo-13832265.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1)", backgroundSize:"cover", backgroundPosition:"center", backgroundAttachment:"fixed" }}>
           <div style={{ position:"absolute", inset:0, background:"rgba(253,252,249,0.92)", mixBlendMode:"normal" }} />
           <div style={{ position:"relative", zIndex:1 }}>
-        {!["blog","about","contact","privacy","terms"].includes(view) && (
+        {!["blog","about","contact","privacy","terms","pantry-to-plate","search"].includes(view) && (
           <div style={{ padding:"32px 24px 60px", maxWidth:960, margin:"0 auto" }}>
             {view === "regions"  && <RegionMap onSelectRegion={goToRegion} />}
             {view === "region"   && selectedRegion && <RegionView regionId={selectedRegion} onBack={goToRegions} onSelectCountry={goToCountry} />}
             {view === "country"  && selectedCountry && <CountryView country={selectedCountry} onBack={goToRegionBack} onSelectDish={goToDish} />}
-            {view === "recipe"   && selectedDish && <RecipeView country={recipeCountry || selectedCountry} dish={selectedDish} navigate={navigate} onBack={() => { const r = REGIONS.find(r => r.countries?.includes(recipeCountry)); navigate(recipeCountry && r ? `/${r.id}/${slugify(recipeCountry)}` : '/'); }} />}
+            {view === "recipe"   && selectedDish && <RecipeView country={recipeCountry || selectedCountry} dish={selectedDish} navigate={navigate} onRatingChange={setCurrentRating} onBack={() => { const r = REGIONS.find(r => r.countries?.includes(recipeCountry)); navigate(recipeCountry && r ? `/${r.id}/${slugify(recipeCountry)}` : '/'); }} />}
             {(view === "region" && !selectedRegion) && <RegionMap onSelectRegion={goToRegion} />}
             {(view === "country" && !selectedCountry) && <RegionMap onSelectRegion={goToRegion} />}
             {(view === "recipe" && !selectedDish) && <RegionMap onSelectRegion={goToRegion} />}
@@ -2331,6 +3000,12 @@ function App() {
             {view === "privacy" && <PrivacyPage />}
           </div>
         )}
+
+        {/* Pantry to Plate */}
+        {view === "pantry-to-plate" && <PantryToPlate navigate={navigate} />}
+
+        {/* Search */}
+        {view === "search" && <SearchResultsPage query={searchQuery || ""} navigate={navigate} />}
 
           </div>
         </div>
@@ -2359,7 +3034,7 @@ function App() {
                 </div>
               </div>
               <div style={{ display:"flex", gap:20, flexWrap:"wrap" }}>
-                {[["blog","Blog"],["about","About"],["contact","Contact"],["privacy","Privacy"],["terms","Terms"]].map(([v,label]) => (
+                {[["pantry-to-plate","Pantry to Plate"],["blog","Blog"],["about","About"],["contact","Contact"],["privacy","Privacy"],["terms","Terms"]].map(([v,label]) => (
                   <span key={v} onClick={() => navigate(`/${v}`)}
                     style={{ fontSize:12, color:"#9a9088", cursor:"pointer", fontWeight:500, fontFamily:"Plus Jakarta Sans" }}>
                     {label}
@@ -2382,7 +3057,7 @@ function App() {
 const BLOG_POSTS = [
   {
     slug:"maillard-reaction",
-    title:"The Maillard Reaction: Why Searing Meat Matters",
+    title:"The Maillard Reaction: Why Searing Meat Matters", image:"https://images.pexels.com/photos/36683020/pexels-photo-36683020.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
     date:"June 2025", tag:"Science",
     excerpt:"The science behind the browning reaction that creates hundreds of new flavour compounds — and why it's the difference between great and exceptional cooking.",
     body:[
@@ -2396,7 +3071,7 @@ const BLOG_POSTS = [
   },
   {
     slug:"chilli-peppers-guide",
-    title:"A Guide to the World's Great Chilli Peppers",
+    title:"A Guide to the World's Great Chilli Peppers", image:"https://images.pexels.com/photos/13548953/pexels-photo-13548953.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
     date:"May 2025", tag:"Ingredients",
     excerpt:"From Mexico's smoky ancho to Thailand's bird's eye and Peru's fruity ají amarillo — a tour of the peppers that define regional cuisines.",
     body:[
@@ -2410,7 +3085,7 @@ const BLOG_POSTS = [
   },
   {
     slug:"fermentation-guide",
-    title:"Why Fermentation is the Secret Ingredient in Every Culture",
+    title:"Why Fermentation is the Secret Ingredient in Every Culture", image:"https://images.pexels.com/photos/30637886/pexels-photo-30637886.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
     date:"May 2025", tag:"Technique",
     excerpt:"Kimchi, miso, injera — across every continent, fermentation transforms simple ingredients into some of the world's most complex flavours.",
     body:[
@@ -2424,7 +3099,7 @@ const BLOG_POSTS = [
   },
   {
     slug:"spice-routes-history",
-    title:"The Spice Routes That Changed World Food Forever",
+    title:"The Spice Routes That Changed World Food Forever", image:"https://images.pexels.com/photos/36884865/pexels-photo-36884865.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
     date:"April 2025", tag:"History",
     excerpt:"How the medieval spice trade didn't just make merchants rich — it fundamentally altered what every culture in the world ate and still eats today.",
     body:[
@@ -2438,7 +3113,7 @@ const BLOG_POSTS = [
   },
   {
     slug:"umami-fifth-taste",
-    title:"Umami: The Fifth Taste and How to Cook With It",
+    title:"Umami: The Fifth Taste and How to Cook With It", image:"https://images.pexels.com/photos/13821841/pexels-photo-13821841.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
     date:"April 2025", tag:"Science",
     excerpt:"Discovered in Japan in 1908, umami is the savoury depth in parmesan, anchovies, soy sauce and tomatoes — the secret behind the world's most satisfying dishes.",
     body:[
@@ -2452,7 +3127,7 @@ const BLOG_POSTS = [
   },
   {
     slug:"street-food-guide",
-    title:"Street Food: Why the Best Meals Are Often the Cheapest",
+    title:"Street Food: Why the Best Meals Are Often the Cheapest", image:"https://images.pexels.com/photos/16204518/pexels-photo-16204518.jpeg?auto=compress&cs=tinysrgb&h=650&w=940",
     date:"March 2025", tag:"Culture",
     excerpt:"From Bangkok's night markets to Lagos's suya stalls and Mexico City's taquerias — why street food produces the world's most honest, flavourful cooking.",
     body:[
@@ -2464,6 +3139,18 @@ const BLOG_POSTS = [
       "If there is a philosophy embedded in great street food it is this: respect your ingredients, perfect your technique, and don't add anything that doesn't belong. The best tacos contain three things: good tortillas, properly cooked meat, and the right salsa. The best pho is a clear broth of extraordinary depth with fresh noodles and simple garnishes. Complexity comes from technique and time, not from ingredient lists. This is perhaps the most important lesson any cook can learn — and it costs nothing more than a trip to a street market and an open mind.",
     ]
   },
+  {"slug": "banoffee-pie-origins", "title": "Banoffee Pie: A British Invention With a Contested Birth", "image": "https://images.pexels.com/photos/9501719/pexels-photo-9501719.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", "date": "August 2026", "tag": "Origins", "excerpt": "One of Britain's most beloved desserts has a birth certificate that's surprisingly hard to pin down — even the two men usually credited with it have told the story differently over the years.", "body": ["Banoffee pie is, by most accounts, a genuinely modern invention — not a dish handed down through generations, but one that can be traced to a specific restaurant, in a specific decade, with named people involved. That should make its origin simple to state. It doesn't. Even the two men most consistently credited with inventing it have, at various points, given accounts that don't entirely agree with each other.", "The standard version of the story goes like this: in 1972, Nigel Mackenzie, the owner of The Hungry Monk restaurant in Jevington, East Sussex, and his chef Ian Dowding developed the pie by adapting an American recipe for a coffee-toffee pie, replacing the coffee element with banana and swapping the toffee for boiled condensed milk. The name 'banoffee' was coined as a portmanteau of 'banana' and 'toffee'. The Hungry Monk kept the pie on its menu for decades and became well known specifically because of it.", "Where the accounts start to diverge is in the detail. Some tellings credit Dowding as the primary inventor, with Mackenzie contributing the name and the restaurant platform. Others give Mackenzie more credit for the concept itself. The American recipe that supposedly inspired it — a 'Blum's Coffee Toffee Pie' from a San Francisco bakery — has been cited in some retellings but is difficult to verify as the definitive inspiration, and other food writers have pointed out that boiled condensed milk (dulce de leche, essentially) has a much older history in various cuisines, making the 'toffee' element less of a singular invention than the story implies.", "There is also a persistent question of timing. Some sources place the pie's creation slightly earlier or later than 1972, and the exact year has shifted depending on which interview or article is consulted. The Hungry Monk itself closed in 2012, and with it went the most direct living source of the story's original documentation — though Mackenzie and Dowding both remained willing to discuss it in interviews for years afterward, with broadly consistent but not identical details each time.", "What isn't disputed is banoffee pie's rapid spread through British food culture from the 1970s onward, eventually becoming a fixture of home baking, pub desserts and supermarket ready meals across the UK and, later, further afield. Its popularity may be part of why the origin story feels slightly unstable — a dish invented in one restaurant kitchen doesn't usually generate this many retellings unless a great many people have had reason to ask about it over the decades.", "So the honest position is this: banoffee pie almost certainly originated at The Hungry Monk in the early 1970s, credited to Ian Dowding and Nigel Mackenzie in some combination — but the precise division of credit, the exact year, and the degree to which an American pie genuinely inspired it all vary depending on which account you read. It is a rare case of a dessert whose origin is recent enough to seem knowable, and yet still resists a single, tidy version of events."]},
+  {"slug": "hummus-origins", "title": "Hummus: Whose Dish Is It Anyway?", "image": "https://images.pexels.com/photos/15481451/pexels-photo-15481451.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", "date": "August 2026", "tag": "Origins", "excerpt": "Chickpeas, tahini and lemon combine into one of the most contested dishes on earth — claimed, in various forms, by at least half a dozen countries across the Levant and beyond.", "body": ["Few foods generate as much passionate, occasionally heated debate over ownership as hummus. The dish itself — cooked, mashed chickpeas blended with tahini, lemon juice, garlic and olive oil — is eaten across the Levant, the wider Middle East, and North Africa, and versions of it appear in the culinary traditions of Lebanon, Israel, Palestine, Syria, Jordan, Egypt and Turkey, among others. Each of these traditions has, at various points, staked some form of claim to hummus as a national or cultural dish, and the disputes are not purely academic — they have surfaced in diplomatic disagreements, marketing campaigns and even attempts to register hummus recipes for official recognition.", "The word 'hummus' itself is simply the Arabic word for chickpea, which offers a clue to how old and how broadly shared the underlying tradition likely is. Chickpeas have been cultivated in the Middle East for thousands of years — archaeological evidence places them in the region as far back as the Bronze Age — and mashed or pureed chickpea dishes of some kind have plausibly existed in various forms for a very long time. However, evidence for hummus specifically, in something like its modern form with tahini, is much harder to date precisely, and written references that clearly describe the dish as we know it today are generally traced to sources from the medieval period onward, with some scholars pointing to 13th-century Egyptian and Syrian recipe collections as among the earliest concrete written evidence.", "Complicating matters further, tahini itself — the sesame paste that gives hummus its distinctive flavour and texture — has its own separate and equally debated history, with claims to its origin variously made in different parts of the Middle East and beyond. A dish that combines two ingredients each with contested regional histories was perhaps always going to end up disputed as a whole.", "In recent decades, the debate has taken on a more overtly political dimension, particularly around competing claims between Israeli and Palestinian/Lebanese food culture, with each side sometimes framing hummus as emblematic of a broader cultural identity. Lebanon has previously pursued efforts through trade bodies to have hummus recognised as a protected Lebanese product, partly in response to hummus being marketed internationally as 'Israeli food' — attempts that have drawn attention to just how difficult it is to assign single-nation ownership to a dish with such a long, dispersed and shared regional history.", "Food historians who have studied the question tend to arrive at a similar, if unsatisfying, conclusion: hummus, in some form, likely developed gradually across a wide geographic area over a long period, shaped by shared ingredients, trade and cultural exchange across the Levant and neighbouring regions, rather than being invented at a single moment by a single culture. That doesn't stop the dish from carrying real cultural and emotional weight for the many communities who consider it central to their own culinary identity — which is, in many ways, exactly why the debate continues.", "What can be said with confidence is this: hummus is old, its exact origins are not clearly documented, and it has been claimed, adapted and cherished by many overlapping food cultures across the Middle East for a very long time. Beyond that, the records simply don't offer a single conclusive answer — and most serious food historians are candid about that uncertainty rather than picking a side."]},
+  {"slug": "pavlova-origins", "title": "Pavlova: The Dessert That Started a Trans-Tasman War", "image": "https://images.pexels.com/photos/9124488/pexels-photo-9124488.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", "date": "August 2026", "tag": "Origins", "excerpt": "Australia and New Zealand have been arguing over who invented the pavlova for the best part of a century, and neither country shows any sign of backing down.", "body": ["Few culinary disputes are as long-running, good-natured and genuinely unresolved as the argument between Australia and New Zealand over who invented the pavlova — the meringue-based dessert with a crisp shell and soft, marshmallow-like centre, typically topped with whipped cream and fresh fruit. Both countries claim it as a national dish. Both have historical evidence to point to. Neither has managed to convince the other, and the dispute has been running for close to a century with no sign of resolution.", "The dessert is named after the Russian ballerina Anna Pavlova, who toured both Australia and New Zealand in the 1920s. This much is agreed upon by everyone. What isn't agreed upon is which country's chefs first created a dish in her honour, and when precisely that happened. New Zealand's claim generally centres on a recipe said to have appeared in a New Zealand publication in the mid-1920s, with some food historians pointing to a 1929 recipe as an early documented version bearing the name. Australia's claim points to various restaurant and hotel accounts, with some Australian food historians arguing that dishes closely resembling the modern pavlova, under different names, may have existed in Australia slightly earlier, even if the specific name 'pavlova' was applied a little later.", "Culinary historian Helen Leach, based at the University of Otago in New Zealand, conducted one of the more extensive academic investigations into the dispute, tracing recipe books and publications from both countries across the early-to-mid 20th century. Her research, published in the early 2000s, is often cited by New Zealand as strengthening its claim, based on the density and dating of early New Zealand recipes bearing the pavlova name. Australian food historians have not universally accepted this as conclusive, pointing to gaps in the historical record on both sides and questioning whether enough early recipe material survives from either country to settle the matter definitively.", "Adding to the complexity, the pavlova itself may have evolved gradually from earlier meringue-based desserts with less distinct national origins — meringue confections with cream and fruit toppings existed in various forms in European cooking traditions well before the 1920s, meaning that even if a specific 'pavlova' recipe can eventually be dated precisely, the broader dessert tradition it draws from was not itself invented in either country.", "The dispute resurfaces reliably in the media of both nations every few years, often around cultural moments — food festivals, international competitions, or simply a slow news week — and it is generally treated with more humour than hostility on both sides, functioning as much as a piece of good-natured national rivalry as a genuine unresolved historical question. Both countries continue to serve, celebrate and claim the dish enthusiastically regardless of the ongoing disagreement.", "The honest summary, as most serious food historians present it: the pavlova's name is definitively tied to Anna Pavlova's 1920s tours of both countries, the earliest clearly documented recipes bearing the name lean toward New Zealand by a matter of years according to some research, but the surviving historical record from the period is incomplete on both sides, and the broader meringue-dessert tradition the pavlova draws from predates either country's specific claim. Which is to say: nobody has definitively won this one, and after nearly a hundred years, it seems unlikely anybody ever fully will."]},
+  {"slug": "why-bread-rises", "title": "Why Bread Rises: The Science of Yeast and Gluten", "image": "https://images.pexels.com/photos/8633662/pexels-photo-8633662.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", "date": "August 2026", "tag": "Science", "excerpt": "Two separate biological and chemical processes have to work together perfectly for a loaf of bread to rise — understanding both makes you a dramatically better baker.", "body": ["Bread rising looks like a single event, but it's actually the product of two entirely separate processes happening at once: yeast producing gas, and gluten trapping it. Neither one alone would produce a risen loaf. Understanding how they work together explains almost every rule of bread baking, from why you knead dough to why recipes ask you to wait.", "Yeast is a single-celled fungus, and the strains used in baking (most commonly Saccharomyces cerevisiae) survive by consuming sugars and starches in the flour and converting them into carbon dioxide and ethanol through fermentation. This is the same basic biological process used in brewing beer and making wine, just optimised for gas production rather than alcohol content. As yeast ferments, it produces thousands of tiny bubbles of carbon dioxide throughout the dough. Left unchecked, this gas would simply escape and the dough would stay flat — which is exactly where gluten comes in.", "Gluten is not a single ingredient but a network of two proteins — glutenin and gliadin — naturally present in wheat flour. When flour is mixed with water, these proteins begin to link together, and kneading accelerates and strengthens that linking, forming a stretchy, elastic web throughout the dough. This gluten network is what traps the carbon dioxide bubbles produced by the yeast, allowing the dough to expand rather than simply venting gas into the air. A well-developed gluten network is strong enough to stretch around each bubble without tearing, which is why properly kneaded bread has an open, even crumb, while under-kneaded bread often collapses or stays dense.", "Temperature governs the speed of both processes. Yeast ferments fastest in a warm environment (around 27–35°C is typical for baking), which is why recipes call for proving dough somewhere warm. Too hot, however, and the yeast dies rather than accelerates — professional bakers are generally cautious above roughly 60°C, well beyond typical proving temperatures but a useful ceiling to keep in mind. Cold, slow fermentation — leaving dough in the refrigerator overnight — doesn't stop yeast activity entirely, it simply slows it dramatically, which is why long, cold ferments are prized by serious bread bakers: more time allows more complex flavour compounds to develop as a byproduct of fermentation, producing bread with noticeably more depth than a quick same-day loaf.", "The final stage — baking — locks the structure in place through a phenomenon called oven spring, where the sudden heat causes a last burst of gas expansion and yeast activity before the yeast dies and the gluten protein sets firm, along with starch gelatinisation, which stiffens the crumb permanently. This is why scoring the top of a loaf before baking matters: it gives the rapidly expanding dough a controlled place to open up, rather than tearing randomly across the surface.", "The practical upshot for home bakers: knead enough to build a proper gluten structure, give the yeast a warm enough environment to work without killing it, and don't rush the proving stage if you want real flavour. Bread rising isn't magic — it's two biological processes in careful cooperation, and every step of a good bread recipe exists to support one or the other."]},
+  {"slug": "rice-guide", "title": "Rice: The Grain That Feeds Half the World", "image": "https://images.pexels.com/photos/1717821/pexels-photo-1717821.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", "date": "August 2026", "tag": "Ingredients", "excerpt": "Basmati, jasmine, arborio, sushi rice — they're all the same species, yet they behave completely differently in the pot. The difference comes down to starch.", "body": ["Rice is the staple food for more than half the world's population, and yet most cooks only ever use one or two varieties, unaware of how dramatically different rice can behave depending on its starch composition. Nearly all commonly eaten rice belongs to the same species, Oryza sativa, but different varieties within that species contain very different ratios of two starch types — amylose and amylopectin — and that ratio is what determines whether a rice ends up fluffy and separate, sticky and clingy, or somewhere in between.", "Long-grain rices like basmati and jasmine are relatively high in amylose. Amylose molecules are straight chains that don't bond together tightly during cooking, which is why basmati and jasmine rice cook up light, fluffy and with distinct, separate grains. Basmati has the added characteristic of elongating significantly during cooking — a good basmati grain can nearly double in length — and carries a distinctive aromatic quality from a naturally occurring compound called 2-acetyl-1-pyrroline, the same compound partly responsible for the smell of fresh bread crust.", "Short and medium-grain rices, by contrast, are higher in amylopectin, a branched starch molecule that creates a stickier, more cohesive texture as it cooks. This is why sushi rice, risotto rice (arborio, carnaroli) and the short-grain rice used in Korean and Japanese cooking clump together rather than staying separate. This isn't a flaw — it's exactly the texture those cuisines are built around. Sushi rice needs to hold together to be formed and eaten with chopsticks or by hand. Risotto relies on the starch releasing into the cooking liquid as it's stirred, creating the dish's characteristic creamy consistency without any cream being added at all.", "Glutinous rice (sometimes called sticky rice or sweet rice, despite containing no gluten) sits at the extreme end of the amylopectin spectrum, and is used across Southeast Asian cooking for dishes like Thai mango sticky rice and Laotian khao niew. It's typically soaked and steamed rather than boiled, a method that suits its very high amylopectin content and produces the dense, chewy, almost translucent texture the dish is known for.", "Washing rice before cooking is one of the most commonly debated steps, and the amylose-amylopectin distinction explains why the advice differs by rice type. Washing rinses away surface starch, which matters enormously for short-grain and sushi rice recipes where excess surface starch can make the rice gummy rather than pleasantly sticky. For basmati, washing (and often soaking) serves a slightly different purpose — removing surface starch to help the grains stay separate and reducing breakage, while also allowing the grain to absorb water evenly for that characteristic elongation. Risotto rice, on the other hand, is deliberately never washed, since the whole technique depends on that surface starch releasing into the dish as it cooks.", "Understanding rice this way changes how you shop and cook. The right rice for a dish isn't really about following tradition for its own sake — it's about matching starch behaviour to the texture the dish actually needs. Using basmati for risotto or arborio for pilaf will produce a technically edible but fundamentally wrong result, because you'd be fighting against, rather than working with, the rice's natural starch chemistry."]},
+  {"slug": "salt-guide", "title": "Salt: The Only Rock We Eat", "image": "https://images.pexels.com/photos/9974508/pexels-photo-9974508.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", "date": "August 2026", "tag": "Ingredients", "excerpt": "Table salt, sea salt, kosher salt, flaky salt — they all taste the same dissolved in water, yet professional cooks are particular about which one they reach for and why.", "body": ["Salt is unique among seasonings: it is, chemically, sodium chloride — the same compound regardless of source — and yet cooks are famously particular about which type they use for which purpose. That's not pretension. The differences between salt types have almost nothing to do with flavour and almost everything to do with crystal shape, size and density, all of which change how salt behaves in the kitchen even though the underlying chemistry is identical.", "Table salt is mined or evaporated and then processed into small, dense, uniform cubic crystals, often with anti-caking agents added and, in many countries, iodine — added since the early 20th century as a public health measure to prevent iodine deficiency disorders. Because the crystals are small and dense, table salt packs tightly into a measuring spoon, meaning a teaspoon of table salt contains meaningfully more actual salt by weight than a teaspoon of a coarser salt. This is the single most common cause of over-salting when a recipe writer used one salt type and the cook used another.", "Kosher salt, widely used by professional cooks in the United States, has larger, more irregular flake-like crystals (the name refers to its traditional use in koshering meat by drawing out blood, not to any religious certification of the salt itself). Its larger, less dense crystals mean it's easier to pinch and sprinkle evenly by hand, and its lower density per volume makes it more forgiving to season by eye — a genuine practical reason professional kitchens favour it, beyond habit.", "Sea salt is produced by evaporating seawater, and its crystal structure varies significantly depending on production method — some sea salts are fine and dense, others form larger, more irregular crystals. Because it's derived directly from seawater rather than being mined, sea salt often carries trace minerals (magnesium, calcium, potassium) that can introduce subtle flavour differences, though at the small quantities used in cooking these differences are usually minor compared to the dominant effect of the sodium chloride itself.", "Flaky finishing salts, like Maldon, are prized specifically for their large, thin, pyramid-shaped crystals, produced through a slower evaporation process. These crystals don't dissolve instantly on contact with food the way fine salt does — they retain a brief moment of crunch and a burst of saltiness, which is exactly why they're used as a finishing touch on dishes like a good steak or a chocolate chip cookie rather than mixed into a dish during cooking, where that textural quality would be lost entirely as the crystals dissolve into the sauce or batter.", "The practical lesson: for seasoning during cooking, where the salt fully dissolves anyway, the type matters far less than getting the quantity right — and because volume-to-weight ratios differ so much between salt types, it's worth learning how your particular salt measures rather than assuming a teaspoon is a teaspoon. For finishing a dish, where the salt is meant to be seen and felt rather than dissolved, crystal shape and size become the entire point, and a flaky finishing salt will do a job that fine table salt simply cannot replicate."]},
+  {"slug": "braising-guide", "title": "Braising: Turning Tough Cuts into Tender Perfection", "image": "https://images.pexels.com/photos/14146060/pexels-photo-14146060.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", "date": "August 2026", "tag": "Technique", "excerpt": "The cheapest, toughest cuts of meat become some of the most luxurious dishes on earth through one slow, patient technique — and the science behind why is worth understanding.", "body": ["Braising is one of the oldest and most universally used cooking techniques in the world, appearing under different names in nearly every culinary tradition — French daube, Italian brasato, Chinese hong shao, British stew, Mexican barbacoa. The technique is simple in concept: sear meat for flavour, then cook it slowly, partially submerged in liquid, at a low temperature for an extended period. What makes braising worth understanding properly, rather than just following by rote, is the chemistry happening inside the meat as it cooks.", "Tough cuts of meat — shin, shoulder, brisket, oxtail — are tough precisely because they contain a high proportion of collagen, a structural protein found in connective tissue, tendons and the muscles that do the most work on an animal (which is also why cheaper cuts tend to come from the parts of the animal that move the most). Cooked quickly at high heat, as you would a tender cut like fillet steak, collagen-rich meat stays tough and chewy, because the collagen simply doesn't have time to change. Cooked slowly at a lower temperature over hours, that same collagen gradually breaks down and converts into gelatin — the same substance that thickens stock and gives a good braise its characteristic silky, rich mouthfeel. This is the central paradox of braising: the toughest cuts of meat become the most tender, given enough time, precisely because of the same tissue that made them tough in the first place.", "Temperature control matters enormously. Collagen conversion happens most effectively in a fairly narrow range, typically cited as roughly 60–70°C internally, sustained over a long period — well below a rolling boil. This is why braises are cooked at a gentle simmer, not a boil, and often finished in a low oven (commonly around 150–160°C) where the ambient heat is easier to control evenly than on a stovetop burner. Boiling a braise too hard doesn't just risk toughening the exterior of the meat through moisture loss — it can also cause the muscle fibres themselves to seize and expel liquid faster than the collagen can convert, working against the very process you're trying to encourage.", "The initial sear, before the liquid goes in, isn't just a formality — it's where a significant portion of a braise's flavour originates, through the Maillard reaction browning the meat's surface and building the fond (the browned bits stuck to the bottom of the pan) that gets deglazed into the braising liquid itself. Skipping this step produces a technically edible but noticeably flatter-tasting braise, since so much of the dish's depth comes from that initial browning rather than from the meat simply stewing in liquid.", "The braising liquid itself does double duty: it keeps the meat from drying out during the long cook, and it becomes the sauce. Because the liquid reduces and concentrates over hours of cooking, and because it's absorbing rendered fat, gelatin and flavour compounds from the meat and any aromatics cooked alongside it, a good braising liquid ends up far more flavourful than the stock or wine you started with. This is why braises are often even better the next day — as the dish cools, the gelatin sets more firmly, and reheating gently re-melds the sauce into the meat.", "The practical lesson for anyone new to braising: buy the tougher, cheaper cut on purpose, don't rush the sear, keep the liquid at a bare simmer rather than a boil, and give it far more time than feels necessary. Braising rewards patience more directly than almost any other cooking technique — the exact same collagen that makes a cut cheap is what makes a well-executed braise so satisfying."]},
+  {"slug": "resting-meat", "title": "Why Resting Meat Actually Matters", "image": "https://images.pexels.com/photos/30351316/pexels-photo-30351316.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", "date": "August 2026", "tag": "Technique", "excerpt": "It's one of the most repeated pieces of cooking advice in the world, and one of the least understood — here's what's actually happening inside meat while it rests.", "body": ["Almost every recipe involving roasted or grilled meat includes an instruction to let it rest before carving, and almost every cook follows the advice without necessarily knowing why. The common explanation — that resting 'redistributes the juices' — is repeated so often it's become received wisdom, but it's a simplified version of what's actually happening, and understanding the fuller picture makes it easier to judge how long a rest actually needs to be for different cuts.", "When meat cooks, heat causes the muscle fibres to contract, and this contraction squeezes moisture toward the centre of the cut and, to some extent, out of the meat's surface. Muscle fibres also become firmer and less able to hold onto liquid as their proteins denature (unfold and reset into a new structure) under heat — a process that continues right up until the meat comes off the heat source. If you cut into meat immediately after cooking, the muscle fibres are still tightly contracted and the moisture inside is under enough internal pressure that a large proportion of it will simply run out onto the cutting board the moment a knife breaks the surface, rather than staying inside the meat where it belongs.", "Resting allows two things to happen. First, the temperature throughout the cut begins to equalise — the very hot exterior and the cooler interior move toward a more even temperature as heat continues to conduct inward even after the meat is off direct heat, a phenomenon called carryover cooking. This is also why many recipes pull meat off the heat slightly before it reaches the final target temperature — the internal temperature will continue climbing for several minutes afterward. Second, as the meat cools slightly and the muscle fibres relax somewhat from their fully contracted state, the internal pressure drops, and the moisture that was forced toward the centre during cooking is better able to redistribute and be reabsorbed by the surrounding muscle tissue, rather than immediately escaping the moment the meat is cut.", "The exact resting time needed depends heavily on the size of the cut. A single steak or chicken breast may only need five to ten minutes, since there's relatively little mass for heat to equalise through and pressure to release from. A whole roasted chicken benefits from closer to fifteen to twenty minutes. A large roast — a whole beef joint or a turkey — can benefit from twenty to forty minutes or more, tented loosely with foil to retain warmth without steaming the crust soft. Resting too briefly means cutting into meat that hasn't had time to reabsorb its own moisture; resting for an excessive amount of time on a large roast, with inadequate insulation, risks the meat cooling below an appetising serving temperature.", "It's worth noting that resting doesn't create or add moisture that wasn't there to begin with — it simply gives the meat time to hold onto more of the moisture it already contains, rather than losing a large proportion of it to the cutting board in the first thirty seconds after cooking. A poorly cooked, overdone piece of meat will still be dry after resting; resting improves the outcome of a well-cooked piece of meat, it doesn't rescue a badly cooked one.", "The practical takeaway: rest meat in proportion to its size, tent large roasts loosely to retain warmth, and resist the temptation to carve immediately, however good it smells. The few extra minutes are not a ritual — they're the difference between the juices ending up in the meat, where you want them, or on the cutting board, where you don't."]},
+  {"slug": "history-of-sugar", "title": "The History of Sugar: From Luxury to Ubiquity", "image": "https://images.pexels.com/photos/11606821/pexels-photo-11606821.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", "date": "August 2026", "tag": "History", "excerpt": "For most of human history, sugar was a rare, expensive luxury reserved for the wealthy. How it became one of the cheapest and most widely consumed ingredients on earth is a story with a difficult legacy.", "body": ["For the vast majority of human history, the primary sweeteners available to most people were honey and fruit — both limited, seasonal and, in the case of honey, genuinely difficult to obtain in large quantities. Sugar, refined from sugarcane, changed that trajectory entirely, but the path from rare luxury to everyday staple was slow, geographically complicated, and, in its middle chapters, built on one of the most brutal systems of forced labour in human history.", "Sugarcane is native to New Guinea and Southeast Asia, and its cultivation and early refinement into a solid, storable sugar product spread gradually westward over centuries — through India, where early sugar-refining techniques were developed, and onward through Persia and the Arab world following the spread of Islam from the 7th century, which carried both the crop and refining knowledge across the Middle East and into parts of the Mediterranean. For a long stretch of this period, sugar remained a genuine luxury in Europe — sold in small quantities, often through apothecaries, and used as much for medicinal purposes as for sweetening food.", "Everything changed with European colonisation of the Americas from the late 15th century onward. Sugarcane thrived in the tropical climate of the Caribbean, Brazil and other parts of the Americas, and European colonial powers — Portugal, Spain, Britain, France and the Netherlands among them — established vast plantation systems to grow and process it at a scale never previously possible. This expansion is inseparable from the transatlantic slave trade: the labour-intensive work of cultivating and processing sugarcane on colonial plantations was overwhelmingly carried out by enslaved Africans, forcibly transported across the Atlantic in what became one of history's largest forced migrations, with estimates suggesting a substantial proportion of all enslaved Africans brought to the Americas were destined specifically for sugar plantations. Sugar's transformation from rarity to commodity was built directly on this system.", "As colonial sugar production scaled up through the 17th and 18th centuries, prices fell and consumption in Europe rose dramatically. Sugar moved from an occasional luxury to a genuine staple, driving new consumption patterns — the growing popularity of tea and coffee, both commonly sweetened, expanded alongside sugar's increasing availability, and the two trends reinforced each other. By the 19th century, sugar had become a significant part of the ordinary European diet in a way that would have been unthinkable a few centuries earlier.", "The 19th and 20th centuries brought further industrialisation of sugar production, along with the development of sugar beet as an alternative, temperate-climate source that reduced European dependence on tropical colonial sugarcane. Industrial food processing in the 20th century then embedded sugar into an enormous range of manufactured foods far beyond its traditional uses in baking and confectionery, contributing to the sharp rise in per-capita sugar consumption across much of the industrialised world over the course of the century.", "Understanding sugar's history changes how the ingredient reads on a shelf. What is today one of the cheapest, most heavily produced ingredients in the global food system carries a genuinely difficult legacy — a luxury made common not through gradual technological progress alone, but substantially through one of history's most exploitative labour systems. It's a reminder that the price and availability of an ingredient in a supermarket today rarely tells the full story of how it got there."]},
+  {"slug": "rationing-war-recipes", "title": "Rationing, War and the Recipes They Left Behind", "image": "https://images.pexels.com/photos/162927/sale-shelf-old-cans-food-162927.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", "date": "August 2026", "tag": "History", "excerpt": "Wartime food shortages forced households across the world to cook with severe constraints — and some of the resourceful dishes that resulted have quietly outlasted the rationing that created them.", "body": ["War has repeatedly and dramatically reshaped what ordinary people cook and eat, and nowhere is that more visible than in the food culture that emerged from rationing during the First and Second World Wars. Faced with severe shortages of meat, sugar, fat and other staples, households across Britain, continental Europe, the United States and elsewhere developed recipes built entirely around scarcity — and some of those recipes proved durable enough to remain part of everyday cooking long after rationing itself ended.", "In Britain, wartime rationing (which began in 1940 and, for some items, continued into the early 1950s — well after the war itself ended) produced an entire genre of 'austerity' recipes distributed by the Ministry of Food, designed to help households stretch limited ingredients as far as possible. The 'Woolton Pie', named after the Minister of Food Lord Woolton, was a vegetable pie built around whatever root vegetables were available, topped with pastry or mashed potato, created specifically to provide a filling, meat-free meal within rationing constraints. Carrots, being relatively unrationed compared to sugar, were heavily promoted by the Ministry of Food as a sweetener substitute, leading to recipes like carrot-based cakes and even a promoted 'carrolade' drink, part of a genuinely energetic public information campaign encouraging households to eat more of what was actually available.", "In the United States, wartime rationing of meat, sugar, butter and canned goods (beginning in 1942) drove similar creativity, alongside a significant government-backed 'Victory Garden' movement encouraging households to grow their own vegetables to reduce pressure on commercial food supplies destined for troops. Recipes built around meat substitutes, powdered eggs and margarine (a relatively new product at the time, heavily promoted as a butter alternative) became commonplace, and some of the era's improvised dishes — certain casseroles and one-pot meals built to stretch small amounts of meat across a larger dish — left a lasting mark on mid-century American home cooking.", "Continental Europe, particularly countries under occupation or experiencing more severe and prolonged shortages, saw even more extreme adaptations. In the Netherlands, the 'Hunger Winter' of 1944–45 forced some households to cook with tulip bulbs and sugar beet as food sources became critically scarce in the final months of the war — an extreme case, but one that illustrates how far wartime scarcity could push culinary improvisation when normal supply chains broke down entirely.", "What's notable is how much of this wartime resourcefulness quietly persisted after rationing ended. Some dishes were abandoned with relief the moment restrictions lifted. Others — certain vegetable-forward pies, one-pot stews built to stretch modest amounts of meat, cakes made without traditional quantities of butter or sugar — remained in regular rotation in many households for decades afterward, not out of necessity but because people had simply grown to enjoy them, or because frugal cooking habits formed under rationing proved hard to fully shake even once shortages ended.", "Wartime recipes are a useful reminder that resourceful, constraint-driven cooking has produced genuinely good food throughout history, not just palatable substitutes to be endured until better ingredients returned. Many of the techniques developed under rationing — stretching small amounts of meat with vegetables and grains, using every part of an ingredient, finding ways to add flavour and richness without relying on expensive staples — remain entirely sound cooking principles today, regardless of whether the shortages that originally demanded them are still in place."]},
+  {"slug": "lucky-foods-around-the-world", "title": "Why We Eat Certain Foods for Luck", "image": "https://images.pexels.com/photos/6299931/pexels-photo-6299931.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", "date": "August 2026", "tag": "Culture", "excerpt": "From black-eyed peas in the American South to twelve grapes in Spain, cultures around the world eat specific foods at specific moments in the belief that they'll bring good fortune.", "body": ["Across a huge range of cultures, certain foods are eaten not primarily for taste but for what they're believed to bring — good fortune, prosperity, longevity or protection against bad luck in the year ahead. These traditions cluster particularly heavily around New Year celebrations, when the symbolic stakes of a fresh start feel highest, but they appear at other culturally significant moments too, and the specific foods chosen are rarely arbitrary — they usually connect to a visual, linguistic or symbolic association that made sense within that culture's worldview.", "In the American South, eating black-eyed peas (often as part of the dish Hoppin' John, combined with rice) on New Year's Day is a long-standing tradition believed to bring good luck and prosperity for the coming year, with collard greens or cabbage frequently served alongside, their green colour symbolically linked to money. The tradition's exact origins are debated, with some accounts tracing it to Sephardic Jewish communities in the American South and others linking it to West African culinary traditions carried through the transatlantic slave trade, but the core association between eating humble, plentiful foods and inviting prosperity is a recurring theme across many cultures' New Year traditions.", "In Spain, a very specific and precisely timed tradition involves eating twelve grapes in the final twelve seconds before midnight on New Year's Eve, one grape per chime of the clock, with each grape said to represent good luck for one month of the coming year. The tradition is generally dated to the early 20th century, and versions of it have since spread to parts of Latin America. Successfully eating all twelve grapes in time, without choking, is treated as an auspicious start to the year — and missing a grape or two is, by tradition, taken as a small omen for whichever month that grape represented.", "In China, numerous foods carry symbolic significance tied to Lunar New Year celebrations, often based on wordplay — a distinctive feature of Chinese food symbolism given how many Chinese words carry near-homophones with very different meanings. Fish (yú) is eaten because it sounds like the word for 'surplus' or 'abundance', and is traditionally left partially uneaten to symbolise a surplus carrying into the new year. Whole chickens and dumplings shaped to resemble ancient Chinese gold ingots are both associated with wealth and prosperity, while long noodles, left uncut, are eaten to symbolise longevity — cutting them is considered to symbolically shorten one's life.", "In Japan, toshikoshi soba (buckwheat noodles eaten on New Year's Eve) carries a related symbolism — the long noodles represent longevity, while their relative ease of cutting compared to other noodle types is sometimes linked to the idea of cutting away the hardships of the old year before the new one begins. In Italy, lentils (lenticchie), often served with cotechino sausage, are eaten on New Year's Eve, their small, coin-like shape directly linked to financial prosperity in the year ahead.", "These traditions persist not because anyone necessarily believes eating a specific food will literally alter their fortune, but because food is one of the most accessible and repeatable ways cultures express hope, mark transitions, and connect present celebrations to inherited tradition. Whether or not the grapes, the greens, the noodles or the fish actually change the year ahead, the ritual of eating them together, at a meaningful moment, has its own kind of value regardless of superstition."]},
+  {"slug": "family-recipes-unwritten", "title": "The Art of the Family Recipe: Why Some Dishes Are Never Written Down", "image": "https://images.pexels.com/photos/29666891/pexels-photo-29666891.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", "date": "August 2026", "tag": "Culture", "excerpt": "Some of the world's most treasured recipes exist only in the memory and hands of the people who make them — passed down through observation rather than measurement.", "body": ["Walk into countless kitchens around the world and ask for the recipe behind a treasured family dish, and you will very often be met with something other than a written list of ingredients and steps. Instead: a pinch of this, a handful of that, cook it until it looks right, taste it until it tastes right. For many of the world's most beloved home-cooked dishes, no written recipe exists at all — the dish lives entirely in memory, muscle habit and the accumulated judgement of someone who has made it hundreds of times.", "This isn't a failure of documentation so much as a different, older model of how culinary knowledge is transmitted. Before widespread literacy, printed cookbooks and standardised measuring tools were common in most households, cooking knowledge simply had to be passed down through direct teaching — a parent or grandparent cooking alongside a child, correcting by taste and feel rather than by numbers, until the technique and the judgement behind it were internalised. This method of teaching — apprenticeship through repetition, rather than instruction through text — remains deeply embedded in many culinary traditions around the world, even in households that are otherwise entirely literate and could easily write the recipe down if they chose to.", "There are practical reasons unwritten recipes persist even now. Ingredients vary — the exact sourness of a lemon, the age and moisture content of a piece of dried chilli, the specific saltiness of a particular brand of fish sauce — and a cook working by memory and taste can adjust for these variations instinctively in a way a rigid written measurement cannot fully account for. Someone who has made a dish for thirty years has effectively internalised thousands of small corrections and judgement calls that would be extraordinarily difficult to capture fully in a written recipe, even a very detailed one.", "There is also, in many families and cultures, a deliberate protectiveness around certain recipes — an unwritten dish can be a form of inheritance, something transmitted specifically through relationship and presence rather than freely available to anyone with the written instructions. Some family cooks have spoken openly about withholding exact details even when directly asked, not out of unkindness but because the process of learning by watching and helping is, to them, as meaningful as the resulting dish itself — the recipe and the relationship are bound together.", "This oral tradition does carry real risk, however: unwritten recipes can be lost entirely within a generation or two if nobody who learned them chooses, or has the opportunity, to pass them on in turn. Food historians and cultural preservation projects in various countries have made efforts to document oral culinary traditions specifically because of this fragility — recognising that a recipe existing only in one person's hands and memory is, in a very real sense, one lifetime away from disappearing permanently.", "The rise of home cooks documenting family recipes for the first time — writing down a grandmother's dish in her own words, filming her making it, converting her handful-and-pinch method into something closer to measurable quantities — represents an attempt to bridge these two traditions: preserving the knowledge in a durable, shareable form, without losing the judgement and adaptability that made the unwritten version so alive in the first place. It's delicate work, because a recipe reduced purely to numbers can lose something real — the sense that cooking a dish well was never really about following instructions precisely, but about understanding it deeply enough to not need them."]},
 ];
 
 function BlogPage({ initialSlug, navigate }) {
@@ -2502,6 +3189,11 @@ function BlogPage({ initialSlug, navigate }) {
           <span style={{ fontSize:11, background:"#fdf3ed", color:"#c2622a", padding:"3px 10px", borderRadius:20, fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>{post.tag}</span>
               </div>
         <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(22px,3vw,36px)", fontWeight:700, color:"#1a1714", marginBottom:20, lineHeight:1.25 }}>{ post.title}</h1>
+        {post.image && (
+          <div style={{ marginBottom:20, borderRadius:12, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.08)", background:"#f0e8e0" }}>
+            <img src={post.image} alt={post.title} style={{ width:"100%", height:320, objectFit:"cover", display:"block" }} />
+          </div>
+        )}
         <div style={{ marginTop:24 }}>
           {post.body.map((para, i) => (
             <p key={i} style={{ fontSize:15, color:"#3a3028", lineHeight:1.9, marginBottom:20 }}>{para}</p>
@@ -2545,7 +3237,7 @@ function AboutPage() {
       <div style={{ marginTop:16, display:"flex", flexDirection:"column", gap:20 }}>
         {[
           ["Our Mission","Recipe Atlas exists to celebrate the extraordinary diversity of world cuisine — from the intricate spice blends of Ethiopian berbere to the precise techniques of Japanese ramen. We believe that cooking another culture's food is one of the most respectful and joyful ways to understand it."],
-          ["What We Cover","We currently feature 178 recipes across 30 countries and 7 regions. Every recipe is written to be genuinely achievable at home, with honest notes on technique, cultural context and the history behind each dish."],
+          ["What We Cover","We currently feature 1,008 recipes across 85 countries and 7 regions. Every recipe is written to be genuinely achievable at home, with honest notes on technique, cultural context and the history behind each dish."],
           ["Our Approach","We research each recipe carefully, consulting multiple sources and traditional methods. Where a dish has strong regional variations we explain the differences and choose the most widely celebrated version as our baseline."],
           ["Get In Touch","We love hearing from readers — whether you've cooked one of our recipes, spotted an error, or want to suggest a dish we're missing. Reach us at contact.jwgroup@proton.me"],
         ].map(([title, text]) => (
