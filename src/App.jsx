@@ -1876,18 +1876,25 @@ const FIREBASE_CONFIG = {
   appId: "1:705176176210:web:ebc47f13be5b55712b018b"
 };
 
-let _firebasePromise = null;
-function loadFirebaseDB() {
-  if (!_firebasePromise) {
-    _firebasePromise = (async () => {
-      const { initializeApp } = await import("https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js");
-      const { getDatabase, ref, get, runTransaction } = await import("https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js");
-      const app = initializeApp(FIREBASE_CONFIG);
-      const db = getDatabase(app);
-      return { db, ref, get, runTransaction };
-    })();
-  }
-  return _firebasePromise;
+async function fetchRating(dishKey) {
+  const key = ratingKeyFor(dishKey);
+  const res = await fetch(`${FIREBASE_CONFIG.databaseURL}/ratings/${key}.json`);
+  if (!res.ok) throw new Error("fetch failed");
+  const data = await res.json();
+  return data && typeof data.count === "number" ? data : { total: 0, count: 0 };
+}
+
+async function submitRatingREST(dishKey, value) {
+  const key = ratingKeyFor(dishKey);
+  const current = await fetchRating(dishKey);
+  const updated = { total: (current.total || 0) + value, count: (current.count || 0) + 1 };
+  const res = await fetch(`${FIREBASE_CONFIG.databaseURL}/ratings/${key}.json`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(updated)
+  });
+  if (!res.ok) throw new Error("write failed");
+  return updated;
 }
 
 function ratingKeyFor(dishKey) {
@@ -1918,17 +1925,11 @@ function StarRating({ dish, onRatingLoaded }) {
     const stored = localStorage.getItem(localKey);
     setMyRating(stored ? parseInt(stored, 10) : null);
 
-    loadFirebaseDB().then(async ({ db, ref, get }) => {
-      try {
-        const snap = await get(ref(db, `ratings/${key}`));
-        if (cancelled) return;
-        const val = snap.exists() ? snap.val() : { total: 0, count: 0 };
-        setRatingData(val);
-        if (onRatingLoaded) {
-          onRatingLoaded(val.count > 0 ? { value: val.total / val.count, count: val.count } : null);
-        }
-      } catch (e) {
-        if (!cancelled) setError(true);
+    fetchRating(dish).then((val) => {
+      if (cancelled) return;
+      setRatingData(val);
+      if (onRatingLoaded) {
+        onRatingLoaded(val.count > 0 ? { value: val.total / val.count, count: val.count } : null);
       }
     }).catch(() => { if (!cancelled) setError(true); });
 
@@ -1940,14 +1941,7 @@ function StarRating({ dish, onRatingLoaded }) {
     if (myRating || submitting) return;
     setSubmitting(true);
     try {
-      const { db, ref, runTransaction } = await loadFirebaseDB();
-      const result = await runTransaction(ref(db, `ratings/${key}`), (current) => {
-        if (!current) current = { total: 0, count: 0 };
-        current.total = (current.total || 0) + value;
-        current.count = (current.count || 0) + 1;
-        return current;
-      });
-      const newVal = result.snapshot.val();
+      const newVal = await submitRatingREST(dish, value);
       setRatingData(newVal);
       setMyRating(value);
       localStorage.setItem(localKey, String(value));
