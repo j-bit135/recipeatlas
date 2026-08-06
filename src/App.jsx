@@ -2975,7 +2975,7 @@ function App() {
 
         {/* Main */}
         <div style={{ position:"relative", backgroundImage:"url(https://images.pexels.com/photos/19215108/pexels-photo-19215108.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1)", backgroundSize:"cover", backgroundPosition:"center", backgroundAttachment:"fixed" }}>
-          <div style={{ position:"absolute", inset:0, background:"rgba(253,252,249,0.80)", mixBlendMode:"normal" }} />
+          <div style={{ position:"absolute", inset:0, background:"rgba(253,252,249,0.85)", mixBlendMode:"normal" }} />
           <div style={{ position:"relative", zIndex:1 }}>
         {!["blog","about","contact","privacy","terms","pantry-to-plate","search"].includes(view) && (
           <div style={{ padding:"32px 24px 60px", maxWidth:960, margin:"0 auto" }}>
