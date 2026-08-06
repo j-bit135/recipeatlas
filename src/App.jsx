@@ -1894,6 +1894,12 @@ function ratingKeyFor(dishKey) {
   return (dishKey || "").replace(/[.#$\[\]/]/g, "_");
 }
 
+function stepShortName(text) {
+  if (!text) return "";
+  const firstSentence = text.split(/\.\s/)[0].replace(/\.$/, "");
+  return firstSentence.length > 60 ? firstSentence.slice(0, 57).trim() + "…" : firstSentence;
+}
+
 function StarRating({ dish, onRatingLoaded }) {
   const [ratingData, setRatingData] = useState(null);
   const [myRating, setMyRating] = useState(null);
@@ -2067,7 +2073,7 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
               <h3 style={{ fontFamily:"Fraunces", fontSize:19, marginBottom:20, color:"#1a1714" }}>Method</h3>
               <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
                 {(recipe.steps||[]).map((step,i)=>(
-                  <div key={i} style={{ display:"flex", gap:14, alignItems:"flex-start" }}>
+                  <div key={i} id={`step-${i+1}`} style={{ display:"flex", gap:14, alignItems:"flex-start", scrollMarginTop:80 }}>
                     <div className="step-num">{i+1}</div>
                     <p style={{ fontSize:14, color:"#5a5048", lineHeight:1.8, paddingTop:3 }}>{step}</p>
                   </div>
@@ -2754,7 +2760,9 @@ function App() {
         "recipeInstructions": r.steps ? r.steps.map((step, i) => ({
           "@type": "HowToStep",
           "position": i + 1,
-          "text": step
+          "name": stepShortName(step),
+          "text": step,
+          "url": "https://recipeatlas.co.uk" + window.location.pathname + "#step-" + (i + 1)
         })) : [],
         "author": { "@type": "Organization", "name": "Recipe Atlas" },
         "publisher": { "@type": "Organization", "name": "Recipe Atlas", "url": "https://recipeatlas.co.uk" },
