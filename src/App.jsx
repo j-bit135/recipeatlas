@@ -1573,13 +1573,13 @@ function RegionMap({ onSelectRegion }) {
       };
 
       const REGIONS = {
-        europe:        { color:'#4a6fa5', label:'🏰 Europe' },
-        north_america: { color:'#c2622a', label:'🌎 North America' },
-        south_america: { color:'#2a7a4a', label:'🌿 South America' },
-        africa:        { color:'#b5820a', label:'🌍 Africa' },
-        middle_east:   { color:'#8b4513', label:'🕌 Middle East' },
-        asia:          { color:'#6a3d8a', label:'🏯 Asia' },
-        oceania:       { color:'#2a8a7a', label:'🦘 Oceania' },
+        europe:        { color:'#8ea7cc', label:'🏰 Europe' },
+        north_america: { color:'#cca58e', label:'🌎 North America' },
+        south_america: { color:'#98bd8f', label:'🌿 South America' },
+        africa:        { color:'#ccb78e', label:'🌍 Africa' },
+        middle_east:   { color:'#b98ecc', label:'🕌 Middle East' },
+        asia:          { color:'#cc968e', label:'🏯 Asia' },
+        oceania:       { color:'#8ecccc', label:'🦘 Oceania' },
       };
 
       const ANTARCTICA = 10;
@@ -1668,18 +1668,18 @@ function RegionMap({ onSelectRegion }) {
             .attr('stroke', '#fdf8f3')
             .attr('stroke-width', 0.5)
             .style('cursor', 'pointer')
-            .style('transition', 'opacity .15s')
+            .style('transition', 'opacity .15s, stroke-width .15s')
             .on('mouseover', function(event, d) {
               const rid = getRegionByCoords(d, path, projection) || COUNTRY_REGION[+d.id];
               if (!rid) return;
-              d3.select(this).attr('opacity', 0.75);
+              d3.select(this).attr('opacity', 0.8).attr('stroke-width', 1.6);
               if (tip) { tip.textContent = REGIONS[rid].label; tip.style.display = 'block'; }
             })
             .on('mousemove', function(event) {
               if (tip) { tip.style.left = (event.clientX + 14) + 'px'; tip.style.top = (event.clientY - 36) + 'px'; }
             })
             .on('mouseout', function(event, d) {
-              d3.select(this).attr('opacity', 1);
+              d3.select(this).attr('opacity', 1).attr('stroke-width', 0.5);
               if (tip) tip.style.display = 'none';
             })
             .on('click', function(event, d) {
