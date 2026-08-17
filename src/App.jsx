@@ -1573,13 +1573,13 @@ function RegionMap({ onSelectRegion }) {
       };
 
       const REGIONS = {
-        europe:        { color:'#8ea7cc', label:'🏰 Europe' },
-        north_america: { color:'#cca58e', label:'🌎 North America' },
-        south_america: { color:'#98bd8f', label:'🌿 South America' },
-        africa:        { color:'#ccb78e', label:'🌍 Africa' },
-        middle_east:   { color:'#b98ecc', label:'🕌 Middle East' },
-        asia:          { color:'#cc968e', label:'🏯 Asia' },
-        oceania:       { color:'#8ecccc', label:'🦘 Oceania' },
+        europe:        { color:'#60bbc7', label:'🏰 Europe' },
+        north_america: { color:'#c78660', label:'🌎 North America' },
+        south_america: { color:'#a6c760', label:'🌿 South America' },
+        africa:        { color:'#c7a460', label:'🌍 Africa' },
+        middle_east:   { color:'#c76092', label:'🕌 Middle East' },
+        asia:          { color:'#c76d60', label:'🏯 Asia' },
+        oceania:       { color:'#60c796', label:'🦘 Oceania' },
       };
 
       const ANTARCTICA = 10;
