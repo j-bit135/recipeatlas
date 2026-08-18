@@ -171,6 +171,11 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://recipeatlas.co.uk/north_america/el-salvador</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://recipeatlas.co.uk/south_america</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -1201,16 +1206,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/europe/belgium/gentse-stoverij</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/europe/belgium/bloedpens</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/europe/switzerland/fondue</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -1307,11 +1302,6 @@
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/europe/austria/knodel</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/europe/austria/esterhazy-torte</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -1521,11 +1511,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/europe/finland/silakka</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/europe/finland/mammi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -1641,11 +1626,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/europe/croatia/brodet</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/europe/croatia/fuzi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -1661,22 +1641,12 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/europe/croatia/rostiljada</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/europe/croatia/fritule</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/europe/croatia/kulen</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/europe/croatia/boskarinova-juha</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -1821,11 +1791,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/asia/myanmar/balachaung</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/asia/myanmar/nan-gyi-thoke</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -1841,17 +1806,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/asia/myanmar/samusa-thoke</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/asia/myanmar/mont-di</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/asia/myanmar/pazun-kyaw</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -1956,11 +1911,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/asia/pakistan/lahori-chargha</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/asia/pakistan/sheer-khurma</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -2016,11 +1966,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/asia/cambodia/prahoktuk</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/asia/cambodia/krolan</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -2062,11 +2007,6 @@
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/asia/uzbekistan/mastava</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/asia/uzbekistan/halim</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -2151,21 +2091,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/asia/kazakhstan/kuyrdak</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/asia/kazakhstan/manty</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/asia/kazakhstan/qazy</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/asia/kazakhstan/baursak</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -2206,37 +2131,12 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/asia/armenia/zhingalov-hats</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/asia/armenia/topig</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/asia/armenia/eetch</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/asia/armenia/mshosh</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/asia/azerbaijan/shah-pilaf</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/asia/azerbaijan/levengi</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/asia/azerbaijan/bozartma</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -2252,11 +2152,6 @@
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/asia/azerbaijan/pakhlava</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/asia/azerbaijan/lavangi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -2311,11 +2206,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/africa/ghana/nkontomire</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/africa/kenya/nyama-choma</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -2356,11 +2246,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/africa/tanzania/kuku-paka</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/africa/kenya/biriyani-ya-pwani</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -2372,16 +2257,6 @@
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/africa/tanzania/zanzibar-pizza</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/africa/tanzania/wali-wa-nazi</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/africa/tanzania/supu-ya-ndizi</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -2456,11 +2331,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/africa/ivory-coast/capitaine-braise</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/middle_east/israel/shakshuka-israeli</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -2511,17 +2381,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/middle_east/iraq/pacha</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/middle_east/iraq/samoon</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/middle_east/iraq/harees</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -2536,16 +2396,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/middle_east/saudi-arabia/jareesh</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/middle_east/saudi-arabia/mandi</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/middle_east/saudi-arabia/saleeg</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -2556,22 +2406,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/middle_east/saudi-arabia/harees-saudi</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/middle_east/saudi-arabia/madfoon</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/middle_east/saudi-arabia/margoog</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/middle_east/saudi-arabia/thareed</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -2597,11 +2432,6 @@
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/middle_east/yemen/zhug</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/middle_east/yemen/aseed</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -2921,11 +2751,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/africa/tanzania/mchemsho</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/middle_east/syria/kibbeh</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -3012,11 +2837,6 @@
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/middle_east/turkey/iskender-kebab</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/middle_east/turkey/manti</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -3187,11 +3007,6 @@
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/europe/greece/loukoumades</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/europe/greece/revithada</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -3666,11 +3481,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/middle_east/iran/mirza-ghasemi</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/middle_east/iran/sholeh-zard</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -3717,11 +3527,6 @@
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/africa/egypt/molokhia</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/africa/egypt/feteer-meshaltet</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -3812,11 +3617,6 @@
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/africa/senegal/domoda</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/africa/senegal/benachin</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -4201,17 +4001,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/middle_east/lebanon/sfeeha</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/middle_east/lebanon/aish-el-saraya</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/middle_east/lebanon/moghrabieh</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -4262,11 +4052,6 @@
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/africa/ivory-coast/aloko</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/africa/ivory-coast/bangui</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -4436,11 +4221,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/middle_east/israel/kubeh</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/middle_east/israel/malawach</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -4491,11 +4271,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/asia/azerbaijan/buglama</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/asia/azerbaijan/dushbara</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -4517,26 +4292,6 @@
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/asia/kazakhstan/chak-chak</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/asia/kazakhstan/kazy</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/asia/kazakhstan/kurt</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/asia/kazakhstan/kuurdak</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/middle_east/iraq/chabab</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -4576,11 +4331,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/asia/bangladesh/dalim</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/asia/bangladesh/fuchka</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -4612,11 +4362,6 @@
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/africa/kenya/mukimo</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/africa/tanzania/kaimati</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -4736,16 +4481,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/asia/uzbekistan/norin</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/africa/ethiopia/shiro-wat</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/europe/spain/paella-valenciana</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -4767,11 +4502,6 @@
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/asia/vietnam/banh-mi</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/middle_east/turkey/imam-bayild</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -4896,27 +4626,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/africa/egypt/kushari-alexandria-style</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/africa/egypt/basbousa</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/africa/egypt/tameya</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/africa/egypt/fattah-masri</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/africa/ethiopia/kitfo-leb-leb</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -5226,11 +4936,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/europe/russia/kholodets-russky</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/africa/senegal/yassa-poisson</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -5406,11 +5111,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/africa/senegal/accra-de-poisson</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/europe/romania/drob-de-miel</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -5502,6 +5202,311 @@
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/middle_east/iran/joojeh-kabab</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/europe/belgium/stoemp</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/asia/china/jiaozi</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/asia/china/egg-fried-rice</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/asia/china/spring-rolls</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/asia/china/chow-mein</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/south_america/colombia/tamales-colombianos</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/cuba/ropa-vieja</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/el-salvador/pupusas</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/europe/france/croque-monsieur</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/europe/france/nicoise-salad</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/europe/france/madeleines</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/europe/france/profiteroles</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/europe/france/escargot</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/europe/france/pain-au-chocolat</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/europe/germany/pretzel</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/europe/germany/sauerkraut</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/asia/india/pav-bhaji</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/asia/india/vada-pav</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/asia/india/idli-sambar</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/asia/india/aloo-paratha</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/asia/india/rajma</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/asia/india/kadhi</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/asia/india/dhokla</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/asia/india/chicken-tikka</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/asia/india/paneer-tikka</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/middle_east/iran/tahdig</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/europe/italy/panna-cotta</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/europe/italy/bruschetta</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/europe/italy/focaccia</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/europe/italy/minestrone</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/europe/italy/gnocchi</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/europe/italy/cannoli</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/europe/italy/risotto-ai-funghi</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/europe/italy/caprese-salad</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/asia/japan/tempura</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/asia/japan/katsu-curry</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/asia/japan/teriyaki-chicken</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/asia/japan/yakisoba</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/middle_east/lebanon/chicken-shawarma</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/asia/malaysia/murtabak</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/mexico/quesadillas</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/mexico/chilaquiles</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/mexico/fajitas</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/mexico/carnitas</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/mexico/birria</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/asia/pakistan/naan</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/asia/pakistan/tandoori-chicken</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/south_america/peru/pescado-frito</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/asia/philippines/lumpia</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/europe/spain/migas</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/europe/sweden/cinnamon-buns</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/middle_east/turkey/turkish-delight</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/middle_east/turkey/pide</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/united-states/apple-pie</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/united-states/hamburger</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/united-states/hot-dog</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/united-states/pancakes</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/united-states/meatloaf</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/united-states/clam-bake</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/united-states/poke-bowl</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/united-states/fried-chicken</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
