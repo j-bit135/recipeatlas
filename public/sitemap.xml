@@ -3481,11 +3481,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/africa/egypt/besara</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/africa/ethiopia/tibs</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
