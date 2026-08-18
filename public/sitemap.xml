@@ -2226,11 +2226,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/africa/kenya/irio</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/africa/kenya/pilau</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -2307,11 +2302,6 @@
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/africa/ivory-coast/kedjenou</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/africa/ivory-coast/garba</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -3011,11 +3001,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/europe/greece/kakavia</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/europe/greece/baklava</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -3671,11 +3656,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/europe/russia/kasha</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/europe/russia/syrniki</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -4056,11 +4036,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/africa/ivory-coast/djoumble</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/africa/ivory-coast/placali</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -4087,11 +4062,6 @@
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/asia/cambodia/bok-lhong</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/asia/cambodia/kralan</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -5507,6 +5477,36 @@
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/north_america/united-states/fried-chicken</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/asia/thailand/khao-soi</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/europe/ukraine/chicken-kiev</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/middle_east/israel/latkes</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/united-states/beignets</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/asia/south-korea/jjajangmyeon</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/africa/egypt/konafa</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
