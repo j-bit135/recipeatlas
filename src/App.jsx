@@ -2825,8 +2825,15 @@ function App() {
       title = 'Pantry to Plate — Find Recipes by Ingredient | Recipe Atlas';
       description = 'Tell us what\'s in your kitchen and discover real recipes from around the world that use it. Pick your ingredients, find your next meal.';
     } else if (view === 'blog') {
-      title = 'The Recipe Atlas Blog — Food Stories, Techniques & History';
-      description = 'In-depth articles on cooking science, world food history, ingredients and techniques. Stories from the world\'s great food cultures.';
+      const blogSlug = parts[1] || null;
+      const activePost = blogSlug ? BLOG_POSTS.find(p => p.slug === blogSlug) : null;
+      if (activePost) {
+        title = `${activePost.title} | Recipe Atlas Blog`;
+        description = activePost.excerpt;
+      } else {
+        title = 'The Recipe Atlas Blog — Food Stories, Techniques & History';
+        description = 'In-depth articles on cooking science, world food history, ingredients and techniques. Stories from the world\'s great food cultures.';
+      }
     } else if (view === 'about') {
       title = 'About Recipe Atlas — World Cuisine Explorer';
       description = 'Recipe Atlas celebrates the extraordinary diversity of world cuisine across 85 countries and 7 regions. Learn about our mission and approach.';
@@ -2836,6 +2843,9 @@ function App() {
     } else if (view === 'privacy') {
       title = 'Privacy Policy | Recipe Atlas';
       description = 'Read the Recipe Atlas privacy policy covering data collection, cookies, analytics and advertising.';
+    } else if (view === 'terms') {
+      title = 'Terms of Service | Recipe Atlas';
+      description = 'Read the terms of service governing use of the Recipe Atlas website, including intellectual property, disclaimers and user conduct.';
     }
 
     // Ensure title ends cleanly and description ends with full stop
@@ -3002,7 +3012,7 @@ function App() {
       document.head.appendChild(orgTag);
     }
 
-  }, [view, selectedDish, selectedCountry, selectedRegion, searchQuery, currentRating]);
+  }, [view, selectedDish, selectedCountry, selectedRegion, searchQuery, currentRating, path]);
   // ── END DYNAMIC META ───────────────────────────────────────────────────
 
   const goToRegion      = (rid) => navigate(`/${rid}`);
