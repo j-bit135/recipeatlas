@@ -2346,6 +2346,8 @@ function EventsListView({ navigate }) {
 
   return (
     <div style={{ maxWidth:700, margin:"0 auto" }}>
+      <AdUnit />
+      <div style={{ marginTop:24 }}>
       <h1 style={{ fontFamily:"Fraunces", fontSize:32, fontWeight:700, color:"#1a1714", marginBottom:8, lineHeight:1.2 }}>Food events near you</h1>
       <p style={{ fontSize:15, color:"#9a9088", marginBottom:32, maxWidth:560 }}>Festivals, markets and tastings from across the world — browse by region, country and month to find what's on.</p>
 
@@ -2416,6 +2418,8 @@ function EventsListView({ navigate }) {
           )}
         </>
       )}
+      </div>
+      <AdUnit style={{ marginTop:24 }} />
     </div>
   );
 }
@@ -2434,6 +2438,8 @@ function EventDetailView({ eventSlug, onBack, navigate }) {
   return (
     <div style={{ maxWidth:700, margin:"0 auto" }}>
       <button className="btn-ghost" onClick={onBack} style={{ marginBottom:24 }}>← Back to events</button>
+      <AdUnit />
+      <div style={{ marginTop:24 }}>
       <h1 style={{ fontFamily:"Fraunces", fontSize:32, fontWeight:700, color:"#1a1714", marginBottom:10, lineHeight:1.2 }}>{event.name}</h1>
       <div style={{ display:"block", background:"#fdf3ed", borderRadius:100, padding:"4px 12px", fontSize:11, color:"#c2622a", fontWeight:600, letterSpacing:".06em", textTransform:"uppercase", marginBottom:12, width:"fit-content" }}>
         {event.tag}
@@ -2458,6 +2464,8 @@ function EventDetailView({ eventSlug, onBack, navigate }) {
           <p key={i} style={{ fontSize:15.5, lineHeight:1.8, color:"#5a5048", marginBottom:18 }}>{p}</p>
         ))}
       </div>
+      </div>
+      <AdUnit style={{ marginTop:24 }} />
     </div>
   );
 }
@@ -3401,7 +3409,7 @@ function App() {
                 </div>
               </div>
               <div style={{ display:"flex", gap:20, flexWrap:"wrap" }}>
-                {[["pantry-to-plate","Pantry to Plate"],["blog","Blog"],["about","About"],["contact","Contact"],["privacy","Privacy"],["terms","Terms"]].map(([v,label]) => (
+                {[["pantry-to-plate","Pantry to Plate"],["events","Events"],["blog","Blog"],["about","About"],["contact","Contact"],["privacy","Privacy"],["terms","Terms"]].map(([v,label]) => (
                   <span key={v} onClick={() => navigate(`/${v}`)}
                     style={{ fontSize:12, color:"#9a9088", cursor:"pointer", fontWeight:500, fontFamily:"Plus Jakarta Sans" }}>
                     {label}
