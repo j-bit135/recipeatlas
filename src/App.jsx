@@ -1702,6 +1702,11 @@ const styles = `
   .classics-card { flex: 0 0 auto; scroll-snap-align: start; cursor: pointer; position: relative; overflow: hidden; }
   .classics-card img { transition: transform .3s; }
   .classics-card:hover img { transform: scale(1.05); }
+  .classics-arrow { display: flex; opacity: .85; transition: opacity .15s, background .15s; }
+  .classics-arrow:hover { opacity: 1; background: rgba(26,23,20,.85) !important; }
+  @media (max-width: 768px) {
+    .classics-arrow { display: none; }
+  }
 
   .dish-card {
     background: #fff; border: 1.5px solid #ece6db; border-radius: 12px;
@@ -1734,11 +1739,8 @@ const styles = `
   }
 
   .ad-unit {
-    width: 100%; border: 1.5px dashed #e0d8ce; border-radius: 10px;
-    background: #faf7f3; overflow: hidden; cursor: pointer; transition: border-color .2s;
+    width: 100%;
   }
-  .ad-unit:hover { border-color: #c2622a; }
-  .ad-label { font-size: 9px; letter-spacing: .12em; color: #c8bfb0; text-transform: uppercase; text-align: center; padding: 5px 0 0; font-family: monospace; }
 
   @media (max-width: 768px) {
     .dish-grid { grid-template-columns: 1fr !important; }
@@ -1780,33 +1782,52 @@ const styles = `
 // ── NO AI CALLS — fully hardcoded site ─────────────────────────────
 
 // ── RESPONSIVE AD UNIT ─────────────────────────────────────────────────
+const AD_NETWORK = {
+  wide:   { key: "f5ba0f06afc15d11f4b5eb434ce08d76", width: 728, height: 90 },  // 728x90 leaderboard
+  narrow: { key: "d5f04eef4458100b10a56573268a7c1e", width: 320, height: 50 },  // 320x50 mobile banner
+  // 300x250 (key d7fd60cf1c83b8ad95329e78a13ef7c8) reserved for future use — not wired in yet
+};
+const AD_BREAKPOINT = 750;
+
 function AdUnit({ style }) {
-  const [hover, setHover] = useState(false);
-  const [mob, setMob] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768);
+  const [mob, setMob] = useState(() => typeof window !== 'undefined' && window.innerWidth < AD_BREAKPOINT);
+  const hostRef = useRef(null);
+
   useEffect(() => {
-    const fn = () => setMob(window.innerWidth <= 768);
+    const fn = () => setMob(window.innerWidth < AD_BREAKPOINT);
     window.addEventListener('resize', fn);
     fn();
     return () => window.removeEventListener('resize', fn);
   }, []);
-  const h = mob ? 58 : 90;
-  const divH = mob ? 26 : 38;
+
+  useEffect(() => {
+    const host = hostRef.current;
+    if (!host) return;
+    host.innerHTML = "";
+
+    const cfg = mob ? AD_NETWORK.narrow : AD_NETWORK.wide;
+
+    const iframe = document.createElement("iframe");
+    iframe.setAttribute("scrolling", "no");
+    iframe.title = "Advertisement";
+    iframe.style.cssText = `width:${cfg.width}px;height:${cfg.height}px;border:0;display:block;max-width:100%;`;
+    host.appendChild(iframe);
+
+    const doc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!doc) return;
+    doc.open();
+    doc.write(
+      '<!DOCTYPE html><html><head><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent;}</style></head><body>' +
+      '<script>atOptions = {"key":"' + cfg.key + '","format":"iframe","height":' + cfg.height + ',"width":' + cfg.width + ',"params":{}};<' + '/script>' +
+      '<script src="https://bluntutilities.com/' + cfg.key + '/invoke.js"><' + '/script>' +
+      '</body></html>'
+    );
+    doc.close();
+  }, [mob]);
+
   return (
-    <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
-      style={{ width:"100%", border:`1.5px dashed ${hover?"#c2622a":"#e0d8ce"}`, borderRadius:10, background:"#faf7f3", overflow:"hidden", cursor:"pointer", transition:"border-color .2s", marginBottom:8, ...style }}>
-      <div style={{ fontSize:9, letterSpacing:".12em", color:"#c8bfb0", textTransform:"uppercase", textAlign:"center", padding:"5px 0 0", fontFamily:"monospace" }}>Advertisement</div>
-      <div style={{ height:h, display:"flex", alignItems:"center", justifyContent:"center", gap:mob?10:14, padding:`0 ${mob?14:24}px`, position:"relative" }}>
-        <div style={{ position:"absolute", top:0, left:0, right:0, height:1, background:`linear-gradient(90deg,transparent,#c2622a 40%,#c2622a 60%,transparent)`, opacity:hover?.2:.08, transition:"opacity .2s" }} />
-        <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:3, flexShrink:0 }}>
-          <span style={{ fontSize:mob?14:18, opacity:.25 }}>📢</span>
-          <span style={{ fontFamily:"monospace", fontSize:10, color:"#c8bfb0" }}>{mob?"320 × 50":"728 × 90"}</span>
-        </div>
-        <div style={{ width:1, height:divH, background:"#e8e0d4", flexShrink:0 }} />
-        <div style={{ display:"flex", flexDirection:"column", gap:3 }}>
-          <span style={{ fontFamily:"monospace", fontSize:mob?9:10, color:"#c8bfb0" }}>{mob?"Mobile banner — insert ad tag here":"Leaderboard — insert ad tag here"}</span>
-          <span style={{ fontFamily:"monospace", fontSize:9, color:"#ddd5c8" }}>Responsive · switches format by breakpoint</span>
-        </div>
-      </div>
+    <div className="ad-unit" style={{ width:"100%", display:"flex", justifyContent:"center", marginBottom:8, ...style }}>
+      <div ref={hostRef} style={{ width: mob ? 320 : 728, height: mob ? 50 : 90, maxWidth:"100%" }} />
     </div>
   );
 }
@@ -1825,32 +1846,80 @@ const CLASSIC_DISH_KEYS = ["Spaghetti Carbonara", "Steak Frites", "Ramen", "Pad 
 function ClassicsCarousel() {
   const { navigate } = useAppNavigate();
   const dishes = CLASSIC_DISH_KEYS.filter(k => RECIPE_DB[k]).map(k => ({ key: k, ...RECIPE_DB[k] }));
+  const scrollRef = useRef(null);
+  const drag = useRef({ dragging:false, startX:0, startScroll:0, moved:false });
+  const [dragging, setDragging] = useState(false);
+
   if (dishes.length === 0) return null;
+
+  const onMouseDown = (e) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    drag.current.dragging = true;
+    drag.current.moved = false;
+    drag.current.startX = e.pageX;
+    drag.current.startScroll = el.scrollLeft;
+    setDragging(true);
+  };
+  const onMouseMove = (e) => {
+    if (!drag.current.dragging) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    const delta = e.pageX - drag.current.startX;
+    if (Math.abs(delta) > 4) drag.current.moved = true;
+    el.scrollLeft = drag.current.startScroll - delta;
+  };
+  const endDrag = () => {
+    drag.current.dragging = false;
+    setDragging(false);
+  };
+  const onCardClick = (path) => {
+    if (drag.current.moved) { drag.current.moved = false; return; }
+    navigate(path);
+  };
+  const scrollByAmount = (dir) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * 240, behavior: "smooth" });
+  };
 
   return (
     <div style={{ marginBottom:28 }}>
       <div style={{ marginBottom:16 }}>
         <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#1a1714", margin:0 }}>World Classics</h2>
-        <p style={{ fontSize:13, color:"#9a9088", margin:"4px 0 0" }}>Swipe to explore beloved dishes from every corner of the globe</p>
+        <p style={{ fontSize:13, color:"#9a9088", margin:"4px 0 0" }}>Swipe, drag or use the arrows to explore beloved dishes from every corner of the globe</p>
       </div>
-      <div className="classics-scroll" style={{ display:"flex", gap:0, overflowX:"auto", scrollSnapType:"x mandatory", WebkitOverflowScrolling:"touch", borderRadius:12, boxShadow:"0 2px 12px rgba(0,0,0,.08)" }}>
-        {dishes.map((dish, i) => {
-          const region = REGIONS.find(r => r.countries?.includes(dish.country));
-          return (
-            <div key={dish.key} className="classics-card" onClick={() => navigate(`/${region?.id || ""}/${slugify(dish.country)}/${slugify(dish.name || dish.key)}`)}
-              style={{ width:220, height:280 }}>
-              <img src={dish.image} alt={`Authentic ${dish.country} ${dish.name} recipe`} style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
-              <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(0,0,0,.75) 0%, rgba(0,0,0,.15) 45%, rgba(0,0,0,0) 65%)" }} />
-              <div style={{ position:"absolute", left:0, right:0, bottom:0, padding:"14px 14px 16px" }}>
-                <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:4 }}>
-                  <span style={{ fontSize:13 }}>{COUNTRY_DISHES[dish.country]?.flag}</span>
-                  <span style={{ fontSize:10.5, color:"rgba(255,255,255,.85)", fontFamily:"Plus Jakarta Sans", fontWeight:600, letterSpacing:".04em", textTransform:"uppercase" }}>{dish.country}</span>
+      <div style={{ position:"relative" }}>
+        <button className="classics-arrow classics-arrow-left" onClick={() => scrollByAmount(-1)} aria-label="Scroll left"
+          style={{ position:"absolute", left:8, top:"50%", transform:"translateY(-50%)", zIndex:10, width:36, height:36, borderRadius:"50%", border:"none", background:"rgba(26,23,20,.65)", color:"#fff", cursor:"pointer", alignItems:"center", justifyContent:"center", boxShadow:"0 2px 8px rgba(0,0,0,.25)" }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+        </button>
+        <div ref={scrollRef} className="classics-scroll"
+          onMouseDown={onMouseDown} onMouseMove={onMouseMove} onMouseUp={endDrag} onMouseLeave={endDrag}
+          style={{ display:"flex", gap:0, overflowX:"auto", scrollSnapType: dragging ? "none" : "x mandatory", WebkitOverflowScrolling:"touch", borderRadius:12, boxShadow:"0 2px 12px rgba(0,0,0,.08)", cursor: dragging ? "grabbing" : "grab", userSelect:"none" }}>
+          {dishes.map((dish, i) => {
+            const region = REGIONS.find(r => r.countries?.includes(dish.country));
+            const path = `/${region?.id || ""}/${slugify(dish.country)}/${slugify(dish.name || dish.key)}`;
+            return (
+              <div key={dish.key} className="classics-card" onClick={() => onCardClick(path)}
+                style={{ width:220, height:280 }}>
+                <img src={dish.image} alt={`Authentic ${dish.country} ${dish.name} recipe`} draggable={false} style={{ width:"100%", height:"100%", objectFit:"cover", display:"block", pointerEvents:"none" }} />
+                <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(0,0,0,.75) 0%, rgba(0,0,0,.15) 45%, rgba(0,0,0,0) 65%)" }} />
+                <div style={{ position:"absolute", left:0, right:0, bottom:0, padding:"14px 14px 16px" }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:4 }}>
+                    <span style={{ fontSize:13 }}>{COUNTRY_DISHES[dish.country]?.flag}</span>
+                    <span style={{ fontSize:10.5, color:"rgba(255,255,255,.85)", fontFamily:"Plus Jakarta Sans", fontWeight:600, letterSpacing:".04em", textTransform:"uppercase" }}>{dish.country}</span>
+                  </div>
+                  <div style={{ fontFamily:"Fraunces", fontSize:17, fontWeight:700, color:"#fff", lineHeight:1.25 }}>{dish.name}</div>
                 </div>
-                <div style={{ fontFamily:"Fraunces", fontSize:17, fontWeight:700, color:"#fff", lineHeight:1.25 }}>{dish.name}</div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
+        <button className="classics-arrow classics-arrow-right" onClick={() => scrollByAmount(1)} aria-label="Scroll right"
+          style={{ position:"absolute", right:8, top:"50%", transform:"translateY(-50%)", zIndex:10, width:36, height:36, borderRadius:"50%", border:"none", background:"rgba(26,23,20,.65)", color:"#fff", cursor:"pointer", alignItems:"center", justifyContent:"center", boxShadow:"0 2px 8px rgba(0,0,0,.25)" }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+        </button>
       </div>
     </div>
   );
