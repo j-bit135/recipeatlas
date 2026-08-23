@@ -1807,22 +1807,22 @@ function AdUnit({ style }) {
 
     const cfg = mob ? AD_NETWORK.narrow : AD_NETWORK.wide;
 
+    const html =
+      '<!DOCTYPE html><html><head><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent;}</style></head><body>' +
+      '<script>atOptions = {"key":"' + cfg.key + '","format":"iframe","height":' + cfg.height + ',"width":' + cfg.width + ',"params":{}};<' + '/script>' +
+      '<script src="https://bluntutilities.com/' + cfg.key + '/invoke.js"><' + '/script>' +
+      '</body></html>';
+
     const iframe = document.createElement("iframe");
     iframe.setAttribute("scrolling", "no");
     iframe.title = "Advertisement";
     iframe.style.cssText = `width:${cfg.width}px;height:${cfg.height}px;border:0;display:block;max-width:100%;`;
+    // srcdoc gives the iframe a genuine, freshly-navigated document — unlike a manual
+    // open()/write()/close() sequence, this lets the ad script's own internal
+    // document.write() calls (which invoke.js performs once it loads) run against a
+    // document that's still naturally "open", instead of one we already closed.
+    iframe.srcdoc = html;
     host.appendChild(iframe);
-
-    const doc = iframe.contentDocument || iframe.contentWindow?.document;
-    if (!doc) return;
-    doc.open();
-    doc.write(
-      '<!DOCTYPE html><html><head><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent;}</style></head><body>' +
-      '<script>atOptions = {"key":"' + cfg.key + '","format":"iframe","height":' + cfg.height + ',"width":' + cfg.width + ',"params":{}};<' + '/script>' +
-      '<script src="https://bluntutilities.com/' + cfg.key + '/invoke.js"><' + '/script>' +
-      '</body></html>'
-    );
-    doc.close();
   }, [mob]);
 
   return (
