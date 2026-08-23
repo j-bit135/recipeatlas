@@ -1807,27 +1807,27 @@ function AdUnit({ style }) {
 
     const cfg = mob ? AD_NETWORK.narrow : AD_NETWORK.wide;
 
-    const html =
-      '<!DOCTYPE html><html><head><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent;}</style></head><body>' +
-      '<script>atOptions = {"key":"' + cfg.key + '","format":"iframe","height":' + cfg.height + ',"width":' + cfg.width + ',"params":{}};<' + '/script>' +
-      '<script src="https://bluntutilities.com/' + cfg.key + '/invoke.js"><' + '/script>' +
-      '</body></html>';
+    // Injected directly into the page (as the ad network's own instructions specify),
+    // rather than wrapped in our own iframe. Multiple ad slots on one page all share
+    // the single global `atOptions` variable, so to stop them clashing we force these
+    // two scripts to execute strictly in the order they're inserted — a documented
+    // browser guarantee for dynamically-created scripts once `async` is set to false —
+    // so each slot's own invoke.js always reads the config meant for it.
+    const configScript = document.createElement("script");
+    configScript.async = false;
+    configScript.text = `atOptions = ${JSON.stringify({ key: cfg.key, format: "iframe", height: cfg.height, width: cfg.width, params: {} })};`;
 
-    const iframe = document.createElement("iframe");
-    iframe.setAttribute("scrolling", "no");
-    iframe.title = "Advertisement";
-    iframe.style.cssText = `width:${cfg.width}px;height:${cfg.height}px;border:0;display:block;max-width:100%;`;
-    // srcdoc gives the iframe a genuine, freshly-navigated document — unlike a manual
-    // open()/write()/close() sequence, this lets the ad script's own internal
-    // document.write() calls (which invoke.js performs once it loads) run against a
-    // document that's still naturally "open", instead of one we already closed.
-    iframe.srcdoc = html;
-    host.appendChild(iframe);
+    const invokeScript = document.createElement("script");
+    invokeScript.async = false;
+    invokeScript.src = `https://bluntutilities.com/${cfg.key}/invoke.js`;
+
+    host.appendChild(configScript);
+    host.appendChild(invokeScript);
   }, [mob]);
 
   return (
     <div className="ad-unit" style={{ width:"100%", display:"flex", justifyContent:"center", marginBottom:8, ...style }}>
-      <div ref={hostRef} style={{ width: mob ? 320 : 728, height: mob ? 50 : 90, maxWidth:"100%" }} />
+      <div ref={hostRef} style={{ width: mob ? 320 : 728, height: mob ? 50 : 90, maxWidth:"100%", overflow:"hidden" }} />
     </div>
   );
 }
