@@ -2289,7 +2289,7 @@ function RegionView({ regionId, onBack, onSelectCountry }) {
   if (!region) return null;
   const regionRecipeKeys = Object.keys(RECIPE_DB).filter(k => region.countries.includes(RECIPE_DB[k].country));
   return (
-    <div style={{ maxWidth:720, margin:"0 auto" }}>
+    <div style={{ maxWidth:760, margin:"0 auto" }}>
       <AdUnit />
       <button onClick={onBack}
         style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
@@ -2330,7 +2330,7 @@ function CountryView({ country, onBack, onSelectDish }) {
   const countryRecipeKeys = Object.keys(RECIPE_DB).filter(k => RECIPE_DB[k].country === country);
 
   return (
-    <div style={{ maxWidth:700, margin:"0 auto" }}>
+    <div style={{ maxWidth:760, margin:"0 auto" }}>
       <AdUnit />
       <button onClick={onBack}
         style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
@@ -2556,7 +2556,7 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
   }, [dish, country]);
 
   return (
-    <div style={{ maxWidth:700, margin:"0 auto" }}>
+    <div style={{ maxWidth:760, margin:"0 auto" }}>
       <AdUnit />
       <button onClick={onBack}
         style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
@@ -2723,7 +2723,7 @@ function EventsListView({ navigate }) {
   });
 
   return (
-    <div style={{ maxWidth:700, margin:"0 auto" }}>
+    <div style={{ maxWidth:760, margin:"0 auto" }}>
       <AdUnit />
       <div style={{ marginTop:24 }}>
       <h1 style={{ fontFamily:"Fraunces", fontSize:32, fontWeight:700, color:"#1a1714", marginBottom:8, lineHeight:1.2 }}>Food events near you</h1>
@@ -2807,7 +2807,7 @@ function EventDetailView({ eventSlug, onBack, navigate }) {
   const event = EVENTS_DB[eventSlug];
   if (!event) {
     return (
-      <div style={{ maxWidth:700, margin:"0 auto" }}>
+      <div style={{ maxWidth:760, margin:"0 auto" }}>
         <AdUnit />
         <button onClick={onBack}
           style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
@@ -2818,7 +2818,7 @@ function EventDetailView({ eventSlug, onBack, navigate }) {
     );
   }
   return (
-    <div style={{ maxWidth:700, margin:"0 auto" }}>
+    <div style={{ maxWidth:760, margin:"0 auto" }}>
       <AdUnit />
       <button onClick={onBack}
         style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
@@ -3988,7 +3988,7 @@ function BlogPage({ initialSlug, navigate }) {
   if (activePost !== null && activePost >= 0) {
     const post = BLOG_POSTS[activePost];
     return (
-      <div style={{ maxWidth:680, margin:"0 auto" }}>
+      <div style={{ maxWidth:760, margin:"0 auto" }}>
         <button onClick={closePost}
           style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", marginBottom:20, padding:0, display:"flex", alignItems:"center", gap:6 }}>
           ← Back to Blog
@@ -4040,7 +4040,7 @@ function BlogPage({ initialSlug, navigate }) {
 
 function AboutPage() {
   return (
-    <div style={{ maxWidth:680, margin:"0 auto" }}>
+    <div style={{ maxWidth:760, margin:"0 auto" }}>
       <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,40px)", fontWeight:700, color:"#1a1714", marginBottom:16 }}>About Recipe Atlas</h1>
       <div style={{ marginTop:16, display:"flex", flexDirection:"column", gap:20 }}>
         {[
@@ -4062,7 +4062,7 @@ function AboutPage() {
 
 function ContactPage() {
   return (
-    <div style={{ maxWidth:680, margin:"0 auto" }}>
+    <div style={{ maxWidth:760, margin:"0 auto" }}>
       <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,36px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>Contact Us</h1>
       <p style={{ fontSize:15, color:"#6a6058", lineHeight:1.8, marginBottom:32, marginTop:16 }}>
         Whether you have a question, a suggestion, or want to talk about advertising — we'd love to hear from you. Get in touch at <a href="mailto:contact.jwgroup@proton.me" style={{ color:"#c2622a", fontWeight:600 }}>contact.jwgroup@proton.me</a> and we'll get back to you as soon as possible.
@@ -4088,7 +4088,7 @@ function ContactPage() {
 
 function TermsPage() {
   return (
-    <div style={{ maxWidth:680, margin:"0 auto" }}>
+    <div style={{ maxWidth:760, margin:"0 auto" }}>
       <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,36px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>Terms of Service</h1>
       <p style={{ fontSize:13, color:"#9a9088", marginBottom:28, marginTop:16 }}>Last updated: June 2025</p>
 
@@ -4118,7 +4118,7 @@ function TermsPage() {
 
 function PrivacyPage() {
   return (
-    <div style={{ maxWidth:680, margin:"0 auto" }}>
+    <div style={{ maxWidth:760, margin:"0 auto" }}>
       <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,40px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>Privacy Policy</h1>
       <p style={{ fontSize:12, color:"#c8bfb0", marginBottom:24, fontFamily:"Plus Jakarta Sans" }}>Last updated: June 2025</p>
       <div style={{ marginTop:24, display:"flex", flexDirection:"column", gap:16 }}>
