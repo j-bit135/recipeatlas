@@ -2307,24 +2307,24 @@ function RegionMap({ onSelectRegion }) {
       </div>
 
       {/* Interactive world map */}
-      <div id="ra-world-map" style={{ width:"100%", borderRadius:12, overflow:"hidden", background:"transparent", marginBottom:24 }}></div>
+      <div id="ra-world-map" style={{ width:"100%", borderRadius:12, overflow:"hidden", background:"transparent", marginBottom:32 }}></div>
       <div id="ra-map-tip" style={{ position:"fixed", background:"rgba(26,23,20,.9)", color:"#fff", padding:"6px 14px", borderRadius:8, fontSize:13, fontWeight:600, pointerEvents:"none", display:"none", zIndex:999, whiteSpace:"nowrap" }}></div>
 
       {/* First ad */}
-      <AdUnit style={{ marginBottom:20 }} />
+      <AdUnit style={{ marginBottom:32 }} />
 
       {/* World Classics carousel */}
       <ClassicsCarousel />
 
       {/* Second ad */}
-      <AdUnit style={{ marginBottom:20 }} />
+      <AdUnit style={{ marginTop:4, marginBottom:32 }} />
 
       {/* Region buttons */}
       <div style={{ marginBottom:16 }}>
         <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#1a1714", margin:0 }}>Explore by Region</h2>
         <p style={{ fontSize:13, color:"#9a9088", margin:"4px 0 0" }}>Click a region to discover its most-loved recipes</p>
       </div>
-      <div className="region-grid" style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(260px, 1fr))", gap:12, marginBottom:28 }}>
+      <div className="region-grid" style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(260px, 1fr))", gap:12, marginBottom:32 }}>
         {REGIONS.map(region => (
           <div key={region.id} onClick={() => onSelectRegion(region.id)}
             onMouseEnter={e => e.currentTarget.style.borderColor=region.color}
@@ -2348,19 +2348,19 @@ function RegionMap({ onSelectRegion }) {
       </div>
 
       {/* Third ad */}
-      <AdUnit />
+      <AdUnit style={{ marginBottom:0 }} />
 
       {/* Recipe inspiration */}
       <RecipeInspiration recipes={getRandomRecipes(Object.keys(RECIPE_DB), 3)} pool={Object.keys(RECIPE_DB)} title="Recipe Inspiration" />
 
       {/* Fourth ad */}
-      <AdUnit style={{ marginTop:24, marginBottom:20 }} />
+      <AdUnit style={{ marginTop:24, marginBottom:32 }} />
 
       {/* Sandwiches carousel */}
       <SandwichCarousel />
 
       {/* Fifth ad */}
-      <NativeBannerAd />
+      <NativeBannerAd style={{ marginTop:4 }} />
     </div>
   );
 }
