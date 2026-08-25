@@ -1836,6 +1836,43 @@ function AdUnit({ style }) {
   );
 }
 
+// Trial: native banner (4:1 layout) from the same ad network, used only for the
+// single bottom-most ad slot on every page, in place of AdUnit there. Same
+// isolated-iframe approach as AdUnit and for the same reason — this network's
+// scripts rely on document.write(), which is only safe inside a fresh,
+// still-loading document rather than the already-loaded main page. This ad
+// format targets a specific div id (rather than a shared global variable like
+// AdUnit's atOptions), which the network's own script looks for inside the
+// iframe's document.
+function NativeBannerAd({ style }) {
+  const hostRef = useRef(null);
+
+  useEffect(() => {
+    const host = hostRef.current;
+    if (!host) return;
+    host.innerHTML = "";
+
+    const html =
+      '<!DOCTYPE html><html><head><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent;}</style></head><body>' +
+      '<div id="container-b032aee1867da26d6e3726fe179ba61f"></div>' +
+      '<script async="async" data-cfasync="false" src="https://bluntutilities.com/b032aee1867da26d6e3726fe179ba61f/invoke.js"><' + '/script>' +
+      '</body></html>';
+
+    const iframe = document.createElement("iframe");
+    iframe.setAttribute("scrolling", "no");
+    iframe.title = "Advertisement";
+    iframe.style.cssText = `width:100%;height:150px;border:0;display:block;`;
+    iframe.srcdoc = html;
+    host.appendChild(iframe);
+  }, []);
+
+  return (
+    <div className="ad-unit" style={{ width:"100%", marginBottom:8, ...style }}>
+      <div ref={hostRef} style={{ width:"100%" }} />
+    </div>
+  );
+}
+
 
 // ── REGION MAP ─────────────────────────────────────────────────────────
 // ── RECIPE INSPIRATION CAROUSEL ────────────────────────────────────────
@@ -2296,7 +2333,7 @@ function RegionMap({ onSelectRegion }) {
       <SandwichCarousel />
 
       {/* Fifth ad */}
-      <AdUnit />
+      <NativeBannerAd />
     </div>
   );
 }
@@ -2334,7 +2371,7 @@ function RegionView({ regionId, onBack, onSelectCountry }) {
       </div>
       <AdUnit />
       <RecipeInspiration recipes={getRandomRecipes(regionRecipeKeys, 3)} pool={regionRecipeKeys} title="Recipe Inspiration" />
-      <AdUnit style={{ marginTop:24 }} />
+      <NativeBannerAd style={{ marginTop:24 }} />
     </div>
   );
 }
@@ -2373,7 +2410,7 @@ function CountryView({ country, onBack, onSelectDish }) {
       </div>
       <AdUnit />
       <RecipeInspiration recipes={getRandomRecipes(countryRecipeKeys, 3)} pool={countryRecipeKeys} title="Recipe Inspiration" />
-      <AdUnit style={{ marginTop:24 }} />
+      <NativeBannerAd style={{ marginTop:24 }} />
     </div>
   );
 }
@@ -2709,7 +2746,7 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
             })()}
 
             {/* Third ad unit */}
-            <div style={{ marginTop:24 }}><AdUnit /></div>
+            <div style={{ marginTop:24 }}><NativeBannerAd /></div>
           </div>
         ) : (
           <div style={{ textAlign:"center", padding:"40px 0", color:"#b8b0a8" }}>Couldn't load this recipe — please try again.</div>
@@ -2814,7 +2851,7 @@ function EventsListView({ navigate }) {
         </>
       )}
       </div>
-      <AdUnit style={{ marginTop:24 }} />
+      <NativeBannerAd style={{ marginTop:24 }} />
     </div>
   );
 }
@@ -2867,7 +2904,7 @@ function EventDetailView({ eventSlug, onBack, navigate }) {
         ))}
       </div>
       </div>
-      <AdUnit style={{ marginTop:24 }} />
+      <NativeBannerAd style={{ marginTop:24 }} />
     </div>
   );
 }
@@ -3109,7 +3146,7 @@ function SearchResultsPage({ query, navigate }) {
       )}
 
       <div style={{ maxWidth: 680, margin: "44px auto 0" }}>
-        <AdUnit />
+        <NativeBannerAd />
       </div>
     </div>
   );
@@ -3349,7 +3386,7 @@ function PantryToPlate({ navigate }) {
       </div>
 
       <div style={{ maxWidth: 680, margin: "44px auto 0" }}>
-        <AdUnit />
+        <NativeBannerAd />
       </div>
     </div>
   );
@@ -4065,7 +4102,7 @@ function BlogPage({ initialSlug, navigate }) {
             <p key={i} style={{ fontSize:15, color:"#3a3028", lineHeight:1.9, marginBottom:20 }}>{para}</p>
           ))}
         </div>
-        <AdUnit style={{ marginTop:24 }} />
+        <NativeBannerAd style={{ marginTop:24 }} />
       </div>
     );
   }
@@ -4090,7 +4127,7 @@ function BlogPage({ initialSlug, navigate }) {
         ))}
       </div>
       <div style={{ maxWidth:680, margin:"24px auto 0" }}>
-        <AdUnit />
+        <NativeBannerAd />
       </div>
     </div>
   );
@@ -4113,7 +4150,7 @@ function AboutPage() {
           </div>
         ))}
       </div>
-      <AdUnit style={{ marginTop:24 }} />
+      <NativeBannerAd style={{ marginTop:24 }} />
     </div>
   );
 }
@@ -4138,7 +4175,7 @@ function ContactPage() {
           </div>
         ))}
       </div>
-      <AdUnit style={{ marginTop:24 }} />
+      <NativeBannerAd style={{ marginTop:24 }} />
     </div>
   );
 }
@@ -4169,7 +4206,7 @@ function TermsPage() {
         </div>
       ))}
       </div>
-      <AdUnit style={{ marginTop:24 }} />
+      <NativeBannerAd style={{ marginTop:24 }} />
     </div>
   );
 }
@@ -4193,7 +4230,7 @@ function PrivacyPage() {
           </div>
         ))}
       </div>
-      <AdUnit style={{ marginTop:24 }} />
+      <NativeBannerAd style={{ marginTop:24 }} />
     </div>
   );
 }
