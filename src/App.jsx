@@ -1864,6 +1864,33 @@ function NativeBannerAd({ style }) {
     iframe.style.cssText = `width:100%;height:150px;border:0;display:block;`;
     iframe.srcdoc = html;
     host.appendChild(iframe);
+
+    // This native format can render anywhere from a single banner to a full
+    // grid of recommendation tiles, so a fixed height either clips it (too
+    // short) or leaves a gap (too tall). srcdoc iframes share the parent's
+    // origin, so we can read the iframe's own rendered height directly and
+    // keep the box sized to match, however much content actually loads.
+    let pollInterval;
+    let stopTimeout;
+    const adjustHeight = () => {
+      try {
+        const doc = iframe.contentDocument;
+        const h = doc && doc.body ? doc.body.scrollHeight : 0;
+        if (h > 0 && Math.abs(h - parseInt(iframe.style.height, 10)) > 4) {
+          iframe.style.height = h + "px";
+        }
+      } catch (e) { /* leave the fallback height in place */ }
+    };
+    iframe.onload = () => {
+      adjustHeight();
+      pollInterval = setInterval(adjustHeight, 400);
+      stopTimeout = setTimeout(() => clearInterval(pollInterval), 8000);
+    };
+
+    return () => {
+      clearInterval(pollInterval);
+      clearTimeout(stopTimeout);
+    };
   }, []);
 
   return (
