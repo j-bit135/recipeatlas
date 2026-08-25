@@ -1,0 +1,35 @@
+# Recipe Atlas
+
+> Recipe Atlas is a world cuisine recipe explorer with authentic recipes from 86 countries across 7 regions, alongside a calendar of real food festivals and events from around the world.
+
+Recipe Atlas organises its content by geographic region and country. Each recipe includes full ingredients, step-by-step instructions, prep and cook times, and cultural background on the dish's origin. The site also maintains an events section covering food festivals, markets and tastings worldwide, plus a blog of articles on food history and technique.
+
+## Regions
+
+- [Europe](https://www.recipeatlas.co.uk/europe): Recipes from Italy, France, Spain, Germany, and other European countries
+- [North America](https://www.recipeatlas.co.uk/north_america): Recipes from the United States, Mexico, Canada, and the Caribbean
+- [South America](https://www.recipeatlas.co.uk/south_america): Recipes from Brazil, Argentina, Peru, and neighbouring countries
+- [Africa](https://www.recipeatlas.co.uk/africa): Recipes from Morocco, Nigeria, Ethiopia, and other African countries
+- [Middle East](https://www.recipeatlas.co.uk/middle_east): Recipes from Lebanon, Turkey, Iran, and neighbouring countries
+- [Asia](https://www.recipeatlas.co.uk/asia): Recipes from Japan, China, India, Thailand, and other Asian countries
+- [Oceania](https://www.recipeatlas.co.uk/oceania): Recipes from Australia, New Zealand, and Pacific Island nations
+
+## Popular Recipes
+
+- [Spaghetti Carbonara](https://www.recipeatlas.co.uk/europe/italy/spaghetti-carbonara): Classic Roman pasta with eggs, Pecorino Romano and guanciale
+- [Ramen](https://www.recipeatlas.co.uk/asia/japan/ramen): Japanese noodle soup with a rich pork broth
+- [Pad Thai](https://www.recipeatlas.co.uk/asia/thailand/pad-thai): Thailand's stir-fried rice noodle dish
+- [Tacos al Pastor](https://www.recipeatlas.co.uk/north_america/mexico/tacos-al-pastor): Mexican spit-roasted pork tacos
+- [Butter Chicken](https://www.recipeatlas.co.uk/asia/india/butter-chicken): Creamy North Indian tomato-based chicken curry
+- [Steak Frites](https://www.recipeatlas.co.uk/europe/france/steak-frites): The French bistro classic of steak and fries
+
+## Other Sections
+
+- [Events](https://www.recipeatlas.co.uk/events): Food festivals, markets and tastings from around the world, browsable by region, country and month
+- [Blog](https://www.recipeatlas.co.uk/blog): Articles on food history, technique and culture
+- [Pantry to Plate](https://www.recipeatlas.co.uk/pantry-to-plate): Find recipes based on ingredients you already have
+
+## Optional
+
+- [About](https://www.recipeatlas.co.uk/about): About Recipe Atlas
+- [Contact](https://www.recipeatlas.co.uk/contact): Contact information

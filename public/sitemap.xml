@@ -861,17 +861,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://recipeatlas.co.uk/europe/hungary/fishermans-soup</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://recipeatlas.co.uk/europe/hungary/somloi-galuska</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://recipeatlas.co.uk/europe/hungary/chimney-cake</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -5502,6 +5492,16 @@
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/europe/switzerland/cordon-bleu</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/europe/portugal/bifana</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/asia/japan/katsu-sando</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
