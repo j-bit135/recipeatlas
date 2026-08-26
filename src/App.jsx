@@ -3904,7 +3904,7 @@ function App() {
           <div style={{ position:"absolute", inset:0, background:"rgba(253,252,249,0.85)", mixBlendMode:"normal" }} />
           <div style={{ position:"relative", zIndex:1 }}>
         {!["blog","about","contact","privacy","terms","pantry-to-plate","search"].includes(view) && (
-          <div style={{ padding:"20px 24px 60px", maxWidth:960, margin:"0 auto" }}>
+          <div style={{ padding:"20px 24px 60px", maxWidth:1160, margin:"0 auto" }}>
             {view === "regions"  && <RegionMap onSelectRegion={goToRegion} />}
             {view === "region"   && selectedRegion && <RegionView regionId={selectedRegion} onBack={goToRegions} onSelectCountry={goToCountry} />}
             {view === "country"  && selectedCountry && <CountryView country={selectedCountry} onBack={goToRegionBack} onSelectDish={goToDish} />}
