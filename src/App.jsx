@@ -1785,13 +1785,21 @@ const styles = `
 const AD_NETWORK = {
   wide:   { key: "f5ba0f06afc15d11f4b5eb434ce08d76", width: 728, height: 90 },  // 728x90 leaderboard
   narrow: { key: "d5f04eef4458100b10a56573268a7c1e", width: 320, height: 50 },  // 320x50 mobile banner
-  // 300x250 (key d7fd60cf1c83b8ad95329e78a13ef7c8) reserved for future use — not wired in yet
+  medium: { key: "d7fd60cf1c83b8ad95329e78a13ef7c8", width: 300, height: 250 }, // 300x250 medium rectangle
 };
 const AD_BREAKPOINT = 750;
 
-function AdUnit({ style }) {
+// variant="first" (default) is the one, consistent, highest-visibility ad slot on
+// every page — always 728x90 desktop / 320x50 mobile, unchanged.
+// variant="secondary" is every ad placement AFTER the first one on a page (this
+// replaces the old native-banner bottom slot too, which underperformed). These
+// slots split-test between two sizes per device category — desktop/tablet gets
+// either 728x90 or 300x250, mobile gets either 300x250 or 320x50 — chosen once
+// per mount, so we can compare real performance between formats over time.
+function AdUnit({ style, variant = "first" }) {
   const [mob, setMob] = useState(() => typeof window !== 'undefined' && window.innerWidth < AD_BREAKPOINT);
   const hostRef = useRef(null);
+  const [randomPick] = useState(() => Math.random() < 0.5);
 
   useEffect(() => {
     const fn = () => setMob(window.innerWidth < AD_BREAKPOINT);
@@ -1800,12 +1808,19 @@ function AdUnit({ style }) {
     return () => window.removeEventListener('resize', fn);
   }, []);
 
+  let cfg;
+  if (variant === "secondary") {
+    cfg = mob
+      ? (randomPick ? AD_NETWORK.medium : AD_NETWORK.narrow)
+      : (randomPick ? AD_NETWORK.wide : AD_NETWORK.medium);
+  } else {
+    cfg = mob ? AD_NETWORK.narrow : AD_NETWORK.wide;
+  }
+
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
     host.innerHTML = "";
-
-    const cfg = mob ? AD_NETWORK.narrow : AD_NETWORK.wide;
 
     // Each ad gets its own isolated iframe. This network's script relies on
     // document.write(), and calling that from a script injected into an already-loaded
@@ -1827,78 +1842,15 @@ function AdUnit({ style }) {
     iframe.style.cssText = `width:${cfg.width}px;height:${cfg.height}px;border:0;display:block;max-width:100%;`;
     iframe.srcdoc = html;
     host.appendChild(iframe);
-  }, [mob]);
+  }, [mob, cfg.key]);
 
   return (
     <div className="ad-unit" style={{ width:"100%", display:"flex", justifyContent:"center", marginBottom:8, ...style }}>
-      <div ref={hostRef} style={{ width: mob ? 320 : 728, height: mob ? 50 : 90, maxWidth:"100%", overflow:"hidden" }} />
+      <div ref={hostRef} style={{ width: cfg.width, height: cfg.height, maxWidth:"100%", overflow:"hidden" }} />
     </div>
   );
 }
 
-// Trial: native banner (4:1 layout) from the same ad network, used only for the
-// single bottom-most ad slot on every page, in place of AdUnit there. Same
-// isolated-iframe approach as AdUnit and for the same reason — this network's
-// scripts rely on document.write(), which is only safe inside a fresh,
-// still-loading document rather than the already-loaded main page. This ad
-// format targets a specific div id (rather than a shared global variable like
-// AdUnit's atOptions), which the network's own script looks for inside the
-// iframe's document.
-function NativeBannerAd({ style }) {
-  const hostRef = useRef(null);
-
-  useEffect(() => {
-    const host = hostRef.current;
-    if (!host) return;
-    host.innerHTML = "";
-
-    const html =
-      '<!DOCTYPE html><html><head><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent;}</style></head><body>' +
-      '<div id="container-b032aee1867da26d6e3726fe179ba61f"></div>' +
-      '<script async="async" data-cfasync="false" src="https://bluntutilities.com/b032aee1867da26d6e3726fe179ba61f/invoke.js"><' + '/script>' +
-      '</body></html>';
-
-    const iframe = document.createElement("iframe");
-    iframe.setAttribute("scrolling", "no");
-    iframe.title = "Advertisement";
-    iframe.style.cssText = `width:100%;height:150px;border:0;display:block;`;
-    iframe.srcdoc = html;
-    host.appendChild(iframe);
-
-    // This native format can render anywhere from a single banner to a full
-    // grid of recommendation tiles, so a fixed height either clips it (too
-    // short) or leaves a gap (too tall). srcdoc iframes share the parent's
-    // origin, so we can read the iframe's own rendered height directly and
-    // keep the box sized to match, however much content actually loads.
-    let pollInterval;
-    let stopTimeout;
-    const adjustHeight = () => {
-      try {
-        const doc = iframe.contentDocument;
-        const h = doc && doc.body ? doc.body.scrollHeight : 0;
-        if (h > 0 && Math.abs(h - parseInt(iframe.style.height, 10)) > 4) {
-          iframe.style.height = h + "px";
-        }
-      } catch (e) { /* leave the fallback height in place */ }
-    };
-    iframe.onload = () => {
-      adjustHeight();
-      pollInterval = setInterval(adjustHeight, 400);
-      stopTimeout = setTimeout(() => clearInterval(pollInterval), 8000);
-    };
-
-    return () => {
-      clearInterval(pollInterval);
-      clearTimeout(stopTimeout);
-    };
-  }, []);
-
-  return (
-    <div className="ad-unit" style={{ width:"100%", marginBottom:8, ...style }}>
-      <div ref={hostRef} style={{ width:"100%" }} />
-    </div>
-  );
-}
 
 
 // ── REGION MAP ─────────────────────────────────────────────────────────
@@ -2317,7 +2269,7 @@ function RegionMap({ onSelectRegion }) {
       <ClassicsCarousel />
 
       {/* Second ad */}
-      <AdUnit style={{ marginTop:4, marginBottom:32 }} />
+      <AdUnit variant="secondary" style={{ marginTop:4, marginBottom:32 }} />
 
       {/* Region buttons */}
       <div style={{ marginBottom:16 }}>
@@ -2348,19 +2300,19 @@ function RegionMap({ onSelectRegion }) {
       </div>
 
       {/* Third ad */}
-      <AdUnit style={{ marginBottom:0 }} />
+      <AdUnit variant="secondary" style={{ marginBottom:0 }} />
 
       {/* Recipe inspiration */}
       <RecipeInspiration recipes={getRandomRecipes(Object.keys(RECIPE_DB), 3)} pool={Object.keys(RECIPE_DB)} title="Recipe Inspiration" />
 
       {/* Fourth ad */}
-      <AdUnit style={{ marginTop:24, marginBottom:32 }} />
+      <AdUnit variant="secondary" style={{ marginTop:24, marginBottom:32 }} />
 
       {/* Sandwiches carousel */}
       <SandwichCarousel />
 
       {/* Fifth ad */}
-      <NativeBannerAd style={{ marginTop:4 }} />
+      <AdUnit variant="secondary" style={{ marginTop:4 }} />
     </div>
   );
 }
@@ -2396,9 +2348,9 @@ function RegionView({ regionId, onBack, onSelectCountry }) {
           ))}
         </div>
       </div>
-      <AdUnit />
+      <AdUnit variant="secondary" />
       <RecipeInspiration recipes={getRandomRecipes(regionRecipeKeys, 3)} pool={regionRecipeKeys} title="Recipe Inspiration" />
-      <NativeBannerAd style={{ marginTop:24 }} />
+      <AdUnit variant="secondary" style={{ marginTop:24 }} />
     </div>
   );
 }
@@ -2435,9 +2387,9 @@ function CountryView({ country, onBack, onSelectDish }) {
           ))}
         </div>
       </div>
-      <AdUnit />
+      <AdUnit variant="secondary" />
       <RecipeInspiration recipes={getRandomRecipes(countryRecipeKeys, 3)} pool={countryRecipeKeys} title="Recipe Inspiration" />
-      <NativeBannerAd style={{ marginTop:24 }} />
+      <AdUnit variant="secondary" style={{ marginTop:24 }} />
     </div>
   );
 }
@@ -2718,7 +2670,7 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
                 <p style={{ fontSize:14, color:"#6a6058", lineHeight:1.75 }}>{recipe.tip}</p>
               </div>
             )}
-            <div style={{ marginTop:20 }}><AdUnit /></div>
+            <div style={{ marginTop:20 }}><AdUnit variant="secondary" /></div>
 
             {/* You may also like */}
             {(() => {
@@ -2773,7 +2725,7 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
             })()}
 
             {/* Third ad unit */}
-            <div style={{ marginTop:24 }}><NativeBannerAd /></div>
+            <div style={{ marginTop:24 }}><AdUnit variant="secondary" /></div>
           </div>
         ) : (
           <div style={{ textAlign:"center", padding:"40px 0", color:"#b8b0a8" }}>Couldn't load this recipe — please try again.</div>
@@ -2878,7 +2830,7 @@ function EventsListView({ navigate }) {
         </>
       )}
       </div>
-      <NativeBannerAd style={{ marginTop:24 }} />
+      <AdUnit variant="secondary" style={{ marginTop:24 }} />
     </div>
   );
 }
@@ -2900,7 +2852,7 @@ function EventDetailView({ eventSlug, onBack, navigate }) {
   }
   return (
     <div style={{ maxWidth:760, margin:"0 auto" }}>
-      <AdUnit />
+      <AdUnit variant="secondary" />
       <button onClick={onBack}
         style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
         ← Back to events
@@ -2931,7 +2883,7 @@ function EventDetailView({ eventSlug, onBack, navigate }) {
         ))}
       </div>
       </div>
-      <NativeBannerAd style={{ marginTop:24 }} />
+      <AdUnit variant="secondary" style={{ marginTop:24 }} />
     </div>
   );
 }
@@ -3173,7 +3125,7 @@ function SearchResultsPage({ query, navigate }) {
       )}
 
       <div style={{ maxWidth: 760, margin: "44px auto 0" }}>
-        <NativeBannerAd />
+        <AdUnit variant="secondary" />
       </div>
     </div>
   );
@@ -3413,7 +3365,7 @@ function PantryToPlate({ navigate }) {
       </div>
 
       <div style={{ maxWidth: 760, margin: "44px auto 0" }}>
-        <NativeBannerAd />
+        <AdUnit variant="secondary" />
       </div>
     </div>
   );
@@ -4129,7 +4081,7 @@ function BlogPage({ initialSlug, navigate }) {
             <p key={i} style={{ fontSize:15, color:"#3a3028", lineHeight:1.9, marginBottom:20 }}>{para}</p>
           ))}
         </div>
-        <NativeBannerAd style={{ marginTop:24 }} />
+        <AdUnit variant="secondary" style={{ marginTop:24 }} />
       </div>
     );
   }
@@ -4154,7 +4106,7 @@ function BlogPage({ initialSlug, navigate }) {
         ))}
       </div>
       <div style={{ maxWidth:760, margin:"24px auto 0" }}>
-        <NativeBannerAd />
+        <AdUnit variant="secondary" />
       </div>
     </div>
   );
@@ -4177,7 +4129,7 @@ function AboutPage() {
           </div>
         ))}
       </div>
-      <NativeBannerAd style={{ marginTop:24 }} />
+      <AdUnit variant="secondary" style={{ marginTop:24 }} />
     </div>
   );
 }
@@ -4202,7 +4154,7 @@ function ContactPage() {
           </div>
         ))}
       </div>
-      <NativeBannerAd style={{ marginTop:24 }} />
+      <AdUnit variant="secondary" style={{ marginTop:24 }} />
     </div>
   );
 }
@@ -4233,7 +4185,7 @@ function TermsPage() {
         </div>
       ))}
       </div>
-      <NativeBannerAd style={{ marginTop:24 }} />
+      <AdUnit variant="secondary" style={{ marginTop:24 }} />
     </div>
   );
 }
@@ -4257,7 +4209,7 @@ function PrivacyPage() {
           </div>
         ))}
       </div>
-      <NativeBannerAd style={{ marginTop:24 }} />
+      <AdUnit variant="secondary" style={{ marginTop:24 }} />
     </div>
   );
 }
