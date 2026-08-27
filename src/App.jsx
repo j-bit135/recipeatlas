@@ -3137,7 +3137,7 @@ function SearchResultsPage({ query, navigate }) {
 
   return (
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 28px 80px" }}>
-      <div style={{ maxWidth: 680, margin: "0 auto 32px" }}>
+      <div style={{ maxWidth: 760, margin: "0 auto 32px" }}>
         <AdUnit />
       </div>
       <h1 style={{ fontFamily: "Fraunces", fontSize: "clamp(26px,3.5vw,40px)", fontWeight: 700, marginBottom: 8 }}>
@@ -3172,7 +3172,7 @@ function SearchResultsPage({ query, navigate }) {
         </div>
       )}
 
-      <div style={{ maxWidth: 680, margin: "44px auto 0" }}>
+      <div style={{ maxWidth: 760, margin: "44px auto 0" }}>
         <NativeBannerAd />
       </div>
     </div>
@@ -3319,7 +3319,7 @@ function PantryToPlate({ navigate }) {
 
   return (
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 28px 80px" }}>
-      <div style={{ maxWidth: 680, margin: "0 auto 32px" }}>
+      <div style={{ maxWidth: 760, margin: "0 auto 32px" }}>
         <AdUnit />
       </div>
       <h1 style={{ fontFamily: "Fraunces", fontSize: "clamp(30px,4vw,48px)", fontWeight: 700, marginBottom: 4 }}>Pantry to Plate</h1>
@@ -3412,7 +3412,7 @@ function PantryToPlate({ navigate }) {
         )}
       </div>
 
-      <div style={{ maxWidth: 680, margin: "44px auto 0" }}>
+      <div style={{ maxWidth: 760, margin: "44px auto 0" }}>
         <NativeBannerAd />
       </div>
     </div>
@@ -3920,7 +3920,7 @@ function App() {
         {/* Info pages */}
         {["blog","about","contact","privacy","terms"].includes(view) && (
           <div style={{ padding:"32px 24px 60px", maxWidth:960, margin:"0 auto" }}>
-            <div style={{ maxWidth:680, margin:"0 auto 32px" }}>
+            <div style={{ maxWidth:760, margin:"0 auto 32px" }}>
               <AdUnit />
             </div>
             {view === "blog" && <BlogPage navigate={navigate} initialSlug={parts[1] || null} />}
@@ -4153,7 +4153,7 @@ function BlogPage({ initialSlug, navigate }) {
           </div>
         ))}
       </div>
-      <div style={{ maxWidth:680, margin:"24px auto 0" }}>
+      <div style={{ maxWidth:760, margin:"24px auto 0" }}>
         <NativeBannerAd />
       </div>
     </div>
