@@ -2081,13 +2081,13 @@ function RegionMap({ onSelectRegion }) {
       };
 
       const REGIONS = {
-        europe:        { color:'#60bbc7', label:'🏰 Europe' },
-        north_america: { color:'#c78660', label:'🌎 North America' },
-        south_america: { color:'#a6c760', label:'🌿 South America' },
-        africa:        { color:'#c7a460', label:'🌍 Africa' },
-        middle_east:   { color:'#c76092', label:'🕌 Middle East' },
-        asia:          { color:'#c76d60', label:'🏯 Asia' },
-        oceania:       { color:'#60c796', label:'🦘 Oceania' },
+        europe:        { rest:'#3a2b18', full:'#e0942f', label:'🏰 Europe' },
+        north_america: { rest:'#352318', full:'#c2622a', label:'🌎 North America' },
+        south_america: { rest:'#392618', full:'#d9752e', label:'🌿 South America' },
+        africa:        { rest:'#332018', full:'#b5502a', label:'🌍 Africa' },
+        middle_east:   { rest:'#311f16', full:'#a84a1f', label:'🕌 Middle East' },
+        asia:          { rest:'#3b281d', full:'#e6824a', label:'🏯 Asia' },
+        oceania:       { rest:'#362519', full:'#cc6f35', label:'🦘 Oceania' },
       };
 
       const ANTARCTICA = 10;
@@ -2152,46 +2152,42 @@ function RegionMap({ onSelectRegion }) {
             }
           });
 
+          const regionOf = (d) => {
+            const centroid = path.centroid(d);
+            const projected = projection.invert ? projection.invert(centroid) : null;
+            if (projected) {
+              const [lon, lat] = projected;
+              if (lon > -82 && lon < -33 && lat > -60 && lat < 7) return 'south_america';
+              if (lon > -80 && lon < -60 && lat >= 7 && lat < 12) return 'south_america';
+            }
+            return COUNTRY_REGION[+d.id] || getRegionByCoords(d, path, projection);
+          };
+
           svg.selectAll('.country')
             .data(exploded)
             .enter().append('path')
             .attr('d', path)
-            .attr('fill', d => {
-              // Check coordinates first ONLY for South America to fix French Guiana
-              const centroid = path.centroid(d);
-              const projected = projection.invert ? projection.invert(centroid) : null;
-              if (projected) {
-                const [lon, lat] = projected;
-                if (lon > -82 && lon < -33 && lat > -60 && lat < 7) return REGIONS.south_america.color;
-                if (lon > -80 && lon < -60 && lat >= 7 && lat < 12) return REGIONS.south_america.color;
-              }
-              // Use ID lookup for everything else
-              const rid = COUNTRY_REGION[+d.id];
-              if (rid) return REGIONS[rid].color;
-              // Coordinate fallback for truly unmapped countries
-              return getRegionByCoords(d, path, projection)
-                ? REGIONS[getRegionByCoords(d, path, projection)].color
-                : '#c8bfb0';
-            })
-            .attr('stroke', '#fdf8f3')
+            .attr('fill', d => { const rid = regionOf(d); return rid ? REGIONS[rid].rest : '#1a1714'; })
+            .attr('stroke', '#4a4237')
             .attr('stroke-width', 0.5)
             .style('cursor', 'pointer')
-            .style('transition', 'opacity .15s, stroke-width .15s')
+            .style('transition', 'fill .2s, stroke-width .15s')
             .on('mouseover', function(event, d) {
-              const rid = getRegionByCoords(d, path, projection) || COUNTRY_REGION[+d.id];
+              const rid = regionOf(d);
               if (!rid) return;
-              d3.select(this).attr('opacity', 0.8).attr('stroke-width', 1.6);
+              d3.select(this).attr('fill', REGIONS[rid].full).attr('stroke-width', 1.6);
               if (tip) { tip.textContent = REGIONS[rid].label; tip.style.display = 'block'; }
             })
             .on('mousemove', function(event) {
               if (tip) { tip.style.left = (event.clientX + 14) + 'px'; tip.style.top = (event.clientY - 36) + 'px'; }
             })
             .on('mouseout', function(event, d) {
-              d3.select(this).attr('opacity', 1).attr('stroke-width', 0.5);
+              const rid = regionOf(d);
+              d3.select(this).attr('fill', rid ? REGIONS[rid].rest : '#1a1714').attr('stroke-width', 0.5);
               if (tip) tip.style.display = 'none';
             })
             .on('click', function(event, d) {
-              const rid = getRegionByCoords(d, path, projection) || COUNTRY_REGION[+d.id];
+              const rid = regionOf(d);
               if (!rid) return;
               if (tip) tip.style.display = 'none';
               onSelectRegion(rid);
@@ -2199,7 +2195,7 @@ function RegionMap({ onSelectRegion }) {
 
           svg.append('path')
             .datum(topojson.mesh(world, world.objects.countries, (a,b) => a !== b && +a.id !== ANTARCTICA && +b.id !== ANTARCTICA))
-            .attr('fill', 'none').attr('stroke', '#fdf8f3').attr('stroke-width', 0.4).attr('d', path);
+            .attr('fill', 'none').attr('stroke', '#4a4237').attr('stroke-width', 0.4).attr('d', path);
         })
         .catch(() => {});
     };
@@ -3852,8 +3848,7 @@ function App() {
         )}
 
         {/* Main */}
-        <div style={{ position:"relative", backgroundImage:"url(https://images.pexels.com/photos/19215108/pexels-photo-19215108.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1)", backgroundSize:"cover", backgroundPosition:"center", backgroundAttachment:"fixed" }}>
-          <div style={{ position:"absolute", inset:0, background:"rgba(253,252,249,0.85)", mixBlendMode:"normal" }} />
+        <div style={{ position:"relative", backgroundImage:"url(https://images.pexels.com/photos/6586258/pexels-photo-6586258.jpeg)", backgroundSize:"cover", backgroundPosition:"center", backgroundAttachment:"fixed" }}>
           <div style={{ position:"relative", zIndex:1 }}>
         {!["blog","about","contact","privacy","terms","pantry-to-plate","search"].includes(view) && (
           <div style={{ padding:"20px 24px 60px", maxWidth:1160, margin:"0 auto" }}>
