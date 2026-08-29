@@ -2081,13 +2081,13 @@ function RegionMap({ onSelectRegion }) {
       };
 
       const REGIONS = {
-        europe:        { rest:'#3a2b18', full:'#e0942f', label:'🏰 Europe' },
-        north_america: { rest:'#352318', full:'#c2622a', label:'🌎 North America' },
-        south_america: { rest:'#392618', full:'#d9752e', label:'🌿 South America' },
-        africa:        { rest:'#332018', full:'#b5502a', label:'🌍 Africa' },
-        middle_east:   { rest:'#311f16', full:'#a84a1f', label:'🕌 Middle East' },
-        asia:          { rest:'#3b281d', full:'#e6824a', label:'🏯 Asia' },
-        oceania:       { rest:'#362519', full:'#cc6f35', label:'🦘 Oceania' },
+        europe:        { rest:'#6e3c1f', full:'#c2622a', label:'🏰 Europe' },
+        north_america: { rest:'#6e3c1f', full:'#c2622a', label:'🌎 North America' },
+        south_america: { rest:'#6e3c1f', full:'#c2622a', label:'🌿 South America' },
+        africa:        { rest:'#6e3c1f', full:'#c2622a', label:'🌍 Africa' },
+        middle_east:   { rest:'#6e3c1f', full:'#c2622a', label:'🕌 Middle East' },
+        asia:          { rest:'#6e3c1f', full:'#c2622a', label:'🏯 Asia' },
+        oceania:       { rest:'#6e3c1f', full:'#c2622a', label:'🦘 Oceania' },
       };
 
       const ANTARCTICA = 10;
@@ -3849,7 +3849,7 @@ function App() {
 
         {/* Main */}
         <div style={{ position:"relative", backgroundImage:"url(/background-beans.jpg)", backgroundSize:"auto", backgroundRepeat:"repeat", backgroundPosition:"top left", backgroundAttachment:"fixed" }}>
-          <div style={{ position:"absolute", inset:0, background:"rgba(253,252,249,0.65)" }} />
+          <div style={{ position:"absolute", inset:0, background:"rgba(253,252,249,0.85)" }} />
           <div style={{ position:"relative", zIndex:1 }}>
         {!["blog","about","contact","privacy","terms","pantry-to-plate","search"].includes(view) && (
           <div style={{ padding:"20px 24px 60px", maxWidth:1160, margin:"0 auto" }}>
