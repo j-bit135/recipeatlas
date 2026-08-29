@@ -3848,7 +3848,7 @@ function App() {
         )}
 
         {/* Main */}
-        <div style={{ position:"relative", backgroundImage:"url(https://images.pexels.com/photos/6586258/pexels-photo-6586258.jpeg)", backgroundSize:"auto", backgroundRepeat:"repeat", backgroundPosition:"top left", backgroundAttachment:"fixed" }}>
+        <div style={{ position:"relative" }}>
           <div style={{ position:"relative", zIndex:1 }}>
         {!["blog","about","contact","privacy","terms","pantry-to-plate","search"].includes(view) && (
           <div style={{ padding:"20px 24px 60px", maxWidth:1160, margin:"0 auto" }}>
