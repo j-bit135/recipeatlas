@@ -3849,7 +3849,7 @@ function App() {
 
         {/* Main */}
         <div style={{ position:"relative", backgroundImage:"url(/background-beans.jpg)", backgroundSize:"auto", backgroundRepeat:"repeat", backgroundPosition:"top left", backgroundAttachment:"fixed" }}>
-          <div style={{ position:"absolute", inset:0, background:"rgba(253,252,249,0.4)" }} />
+          <div style={{ position:"absolute", inset:0, background:"rgba(253,252,249,0.65)" }} />
           <div style={{ position:"relative", zIndex:1 }}>
         {!["blog","about","contact","privacy","terms","pantry-to-plate","search"].includes(view) && (
           <div style={{ padding:"20px 24px 60px", maxWidth:1160, margin:"0 auto" }}>
