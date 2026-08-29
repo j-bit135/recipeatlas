@@ -2081,13 +2081,13 @@ function RegionMap({ onSelectRegion }) {
       };
 
       const REGIONS = {
-        europe:        { rest:'#6e3c1f', full:'#c2622a', label:'🏰 Europe' },
-        north_america: { rest:'#6e3c1f', full:'#c2622a', label:'🌎 North America' },
-        south_america: { rest:'#6e3c1f', full:'#c2622a', label:'🌿 South America' },
-        africa:        { rest:'#6e3c1f', full:'#c2622a', label:'🌍 Africa' },
-        middle_east:   { rest:'#6e3c1f', full:'#c2622a', label:'🕌 Middle East' },
-        asia:          { rest:'#6e3c1f', full:'#c2622a', label:'🏯 Asia' },
-        oceania:       { rest:'#6e3c1f', full:'#c2622a', label:'🦘 Oceania' },
+        europe:        { rest:'#4b2e1c', full:'#b15c2c', label:'🏰 Europe' },
+        north_america: { rest:'#4b2e1c', full:'#b15c2c', label:'🌎 North America' },
+        south_america: { rest:'#4b2e1c', full:'#b15c2c', label:'🌿 South America' },
+        africa:        { rest:'#4b2e1c', full:'#b15c2c', label:'🌍 Africa' },
+        middle_east:   { rest:'#4b2e1c', full:'#b15c2c', label:'🕌 Middle East' },
+        asia:          { rest:'#4b2e1c', full:'#b15c2c', label:'🏯 Asia' },
+        oceania:       { rest:'#4b2e1c', full:'#b15c2c', label:'🦘 Oceania' },
       };
 
       const ANTARCTICA = 10;
@@ -2134,6 +2134,22 @@ function RegionMap({ onSelectRegion }) {
 
           svg.append('rect').attr('width', w).attr('height', h).attr('fill', 'none');
 
+          // Diagonal gradient sweep across the whole map (not per-country) for a
+          // more modern look — one continuous gradient behind every country path,
+          // rather than each filled with a single flat colour. The map now sits
+          // permanently on this orange gradient; hovering triggers a slow pulse
+          // toward near-black to emphasise the region being explored.
+          const defs = svg.append('defs');
+          const orangeGrad = defs.append('linearGradient')
+            .attr('id', 'ra-map-orange-grad')
+            .attr('gradientUnits', 'userSpaceOnUse')
+            .attr('x1', 0).attr('y1', 0).attr('x2', w).attr('y2', h);
+          orangeGrad.append('stop').attr('offset', '0%').attr('stop-color', '#a05326');
+          orangeGrad.append('stop').attr('offset', '100%').attr('stop-color', '#c2622a');
+
+          const DARK = '#1a1714';
+          const PULSE_MS = 900;
+
           const tip = document.getElementById('ra-map-tip');
 
           // Explode MultiPolygon features into individual polygons so each
@@ -2163,19 +2179,34 @@ function RegionMap({ onSelectRegion }) {
             return COUNTRY_REGION[+d.id] || getRegionByCoords(d, path, projection);
           };
 
+          // Slow fade-to-black-and-back loop, chained via D3 transitions so it
+          // self-terminates cleanly rather than running indefinitely once the
+          // mouse leaves — each cycle checks the element is still marked as
+          // hovered before continuing to the next.
+          const pulse = (selection) => {
+            selection
+              .transition().duration(PULSE_MS).ease(d3.easeSinInOut)
+              .attr('fill', DARK)
+              .transition().duration(PULSE_MS).ease(d3.easeSinInOut)
+              .attr('fill', 'url(#ra-map-orange-grad)')
+              .on('end', function() {
+                if (d3.select(this).attr('data-hovering') === '1') pulse(d3.select(this));
+              });
+          };
+
           svg.selectAll('.country')
             .data(exploded)
             .enter().append('path')
             .attr('d', path)
-            .attr('fill', d => { const rid = regionOf(d); return rid ? REGIONS[rid].rest : '#1a1714'; })
+            .attr('fill', d => { const rid = regionOf(d); return rid ? 'url(#ra-map-orange-grad)' : DARK; })
             .attr('stroke', '#4a4237')
             .attr('stroke-width', 0.5)
             .style('cursor', 'pointer')
-            .style('transition', 'fill .2s, stroke-width .15s')
             .on('mouseover', function(event, d) {
               const rid = regionOf(d);
               if (!rid) return;
-              d3.select(this).attr('fill', REGIONS[rid].full).attr('stroke-width', 1.6);
+              d3.select(this).attr('data-hovering', '1').attr('stroke-width', 1.6);
+              pulse(d3.select(this));
               if (tip) { tip.textContent = REGIONS[rid].label; tip.style.display = 'block'; }
             })
             .on('mousemove', function(event) {
@@ -2183,7 +2214,9 @@ function RegionMap({ onSelectRegion }) {
             })
             .on('mouseout', function(event, d) {
               const rid = regionOf(d);
-              d3.select(this).attr('fill', rid ? REGIONS[rid].rest : '#1a1714').attr('stroke-width', 0.5);
+              d3.select(this).attr('data-hovering', '0').interrupt()
+                .attr('fill', rid ? 'url(#ra-map-orange-grad)' : DARK)
+                .attr('stroke-width', 0.5);
               if (tip) tip.style.display = 'none';
             })
             .on('click', function(event, d) {
