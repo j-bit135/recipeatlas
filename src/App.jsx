@@ -2136,19 +2136,19 @@ function RegionMap({ onSelectRegion }) {
 
           // Diagonal gradient sweep across the whole map (not per-country) for a
           // more modern look — one continuous gradient behind every country path,
-          // rather than each filled with a single flat colour. The map now sits
-          // permanently on this orange gradient; hovering triggers a slow pulse
-          // toward near-black to emphasise the region being explored.
+          // rather than each filled with a single flat colour. The map sits on
+          // this orange gradient at rest; hovering applies a single, static
+          // darker orange-black filter to emphasise the region being explored.
           const defs = svg.append('defs');
           const orangeGrad = defs.append('linearGradient')
             .attr('id', 'ra-map-orange-grad')
             .attr('gradientUnits', 'userSpaceOnUse')
             .attr('x1', 0).attr('y1', 0).attr('x2', w).attr('y2', h);
-          orangeGrad.append('stop').attr('offset', '0%').attr('stop-color', '#a05326');
-          orangeGrad.append('stop').attr('offset', '100%').attr('stop-color', '#c2622a');
+          orangeGrad.append('stop').attr('offset', '0%').attr('stop-color', '#c2622a');
+          orangeGrad.append('stop').attr('offset', '100%').attr('stop-color', '#f2822e');
 
           const DARK = '#1a1714';
-          const PULSE_MS = 900;
+          const HOVER_FILL = '#61361d';
 
           const tip = document.getElementById('ra-map-tip');
 
@@ -2179,21 +2179,6 @@ function RegionMap({ onSelectRegion }) {
             return COUNTRY_REGION[+d.id] || getRegionByCoords(d, path, projection);
           };
 
-          // Slow fade-to-black-and-back loop, chained via D3 transitions so it
-          // self-terminates cleanly rather than running indefinitely once the
-          // mouse leaves — each cycle checks the element is still marked as
-          // hovered before continuing to the next.
-          const pulse = (selection) => {
-            selection
-              .transition().duration(PULSE_MS).ease(d3.easeSinInOut)
-              .attr('fill', DARK)
-              .transition().duration(PULSE_MS).ease(d3.easeSinInOut)
-              .attr('fill', 'url(#ra-map-orange-grad)')
-              .on('end', function() {
-                if (d3.select(this).attr('data-hovering') === '1') pulse(d3.select(this));
-              });
-          };
-
           svg.selectAll('.country')
             .data(exploded)
             .enter().append('path')
@@ -2202,11 +2187,11 @@ function RegionMap({ onSelectRegion }) {
             .attr('stroke', '#4a4237')
             .attr('stroke-width', 0.5)
             .style('cursor', 'pointer')
+            .style('transition', 'fill .2s ease, stroke-width .15s ease')
             .on('mouseover', function(event, d) {
               const rid = regionOf(d);
               if (!rid) return;
-              d3.select(this).attr('data-hovering', '1').attr('stroke-width', 1.6);
-              pulse(d3.select(this));
+              d3.select(this).attr('fill', HOVER_FILL).attr('stroke-width', 1.6);
               if (tip) { tip.textContent = REGIONS[rid].label; tip.style.display = 'block'; }
             })
             .on('mousemove', function(event) {
@@ -2214,9 +2199,7 @@ function RegionMap({ onSelectRegion }) {
             })
             .on('mouseout', function(event, d) {
               const rid = regionOf(d);
-              d3.select(this).attr('data-hovering', '0').interrupt()
-                .attr('fill', rid ? 'url(#ra-map-orange-grad)' : DARK)
-                .attr('stroke-width', 0.5);
+              d3.select(this).attr('fill', rid ? 'url(#ra-map-orange-grad)' : DARK).attr('stroke-width', 0.5);
               if (tip) tip.style.display = 'none';
             })
             .on('click', function(event, d) {
