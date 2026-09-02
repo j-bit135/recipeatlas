@@ -1785,61 +1785,36 @@ const styles = `
 const PA_SCRIPT_URL = "https://cdn.prplads.com/agent.js?publisherId=63a0a3ac788a42c3a760b72dd9ce9130:edb846eb9844b395f51e8996f5bd9f1fd138d4102d410e652bb0211ff8d0bd04357cb42f3de445310f3657bbee3e6835ad9a51a8cfb9cbebc8eef8b610841753";
 const AD_BREAKPOINT = 750;
 
-// PurpleAds' tag is size-agnostic — it just fills whatever container it's given,
-// as long as that container matches one of PurpleAds' supported sizes. Page
-// columns are 1070px wide (see the maxWidth changes throughout this file) so
-// even the largest 970px-wide sizes below fit comfortably with room to spare.
-
-// The single first ad on every page rotates across the four approved
-// higher-visibility sizes, chosen once per mount.
-const PA_FIRST_SIZES_DESKTOP = [
-  { width: 970, height: 250 },
-  { width: 970, height: 90 },
-  { width: 728, height: 90 },
-  { width: 468, height: 60 },
-];
-const PA_FIRST_SIZES_MOBILE = [
-  { width: 320, height: 100 },
-  { width: 320, height: 50 },
-  { width: 300, height: 100 },
-];
-
-// Every ad after the first can be any PurpleAds-supported size — trialling the
-// full range so size-dependent pricing can be compared across all of them.
-const PA_SIZES_DESKTOP = [
-  { width: 970, height: 250 },
-  { width: 970, height: 90 },
-  { width: 728, height: 90 },
-  { width: 468, height: 60 },
-  { width: 336, height: 280 },
-  { width: 300, height: 600 },
-  { width: 300, height: 250 },
-  { width: 160, height: 600 },
-  { width: 200, height: 200 },
-];
-const PA_SIZES_MOBILE = [
-  { width: 300, height: 250 },
-  { width: 320, height: 100 },
-  { width: 320, height: 480 },
-  { width: 320, height: 50 },
-  { width: 300, height: 100 },
-  { width: 250, height: 250 },
-  { width: 200, height: 200 },
-];
+// PurpleAds' own docs: "The smart snippet will find the best sizes according to
+// the container, and will inject the most suitable ad." So the container should
+// just be large enough to accommodate ANY of the approved sizes for its tier —
+// not pre-narrowed to one specific size ourselves. Picking a single size
+// client-side (as this used to do) puts our own preference in front of the
+// auction and needlessly restricts which advertisers can even compete for that
+// slot. Sizing to the tier's maximum bounds instead lets every approved size bid,
+// so PurpleAds' own system decides the winner purely on price — full auction
+// competition, no rotation logic of ours to conflict with it.
+//
+// "First" ad: bounded to the 4 approved higher-visibility sizes.
+//   Desktop max: 970 wide (970x250/970x90) x 250 tall (970x250)
+//   Mobile max:  320 wide (320x100/320x50) x 100 tall (320x100/300x100)
+// "Secondary" ads: bounded to the full PurpleAds-supported range.
+//   Desktop max: 970 wide x 600 tall (300x600/160x600)
+//   Mobile max:  320 wide x 480 tall (320x480)
+const PA_FIRST_BOUNDS_DESKTOP = { width: 970, height: 250 };
+const PA_FIRST_BOUNDS_MOBILE = { width: 320, height: 100 };
+const PA_SECONDARY_BOUNDS_DESKTOP = { width: 970, height: 600 };
+const PA_SECONDARY_BOUNDS_MOBILE = { width: 320, height: 480 };
 
 function AdUnit({ style, variant = "first" }) {
   const [mob] = useState(() => typeof window !== 'undefined' && window.innerWidth < AD_BREAKPOINT);
   const hostRef = useRef(null);
-  const [firstDesktopIdx] = useState(() => Math.floor(Math.random() * PA_FIRST_SIZES_DESKTOP.length));
-  const [firstMobileIdx] = useState(() => Math.floor(Math.random() * PA_FIRST_SIZES_MOBILE.length));
-  const [secondaryDesktopIdx] = useState(() => Math.floor(Math.random() * PA_SIZES_DESKTOP.length));
-  const [secondaryMobileIdx] = useState(() => Math.floor(Math.random() * PA_SIZES_MOBILE.length));
 
   let cfg;
   if (variant === "secondary") {
-    cfg = mob ? PA_SIZES_MOBILE[secondaryMobileIdx] : PA_SIZES_DESKTOP[secondaryDesktopIdx];
+    cfg = mob ? PA_SECONDARY_BOUNDS_MOBILE : PA_SECONDARY_BOUNDS_DESKTOP;
   } else {
-    cfg = mob ? PA_FIRST_SIZES_MOBILE[firstMobileIdx] : PA_FIRST_SIZES_DESKTOP[firstDesktopIdx];
+    cfg = mob ? PA_FIRST_BOUNDS_MOBILE : PA_FIRST_BOUNDS_DESKTOP;
   }
 
   useEffect(() => {
