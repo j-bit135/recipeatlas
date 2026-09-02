@@ -1782,7 +1782,7 @@ const styles = `
 // ── NO AI CALLS — fully hardcoded site ─────────────────────────────
 
 // ── RESPONSIVE AD UNIT ─────────────────────────────────────────────────
-const PA_SCRIPT_URL = "https://cdn.prplads.com/agent.js?publisherId=7f007e597423ad00034f553f0a7d4fc3:1f0cec5d49a2571475ef764e28467ab0df26bb9e2c9f842fdfb2ca09440019126eaa2a0112943ab69b4f7130b401018f37be8100a756d12244a6cb3cdc772907";
+const PA_SCRIPT_URL = "https://cdn.prplads.com/agent.js?publisherId=63a0a3ac788a42c3a760b72dd9ce9130:edb846eb9844b395f51e8996f5bd9f1fd138d4102d410e652bb0211ff8d0bd04357cb42f3de445310f3657bbee3e6835ad9a51a8cfb9cbebc8eef8b610841753";
 const AD_BREAKPOINT = 750;
 
 // PurpleAds' tag is size-agnostic — it just fills whatever container it's given,
