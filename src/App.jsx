@@ -1782,24 +1782,58 @@ const styles = `
 // ── NO AI CALLS — fully hardcoded site ─────────────────────────────
 
 // ── RESPONSIVE AD UNIT ─────────────────────────────────────────────────
-const AD_NETWORK = {
-  wide:   { key: "f5ba0f06afc15d11f4b5eb434ce08d76", width: 728, height: 90 },  // 728x90 leaderboard
-  narrow: { key: "d5f04eef4458100b10a56573268a7c1e", width: 320, height: 50 },  // 320x50 mobile banner
-  medium: { key: "d7fd60cf1c83b8ad95329e78a13ef7c8", width: 300, height: 250 }, // 300x250 medium rectangle
-};
+const PA_SCRIPT_URL = "https://cdn.prplads.com/agent.js?publisherId=7f007e597423ad00034f553f0a7d4fc3:1f0cec5d49a2571475ef764e28467ab0df26bb9e2c9f842fdfb2ca09440019126eaa2a0112943ab69b4f7130b401018f37be8100a756d12244a6cb3cdc772907";
 const AD_BREAKPOINT = 750;
 
-// variant="first" (default) is the one, consistent, highest-visibility ad slot on
-// every page — always 728x90 desktop / 320x50 mobile, unchanged.
-// variant="secondary" is every ad placement AFTER the first one on a page (this
-// replaces the old native-banner bottom slot too, which underperformed). These
-// slots split-test between two sizes per device category — desktop/tablet gets
-// either 728x90 or 300x250, mobile gets either 300x250 or 320x50 — chosen once
-// per mount, so we can compare real performance between formats over time.
+// PurpleAds' tag is size-agnostic — it just fills whatever container it's given,
+// as long as that container matches one of PurpleAds' supported sizes. Page
+// columns are 1070px wide (see the maxWidth changes throughout this file) so
+// even the largest 970px-wide sizes below fit comfortably with room to spare.
+
+// The single first ad on every page rotates across the four approved
+// higher-visibility sizes, chosen once per mount.
+const PA_FIRST_SIZES_DESKTOP = [
+  { width: 970, height: 250 },
+  { width: 970, height: 90 },
+  { width: 728, height: 90 },
+  { width: 468, height: 60 },
+];
+const PA_FIRST_SIZES_MOBILE = [
+  { width: 320, height: 100 },
+  { width: 320, height: 50 },
+  { width: 300, height: 100 },
+];
+
+// Every ad after the first can be any PurpleAds-supported size — trialling the
+// full range so size-dependent pricing can be compared across all of them.
+const PA_SIZES_DESKTOP = [
+  { width: 970, height: 250 },
+  { width: 970, height: 90 },
+  { width: 728, height: 90 },
+  { width: 468, height: 60 },
+  { width: 336, height: 280 },
+  { width: 300, height: 600 },
+  { width: 300, height: 250 },
+  { width: 160, height: 600 },
+  { width: 200, height: 200 },
+];
+const PA_SIZES_MOBILE = [
+  { width: 300, height: 250 },
+  { width: 320, height: 100 },
+  { width: 320, height: 480 },
+  { width: 320, height: 50 },
+  { width: 300, height: 100 },
+  { width: 250, height: 250 },
+  { width: 200, height: 200 },
+];
+
 function AdUnit({ style, variant = "first" }) {
   const [mob, setMob] = useState(() => typeof window !== 'undefined' && window.innerWidth < AD_BREAKPOINT);
   const hostRef = useRef(null);
-  const [randomPick] = useState(() => Math.random() < 0.5);
+  const [firstDesktopIdx] = useState(() => Math.floor(Math.random() * PA_FIRST_SIZES_DESKTOP.length));
+  const [firstMobileIdx] = useState(() => Math.floor(Math.random() * PA_FIRST_SIZES_MOBILE.length));
+  const [secondaryDesktopIdx] = useState(() => Math.floor(Math.random() * PA_SIZES_DESKTOP.length));
+  const [secondaryMobileIdx] = useState(() => Math.floor(Math.random() * PA_SIZES_MOBILE.length));
 
   useEffect(() => {
     const fn = () => setMob(window.innerWidth < AD_BREAKPOINT);
@@ -1810,11 +1844,9 @@ function AdUnit({ style, variant = "first" }) {
 
   let cfg;
   if (variant === "secondary") {
-    cfg = mob
-      ? (randomPick ? AD_NETWORK.medium : AD_NETWORK.narrow)
-      : (randomPick ? AD_NETWORK.wide : AD_NETWORK.medium);
+    cfg = mob ? PA_SIZES_MOBILE[secondaryMobileIdx] : PA_SIZES_DESKTOP[secondaryDesktopIdx];
   } else {
-    cfg = mob ? AD_NETWORK.narrow : AD_NETWORK.wide;
+    cfg = mob ? PA_FIRST_SIZES_MOBILE[firstMobileIdx] : PA_FIRST_SIZES_DESKTOP[firstDesktopIdx];
   }
 
   useEffect(() => {
@@ -1822,18 +1854,13 @@ function AdUnit({ style, variant = "first" }) {
     if (!host) return;
     host.innerHTML = "";
 
-    // Each ad gets its own isolated iframe. This network's script relies on
-    // document.write(), and calling that from a script injected into an already-loaded
-    // page can silently fail — or worse, wipe the surrounding page content, since
-    // document.write() on an already-loaded document implicitly reopens it. A fresh
-    // iframe (via srcdoc) is its own still-loading document, so document.write() there
-    // behaves normally and can only ever affect that iframe, never the rest of the page.
-    // This also naturally keeps each slot's `atOptions` from clashing with any other
-    // ad slot on the same page, since each iframe has its own separate global scope.
+    // Same isolated-iframe approach as before: each ad slot gets its own fresh,
+    // still-loading document via srcdoc, so if this network's script relies on
+    // document.write() (as the previous one did), it stays safely scoped to that
+    // one iframe rather than risking the surrounding page.
     const html =
       '<!DOCTYPE html><html><head><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent;}</style></head><body>' +
-      '<script>atOptions = {"key":"' + cfg.key + '","format":"iframe","height":' + cfg.height + ',"width":' + cfg.width + ',"params":{}};<' + '/script>' +
-      '<script src="https://bluntutilities.com/' + cfg.key + '/invoke.js"><' + '/script>' +
+      '<div><script src="' + PA_SCRIPT_URL + '" data-pa-tag async><' + '/script></div>' +
       '</body></html>';
 
     const iframe = document.createElement("iframe");
@@ -1842,7 +1869,7 @@ function AdUnit({ style, variant = "first" }) {
     iframe.style.cssText = `width:${cfg.width}px;height:${cfg.height}px;border:0;display:block;max-width:100%;`;
     iframe.srcdoc = html;
     host.appendChild(iframe);
-  }, [mob, cfg.key]);
+  }, [mob, cfg.width, cfg.height]);
 
   return (
     <div className="ad-unit" style={{ width:"100%", display:"flex", justifyContent:"center", marginBottom:8, ...style }}>
@@ -2334,7 +2361,7 @@ function RegionView({ regionId, onBack, onSelectCountry }) {
   if (!region) return null;
   const regionRecipeKeys = Object.keys(RECIPE_DB).filter(k => region.countries.includes(RECIPE_DB[k].country));
   return (
-    <div style={{ maxWidth:760, margin:"0 auto" }}>
+    <div style={{ maxWidth:1070, margin:"0 auto" }}>
       <AdUnit />
       <button onClick={onBack}
         style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
@@ -2375,7 +2402,7 @@ function CountryView({ country, onBack, onSelectDish }) {
   const countryRecipeKeys = Object.keys(RECIPE_DB).filter(k => RECIPE_DB[k].country === country);
 
   return (
-    <div style={{ maxWidth:760, margin:"0 auto" }}>
+    <div style={{ maxWidth:1070, margin:"0 auto" }}>
       <AdUnit />
       <button onClick={onBack}
         style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
@@ -2601,7 +2628,7 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
   }, [dish, country]);
 
   return (
-    <div style={{ maxWidth:760, margin:"0 auto" }}>
+    <div style={{ maxWidth:1070, margin:"0 auto" }}>
       <AdUnit />
       <button onClick={onBack}
         style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
@@ -2768,7 +2795,7 @@ function EventsListView({ navigate }) {
   });
 
   return (
-    <div style={{ maxWidth:760, margin:"0 auto" }}>
+    <div style={{ maxWidth:1070, margin:"0 auto" }}>
       <AdUnit />
       <div style={{ marginTop:24 }}>
       <h1 style={{ fontFamily:"Fraunces", fontSize:32, fontWeight:700, color:"#1a1714", marginBottom:8, lineHeight:1.2 }}>Food events near you</h1>
@@ -2852,7 +2879,7 @@ function EventDetailView({ eventSlug, onBack, navigate }) {
   const event = EVENTS_DB[eventSlug];
   if (!event) {
     return (
-      <div style={{ maxWidth:760, margin:"0 auto" }}>
+      <div style={{ maxWidth:1070, margin:"0 auto" }}>
         <AdUnit />
         <button onClick={onBack}
           style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
@@ -2863,7 +2890,7 @@ function EventDetailView({ eventSlug, onBack, navigate }) {
     );
   }
   return (
-    <div style={{ maxWidth:760, margin:"0 auto" }}>
+    <div style={{ maxWidth:1070, margin:"0 auto" }}>
       <AdUnit variant="secondary" />
       <button onClick={onBack}
         style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
@@ -3101,7 +3128,7 @@ function SearchResultsPage({ query, navigate }) {
 
   return (
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 28px 80px" }}>
-      <div style={{ maxWidth: 760, margin: "0 auto 32px" }}>
+      <div style={{ maxWidth: 1070, margin: "0 auto 32px" }}>
         <AdUnit />
       </div>
       <h1 style={{ fontFamily: "Fraunces", fontSize: "clamp(26px,3.5vw,40px)", fontWeight: 700, marginBottom: 8 }}>
@@ -3136,7 +3163,7 @@ function SearchResultsPage({ query, navigate }) {
         </div>
       )}
 
-      <div style={{ maxWidth: 760, margin: "44px auto 0" }}>
+      <div style={{ maxWidth: 1070, margin: "44px auto 0" }}>
         <AdUnit variant="secondary" />
       </div>
     </div>
@@ -3283,7 +3310,7 @@ function PantryToPlate({ navigate }) {
 
   return (
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 28px 80px" }}>
-      <div style={{ maxWidth: 760, margin: "0 auto 32px" }}>
+      <div style={{ maxWidth: 1070, margin: "0 auto 32px" }}>
         <AdUnit />
       </div>
       <h1 style={{ fontFamily: "Fraunces", fontSize: "clamp(30px,4vw,48px)", fontWeight: 700, marginBottom: 4 }}>Pantry to Plate</h1>
@@ -3376,7 +3403,7 @@ function PantryToPlate({ navigate }) {
         )}
       </div>
 
-      <div style={{ maxWidth: 760, margin: "44px auto 0" }}>
+      <div style={{ maxWidth: 1070, margin: "44px auto 0" }}>
         <AdUnit variant="secondary" />
       </div>
     </div>
@@ -3883,8 +3910,8 @@ function App() {
 
         {/* Info pages */}
         {["blog","about","contact","privacy","terms"].includes(view) && (
-          <div style={{ padding:"32px 24px 60px", maxWidth:960, margin:"0 auto" }}>
-            <div style={{ maxWidth:760, margin:"0 auto 32px" }}>
+          <div style={{ padding:"32px 24px 60px", maxWidth:1100, margin:"0 auto" }}>
+            <div style={{ maxWidth:1070, margin:"0 auto 32px" }}>
               <AdUnit />
             </div>
             {view === "blog" && <BlogPage navigate={navigate} initialSlug={parts[1] || null} />}
@@ -4074,7 +4101,7 @@ function BlogPage({ initialSlug, navigate }) {
   if (activePost !== null && activePost >= 0) {
     const post = BLOG_POSTS[activePost];
     return (
-      <div style={{ maxWidth:760, margin:"0 auto" }}>
+      <div style={{ maxWidth:1070, margin:"0 auto" }}>
         <button onClick={closePost}
           style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", marginBottom:20, padding:0, display:"flex", alignItems:"center", gap:6 }}>
           ← Back to Blog
@@ -4117,7 +4144,7 @@ function BlogPage({ initialSlug, navigate }) {
           </div>
         ))}
       </div>
-      <div style={{ maxWidth:760, margin:"24px auto 0" }}>
+      <div style={{ maxWidth:1070, margin:"24px auto 0" }}>
         <AdUnit variant="secondary" />
       </div>
     </div>
@@ -4126,7 +4153,7 @@ function BlogPage({ initialSlug, navigate }) {
 
 function AboutPage() {
   return (
-    <div style={{ maxWidth:760, margin:"0 auto" }}>
+    <div style={{ maxWidth:1070, margin:"0 auto" }}>
       <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,40px)", fontWeight:700, color:"#1a1714", marginBottom:16 }}>About Recipe Atlas</h1>
       <div style={{ marginTop:16, display:"flex", flexDirection:"column", gap:20 }}>
         {[
@@ -4148,7 +4175,7 @@ function AboutPage() {
 
 function ContactPage() {
   return (
-    <div style={{ maxWidth:760, margin:"0 auto" }}>
+    <div style={{ maxWidth:1070, margin:"0 auto" }}>
       <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,36px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>Contact Us</h1>
       <p style={{ fontSize:15, color:"#6a6058", lineHeight:1.8, marginBottom:32, marginTop:16 }}>
         Whether you have a question, a suggestion, or want to talk about advertising — we'd love to hear from you. Get in touch at <a href="mailto:contact.jwgroup@proton.me" style={{ color:"#c2622a", fontWeight:600 }}>contact.jwgroup@proton.me</a> and we'll get back to you as soon as possible.
@@ -4174,7 +4201,7 @@ function ContactPage() {
 
 function TermsPage() {
   return (
-    <div style={{ maxWidth:760, margin:"0 auto" }}>
+    <div style={{ maxWidth:1070, margin:"0 auto" }}>
       <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,36px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>Terms of Service</h1>
       <p style={{ fontSize:13, color:"#9a9088", marginBottom:28, marginTop:16 }}>Last updated: June 2025</p>
 
@@ -4204,7 +4231,7 @@ function TermsPage() {
 
 function PrivacyPage() {
   return (
-    <div style={{ maxWidth:760, margin:"0 auto" }}>
+    <div style={{ maxWidth:1070, margin:"0 auto" }}>
       <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,40px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>Privacy Policy</h1>
       <p style={{ fontSize:12, color:"#c8bfb0", marginBottom:24, fontFamily:"Plus Jakarta Sans" }}>Last updated: June 2025</p>
       <div style={{ marginTop:24, display:"flex", flexDirection:"column", gap:16 }}>
