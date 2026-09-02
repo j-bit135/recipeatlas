@@ -1854,27 +1854,23 @@ function AdUnit({ style, variant = "first" }) {
     if (!host) return;
     host.innerHTML = "";
 
-    // Same isolated-iframe approach as before: each ad slot gets its own fresh,
-    // still-loading document via srcdoc, so if this network's script relies on
-    // document.write() (as the previous one did), it stays safely scoped to that
-    // one iframe rather than risking the surrounding page.
-    const html =
-      '<!DOCTYPE html><html><head><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent;}</style></head><body>' +
-      '<div><script src="' + PA_SCRIPT_URL + '" data-pa-tag async><' + '/script></div>' +
-      '</body></html>';
-
-    const iframe = document.createElement("iframe");
-    iframe.setAttribute("scrolling", "no");
-    iframe.title = "Advertisement";
-    iframe.style.cssText = `width:${cfg.width}px;height:${cfg.height}px;border:0;display:block;max-width:100%;`;
-    iframe.srcdoc = html;
-    host.appendChild(iframe);
+    // Injected directly into the page now, matching PurpleAds' snippet exactly —
+    // not isolated inside an iframe like the previous ad network needed. Many
+    // modern ad networks specifically detect and refuse to render when nested
+    // inside an iframe, as an anti-fraud measure — that's the most likely reason
+    // ads were loading a slot but never actually serving a creative into it.
+    const script = document.createElement("script");
+    script.src = PA_SCRIPT_URL;
+    script.async = true;
+    script.setAttribute("data-pa-tag", "");
+    host.appendChild(script);
   }, [mob, cfg.width, cfg.height]);
 
   return (
     <div className="ad-unit" style={{ width:"100%", display:"flex", justifyContent:"center", marginBottom:8, ...style }}>
       <div ref={hostRef} style={{ width: cfg.width, height: cfg.height, maxWidth:"100%", overflow:"hidden" }} />
     </div>
+
   );
 }
 
