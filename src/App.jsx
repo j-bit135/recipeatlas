@@ -1828,19 +1828,12 @@ const PA_SIZES_MOBILE = [
 ];
 
 function AdUnit({ style, variant = "first" }) {
-  const [mob, setMob] = useState(() => typeof window !== 'undefined' && window.innerWidth < AD_BREAKPOINT);
+  const [mob] = useState(() => typeof window !== 'undefined' && window.innerWidth < AD_BREAKPOINT);
   const hostRef = useRef(null);
   const [firstDesktopIdx] = useState(() => Math.floor(Math.random() * PA_FIRST_SIZES_DESKTOP.length));
   const [firstMobileIdx] = useState(() => Math.floor(Math.random() * PA_FIRST_SIZES_MOBILE.length));
   const [secondaryDesktopIdx] = useState(() => Math.floor(Math.random() * PA_SIZES_DESKTOP.length));
   const [secondaryMobileIdx] = useState(() => Math.floor(Math.random() * PA_SIZES_MOBILE.length));
-
-  useEffect(() => {
-    const fn = () => setMob(window.innerWidth < AD_BREAKPOINT);
-    window.addEventListener('resize', fn);
-    fn();
-    return () => window.removeEventListener('resize', fn);
-  }, []);
 
   let cfg;
   if (variant === "secondary") {
@@ -1852,19 +1845,24 @@ function AdUnit({ style, variant = "first" }) {
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
-    host.innerHTML = "";
 
-    // Injected directly into the page now, matching PurpleAds' snippet exactly —
-    // not isolated inside an iframe like the previous ad network needed. Many
-    // modern ad networks specifically detect and refuse to render when nested
-    // inside an iframe, as an anti-fraud measure — that's the most likely reason
-    // ads were loading a slot but never actually serving a creative into it.
+    // Injected directly into the page, matching PurpleAds' own recommended snippet
+    // exactly — not isolated inside an iframe like the previous ad network needed.
+    //
+    // Mounted exactly ONCE per ad slot (empty dependency array — no longer tied to
+    // window resize). PurpleAds' own docs describe this as a "smart" script that
+    // adapts to whatever size its container currently is; re-running it on every
+    // resize was tearing it down and recreating it repeatedly, which is the likely
+    // cause of the duplicate/floating "PurpleAds" markers building up on refresh —
+    // if their script creates anything outside this immediate container (a loading
+    // or branding indicator, for instance), clearing host.innerHTML on remount
+    // wouldn't remove that external element, so each resize left one more behind.
     const script = document.createElement("script");
     script.src = PA_SCRIPT_URL;
     script.async = true;
     script.setAttribute("data-pa-tag", "");
     host.appendChild(script);
-  }, [mob, cfg.width, cfg.height]);
+  }, []);
 
   return (
     <div className="ad-unit" style={{ width:"100%", display:"flex", justifyContent:"center", marginBottom:8, ...style }}>
