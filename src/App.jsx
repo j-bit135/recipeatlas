@@ -1808,6 +1808,7 @@ const PA_SECONDARY_BOUNDS_MOBILE = { width: 320, height: 480 };
 
 function AdUnit({ style, variant = "first" }) {
   const [mob] = useState(() => typeof window !== 'undefined' && window.innerWidth < AD_BREAKPOINT);
+  const [filled, setFilled] = useState(true); // start visible; collapse only if nothing fills in time
   const hostRef = useRef(null);
 
   let cfg;
@@ -1837,7 +1838,49 @@ function AdUnit({ style, variant = "first" }) {
     script.async = true;
     script.setAttribute("data-pa-tag", "");
     host.appendChild(script);
+
+    // PurpleAds doesn't publish a documented fill / no-fill event to hook into,
+    // so this uses the standard network-agnostic fallback: watch for any real
+    // rendered content (beyond the script tag itself) appearing in the slot, and
+    // if nothing shows up within a reasonable window, collapse the space cleanly
+    // rather than leaving a large permanent gap. If a slot fills later than this
+    // window (rare, but possible on a slow connection), it simply never collapses
+    // in the first place, since the check only fires once, on the way in.
+    let settled = false;
+    const markFilled = () => {
+      if (settled) return;
+      settled = true;
+      observer.disconnect();
+      clearTimeout(timeoutId);
+      setFilled(true);
+    };
+    const markEmpty = () => {
+      if (settled) return;
+      settled = true;
+      observer.disconnect();
+      setFilled(false);
+    };
+
+    const hasRealContent = () =>
+      Array.from(host.children).some(el => el !== script && el.offsetHeight > 0);
+
+    const observer = new MutationObserver(() => {
+      if (hasRealContent()) markFilled();
+    });
+    observer.observe(host, { childList: true, subtree: true });
+
+    const timeoutId = setTimeout(() => {
+      if (hasRealContent()) markFilled();
+      else markEmpty();
+    }, 3000);
+
+    return () => {
+      observer.disconnect();
+      clearTimeout(timeoutId);
+    };
   }, []);
+
+  if (!filled) return null;
 
   return (
     <div className="ad-unit" style={{ width:"100%", display:"flex", justifyContent:"center", marginBottom:8, ...style }}>
