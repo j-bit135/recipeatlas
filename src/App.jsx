@@ -1782,7 +1782,7 @@ const styles = `
 // ── NO AI CALLS — fully hardcoded site ─────────────────────────────
 
 // ── RESPONSIVE AD UNIT ─────────────────────────────────────────────────
-const PA_SCRIPT_URL = "https://cdn.prplads.com/agent.js?publisherId=63a0a3ac788a42c3a760b72dd9ce9130:edb846eb9844b395f51e8996f5bd9f1fd138d4102d410e652bb0211ff8d0bd04357cb42f3de445310f3657bbee3e6835ad9a51a8cfb9cbebc8eef8b610841753";
+const PA_SCRIPT_URL = "https://cdn.prplads.com/agent.js?publisherId=5a0566f1e7f6897c713d3e19ea907752:981e05cc819f8ebcce171299609573a72d0eb0cff6c34fa50ba6b592118476178b92284d458601c75419be2c6e4aade616890a208e6857ce93351bb4d684e102";
 const AD_BREAKPOINT = 750;
 
 // PurpleAds' own docs: "The smart snippet will find the best sizes according to
@@ -1808,7 +1808,6 @@ const PA_SECONDARY_BOUNDS_MOBILE = { width: 320, height: 480 };
 
 function AdUnit({ style, variant = "first" }) {
   const [mob] = useState(() => typeof window !== 'undefined' && window.innerWidth < AD_BREAKPOINT);
-  const [filled, setFilled] = useState(true); // start visible; collapse only if nothing fills in time
   const hostRef = useRef(null);
 
   let cfg;
@@ -1838,49 +1837,7 @@ function AdUnit({ style, variant = "first" }) {
     script.async = true;
     script.setAttribute("data-pa-tag", "");
     host.appendChild(script);
-
-    // PurpleAds doesn't publish a documented fill / no-fill event to hook into,
-    // so this uses the standard network-agnostic fallback: watch for any real
-    // rendered content (beyond the script tag itself) appearing in the slot, and
-    // if nothing shows up within a reasonable window, collapse the space cleanly
-    // rather than leaving a large permanent gap. If a slot fills later than this
-    // window (rare, but possible on a slow connection), it simply never collapses
-    // in the first place, since the check only fires once, on the way in.
-    let settled = false;
-    const markFilled = () => {
-      if (settled) return;
-      settled = true;
-      observer.disconnect();
-      clearTimeout(timeoutId);
-      setFilled(true);
-    };
-    const markEmpty = () => {
-      if (settled) return;
-      settled = true;
-      observer.disconnect();
-      setFilled(false);
-    };
-
-    const hasRealContent = () =>
-      Array.from(host.children).some(el => el !== script && el.offsetHeight > 0);
-
-    const observer = new MutationObserver(() => {
-      if (hasRealContent()) markFilled();
-    });
-    observer.observe(host, { childList: true, subtree: true });
-
-    const timeoutId = setTimeout(() => {
-      if (hasRealContent()) markFilled();
-      else markEmpty();
-    }, 3000);
-
-    return () => {
-      observer.disconnect();
-      clearTimeout(timeoutId);
-    };
   }, []);
-
-  if (!filled) return null;
 
   return (
     <div className="ad-unit" style={{ width:"100%", display:"flex", justifyContent:"center", marginBottom:8, ...style }}>
