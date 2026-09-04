@@ -1845,41 +1845,67 @@ function AdUnit({ style, variant = "first" }) {
 
     // PurpleAds doesn't publish a documented fill / size / no-fill event to hook
     // into, so this uses the standard network-agnostic fallback: watch for real
-    // rendered content (beyond the script tag itself) appearing in the slot, then
-    // measure its actual size (once layout has had a moment to settle) and shrink
-    // the container to match — rather than leaving it locked at the maximum bound
-    // regardless of how small the winning creative actually is. If nothing shows
-    // up within a reasonable window, the slot collapses away entirely instead.
+    // rendered content appearing in the slot, then shrink the container to match
+    // its actual measured size — rather than leaving it locked at the maximum
+    // bound regardless of how small (or how absent) the winning creative is.
+    //
+    // Checks every descendant via getBoundingClientRect (not just direct children
+    // via offsetWidth/Height) so nested or absolutely-positioned content is still
+    // measured correctly even when its own immediate wrapper reports zero size —
+    // a real gap seen in practice, where a slot got permanently stuck at its full
+    // max size because PurpleAds' own branding badge sat inside a wrapper whose
+    // own box-model size never registered as non-zero.
+    //
+    // Requires a real minimum footprint (20x20) before treating something as an
+    // actual ad, so a small branding mark or tracking pixel alone — with no real
+    // creative behind it — still collapses the slot rather than getting "stuck"
+    // displaying just that badge inside a large empty box. Keeps re-measuring for
+    // the full window rather than stopping at the first thing detected, so a
+    // small placeholder that's later replaced by a full creative still ends up at
+    // the right final size.
+    const MIN_MEANINGFUL = 20;
     let settled = false;
     let settleTimer = null;
+    let bestSoFar = { width: 0, height: 0 };
 
-    const measureAndSettle = () => {
+    const measure = () => {
+      let width = 0, height = 0;
+      host.querySelectorAll('*').forEach(el => {
+        const rect = el.getBoundingClientRect();
+        if (rect.width > width) width = rect.width;
+        if (rect.height > height) height = rect.height;
+      });
+      return { width: Math.round(width), height: Math.round(height) };
+    };
+
+    const checkAndMaybeSettle = () => {
       if (settled) return;
-      const realChildren = Array.from(host.children).filter(el => el !== script);
-      if (realChildren.length === 0) return;
-
-      const width = Math.max(0, ...realChildren.map(el => el.offsetWidth));
-      const height = Math.max(0, ...realChildren.map(el => el.offsetHeight));
-      if (width > 0 && height > 0) {
+      const found = measure();
+      if (found.width > bestSoFar.width || found.height > bestSoFar.height) {
+        bestSoFar = found;
+      }
+      if (bestSoFar.width >= MIN_MEANINGFUL && bestSoFar.height >= MIN_MEANINGFUL) {
         settled = true;
         observer.disconnect();
         clearTimeout(noFillTimer);
-        setBoxSize({ width, height });
+        setBoxSize(bestSoFar);
       }
     };
 
     const observer = new MutationObserver(() => {
       clearTimeout(settleTimer);
-      // Debounce briefly so measurement happens after the creative has actually
-      // finished laying out, not mid-render.
-      settleTimer = setTimeout(measureAndSettle, 300);
+      // Debounce briefly so each check happens after a batch of changes has
+      // actually finished laying out, not mid-render.
+      settleTimer = setTimeout(checkAndMaybeSettle, 300);
     });
-    observer.observe(host, { childList: true, subtree: true });
+    observer.observe(host, { childList: true, subtree: true, attributes: true });
 
     const noFillTimer = setTimeout(() => {
       if (!settled) {
         settled = true;
         observer.disconnect();
+        // Nothing meaningful ever rendered (empty, or just a small badge with no
+        // real creative behind it) — collapse the slot away entirely.
         setBoxSize({ width: 0, height: 0 });
       }
     }, 3000);
