@@ -1817,6 +1817,11 @@ function AdUnit({ style, variant = "first" }) {
     cfg = mob ? PA_FIRST_BOUNDS_MOBILE : PA_FIRST_BOUNDS_DESKTOP;
   }
 
+  // Starts at the tier's max bounds (so PurpleAds still has full room to decide
+  // what to serve), then shrinks to match whatever actually renders once it can
+  // be measured — or collapses to nothing if the slot never fills at all.
+  const [boxSize, setBoxSize] = useState({ width: cfg.width, height: cfg.height });
+
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
@@ -1837,11 +1842,60 @@ function AdUnit({ style, variant = "first" }) {
     script.async = true;
     script.setAttribute("data-pa-tag", "");
     host.appendChild(script);
+
+    // PurpleAds doesn't publish a documented fill / size / no-fill event to hook
+    // into, so this uses the standard network-agnostic fallback: watch for real
+    // rendered content (beyond the script tag itself) appearing in the slot, then
+    // measure its actual size (once layout has had a moment to settle) and shrink
+    // the container to match — rather than leaving it locked at the maximum bound
+    // regardless of how small the winning creative actually is. If nothing shows
+    // up within a reasonable window, the slot collapses away entirely instead.
+    let settled = false;
+    let settleTimer = null;
+
+    const measureAndSettle = () => {
+      if (settled) return;
+      const realChildren = Array.from(host.children).filter(el => el !== script);
+      if (realChildren.length === 0) return;
+
+      const width = Math.max(0, ...realChildren.map(el => el.offsetWidth));
+      const height = Math.max(0, ...realChildren.map(el => el.offsetHeight));
+      if (width > 0 && height > 0) {
+        settled = true;
+        observer.disconnect();
+        clearTimeout(noFillTimer);
+        setBoxSize({ width, height });
+      }
+    };
+
+    const observer = new MutationObserver(() => {
+      clearTimeout(settleTimer);
+      // Debounce briefly so measurement happens after the creative has actually
+      // finished laying out, not mid-render.
+      settleTimer = setTimeout(measureAndSettle, 300);
+    });
+    observer.observe(host, { childList: true, subtree: true });
+
+    const noFillTimer = setTimeout(() => {
+      if (!settled) {
+        settled = true;
+        observer.disconnect();
+        setBoxSize({ width: 0, height: 0 });
+      }
+    }, 3000);
+
+    return () => {
+      observer.disconnect();
+      clearTimeout(settleTimer);
+      clearTimeout(noFillTimer);
+    };
   }, []);
+
+  if (boxSize.width === 0 && boxSize.height === 0) return null;
 
   return (
     <div className="ad-unit" style={{ width:"100%", display:"flex", justifyContent:"center", marginBottom:8, ...style }}>
-      <div ref={hostRef} style={{ width: cfg.width, height: cfg.height, maxWidth:"100%", overflow:"hidden" }} />
+      <div ref={hostRef} style={{ width: boxSize.width, height: boxSize.height, maxWidth:"100%", overflow:"hidden", transition:"width .3s ease, height .3s ease" }} />
     </div>
 
   );
