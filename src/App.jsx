@@ -1782,7 +1782,7 @@ const styles = `
 // ── NO AI CALLS — fully hardcoded site ─────────────────────────────
 
 // ── RESPONSIVE AD UNIT ─────────────────────────────────────────────────
-const PA_SCRIPT_URL = "https://cdn.prplads.com/agent.js?publisherId=5a0566f1e7f6897c713d3e19ea907752:981e05cc819f8ebcce171299609573a72d0eb0cff6c34fa50ba6b592118476178b92284d458601c75419be2c6e4aade616890a208e6857ce93351bb4d684e102";
+const PA_SCRIPT_URL = "https://cdn.prplads.com/agent.js?publisherId=ed61c6afb058b611bac16b86b6ecbce7:636fc2aa679cddb417444861e7279c5d9a58733b9b68cce3e6e7d3f8818fa5e8f66e87a96cd9ca1716baa5896589beaf86330872258f126255515fae33e9bed9";
 const AD_BREAKPOINT = 750;
 
 // PurpleAds' own docs: "The smart snippet will find the best sizes according to
