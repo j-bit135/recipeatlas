@@ -263,3 +263,5 @@ sonobi.com, 296bf9795d, DIRECT, d1a215d9eb5aee9e
 streamkey.tv, 18715, DIRECT, f5ab793he40f11d1
 zetaglobal.net, 762, RESELLER
 #PurpleAds End
+
+google.com, pub-2284369092828322, DIRECT, f08c47fec0942fa0
