@@ -1846,8 +1846,9 @@ function AdUnit({ style, variant = "first" }) {
     // PurpleAds doesn't publish a documented fill / size / no-fill event to hook
     // into, so this uses the standard network-agnostic fallback: watch for real
     // rendered content appearing in the slot, then shrink the container to match
-    // its actual measured size — rather than leaving it locked at the maximum
-    // bound regardless of how small (or how absent) the winning creative is.
+    // its actual final measured size — rather than leaving it locked at the
+    // maximum bound regardless of how small (or how absent) the winning creative
+    // is.
     //
     // Checks every descendant via getBoundingClientRect (not just direct children
     // via offsetWidth/Height) so nested or absolutely-positioned content is still
@@ -1856,16 +1857,24 @@ function AdUnit({ style, variant = "first" }) {
     // max size because PurpleAds' own branding badge sat inside a wrapper whose
     // own box-model size never registered as non-zero.
     //
-    // Requires a real minimum footprint (20x20) before treating something as an
-    // actual ad, so a small branding mark or tracking pixel alone — with no real
-    // creative behind it — still collapses the slot rather than getting "stuck"
-    // displaying just that badge inside a large empty box. Keeps re-measuring for
-    // the full window rather than stopping at the first thing detected, so a
-    // small placeholder that's later replaced by a full creative still ends up at
-    // the right final size.
+    // Many ad creatives don't render at their true final size immediately — they
+    // load into a small frame first and then resize themselves in steps as their
+    // content finishes loading. Locking in on the *first* measurement that clears
+    // a low minimum (as this used to do) risked capturing one of those in-between
+    // sizes and permanently clipping everything the creative grew into after that
+    // point — this is what full-page-style creatives (a booking widget, a cookie
+    // notice, a retailer landing panel) getting visibly cut off turned out to be.
+    // So this now tracks the largest size seen and only commits once that size has
+    // genuinely stopped growing for a stability window, not the moment it first
+    // clears the minimum — giving a multi-step resize time to reach its real size
+    // before the container locks in. A separate, longer overall timeout still
+    // guarantees the slot resolves one way or another even if a creative never
+    // truly stabilises.
     const MIN_MEANINGFUL = 20;
+    const STABILITY_MS = 700;
+    const MAX_WAIT_MS = 5000;
     let settled = false;
-    let settleTimer = null;
+    let stabilityTimer = null;
     let bestSoFar = { width: 0, height: 0 };
 
     const measure = () => {
@@ -1878,42 +1887,40 @@ function AdUnit({ style, variant = "first" }) {
       return { width: Math.round(width), height: Math.round(height) };
     };
 
-    const checkAndMaybeSettle = () => {
+    const commit = (size) => {
+      if (settled) return;
+      settled = true;
+      observer.disconnect();
+      clearTimeout(stabilityTimer);
+      clearTimeout(maxWaitTimer);
+      setBoxSize(size.width >= MIN_MEANINGFUL && size.height >= MIN_MEANINGFUL ? size : { width: 0, height: 0 });
+    };
+
+    const check = () => {
       if (settled) return;
       const found = measure();
-      if (found.width > bestSoFar.width || found.height > bestSoFar.height) {
-        bestSoFar = found;
-      }
-      if (bestSoFar.width >= MIN_MEANINGFUL && bestSoFar.height >= MIN_MEANINGFUL) {
-        settled = true;
-        observer.disconnect();
-        clearTimeout(noFillTimer);
-        setBoxSize(bestSoFar);
+      const grew = found.width > bestSoFar.width || found.height > bestSoFar.height;
+      if (grew) {
+        bestSoFar = {
+          width: Math.max(found.width, bestSoFar.width),
+          height: Math.max(found.height, bestSoFar.height),
+        };
+        // Size is still changing — restart the stability window rather than
+        // committing yet, so a multi-step resize gets time to finish growing.
+        clearTimeout(stabilityTimer);
+        stabilityTimer = setTimeout(() => commit(bestSoFar), STABILITY_MS);
       }
     };
 
-    const observer = new MutationObserver(() => {
-      clearTimeout(settleTimer);
-      // Debounce briefly so each check happens after a batch of changes has
-      // actually finished laying out, not mid-render.
-      settleTimer = setTimeout(checkAndMaybeSettle, 300);
-    });
+    const observer = new MutationObserver(check);
     observer.observe(host, { childList: true, subtree: true, attributes: true });
 
-    const noFillTimer = setTimeout(() => {
-      if (!settled) {
-        settled = true;
-        observer.disconnect();
-        // Nothing meaningful ever rendered (empty, or just a small badge with no
-        // real creative behind it) — collapse the slot away entirely.
-        setBoxSize({ width: 0, height: 0 });
-      }
-    }, 3000);
+    const maxWaitTimer = setTimeout(() => commit(bestSoFar), MAX_WAIT_MS);
 
     return () => {
       observer.disconnect();
-      clearTimeout(settleTimer);
-      clearTimeout(noFillTimer);
+      clearTimeout(stabilityTimer);
+      clearTimeout(maxWaitTimer);
     };
   }, []);
 
@@ -4207,7 +4214,7 @@ function AboutPage() {
       <div style={{ marginTop:16, display:"flex", flexDirection:"column", gap:20 }}>
         {[
           ["Our Mission","Recipe Atlas exists to celebrate the extraordinary diversity of world cuisine — from the intricate spice blends of Ethiopian berbere to the precise techniques of Japanese ramen. We believe that cooking another culture's food is one of the most respectful and joyful ways to understand it."],
-          ["What We Cover","We currently feature 1,008 recipes across 85 countries and 7 regions. Every recipe is written to be genuinely achievable at home, with honest notes on technique, cultural context and the history behind each dish."],
+          ["What We Cover","We currently feature 1,007 recipes across 86 countries and 7 regions. Every recipe is written to be genuinely achievable at home, with honest notes on technique, cultural context and the history behind each dish."],
           ["Our Approach","We research each recipe carefully, consulting multiple sources and traditional methods. Where a dish has strong regional variations we explain the differences and choose the most widely celebrated version as our baseline."],
           ["Get In Touch","We love hearing from readers — whether you've cooked one of our recipes, spotted an error, or want to suggest a dish we're missing. Reach us at contact.jwgroup@proton.me"],
         ].map(([title, text]) => (
@@ -4285,7 +4292,7 @@ function PrivacyPage() {
       <p style={{ fontSize:12, color:"#c8bfb0", marginBottom:24, fontFamily:"Plus Jakarta Sans" }}>Last updated: June 2025</p>
       <div style={{ marginTop:24, display:"flex", flexDirection:"column", gap:16 }}>
         {[
-          ["Information We Collect","Recipe Atlas collects minimal data. If you subscribe to our newsletter, we collect your name and email address solely for sending you the newsletter. We do not sell, rent or share your personal information with third parties."],
+          ["Information We Collect","Recipe Atlas collects minimal data. Any data we do collect we do not sell, rent or share your personal information with third parties."],
           ["Cookies and Analytics","We use Google Analytics to understand how visitors use our site. This involves cookies which collect anonymous information about your visit. No personally identifiable information is collected through analytics."],
           ["Advertising","Recipe Atlas displays advertisements. Our advertising partners may use cookies to serve ads based on your interests. You can opt out of personalised advertising through your browser settings."],
           ["Your Rights","You have the right to access, correct or delete any personal data we hold about you. To exercise these rights, please contact us at contact.jwgroup@proton.me"],
