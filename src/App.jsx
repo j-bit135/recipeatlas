@@ -1876,6 +1876,96 @@ function DishCarousel({ dishKeys, title, subtitle, idPrefix }) {
   );
 }
 
+function EventsThisMonthCarousel() {
+  const { navigate } = useAppNavigate();
+  const currentMonth = new Date().getMonth();
+  const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const eventSlugs = Object.keys(EVENTS_DB).filter(k => EVENTS_DB[k].month === currentMonth).slice(0, 3);
+  const scrollRef = useRef(null);
+  const drag = useRef({ dragging:false, startX:0, startScroll:0, moved:false });
+  const [dragging, setDragging] = useState(false);
+
+  if (eventSlugs.length === 0) return null;
+
+  const onMouseDown = (e) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    drag.current.dragging = true;
+    drag.current.moved = false;
+    drag.current.startX = e.pageX;
+    drag.current.startScroll = el.scrollLeft;
+    setDragging(true);
+  };
+  const onMouseMove = (e) => {
+    if (!drag.current.dragging) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    const delta = e.pageX - drag.current.startX;
+    if (Math.abs(delta) > 4) drag.current.moved = true;
+    el.scrollLeft = drag.current.startScroll - delta;
+  };
+  const endDrag = () => {
+    drag.current.dragging = false;
+    setDragging(false);
+  };
+  const onCardClick = (path) => {
+    if (drag.current.moved) { drag.current.moved = false; return; }
+    navigate(path);
+  };
+  const scrollByAmount = (dir) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * 240, behavior: "smooth" });
+  };
+
+  return (
+    <div style={{ marginBottom:32 }}>
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16, flexWrap:"wrap", gap:8 }}>
+        <div>
+          <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#1a1714", margin:0 }}>What's On This Month</h2>
+          <p style={{ fontSize:13, color:"#9a9088", margin:"4px 0 0" }}>Festivals and food events happening in {monthNames[currentMonth]}</p>
+        </div>
+        <button onClick={() => navigate('/events')}
+          style={{ background:"#fdf3ed", border:"1.5px solid #e8c9b0", borderRadius:8, padding:"8px 16px", fontSize:13, fontWeight:600, color:"#c2622a", cursor:"pointer", fontFamily:"Plus Jakarta Sans", display:"flex", alignItems:"center", gap:6 }}>
+          See more →
+        </button>
+      </div>
+      <div style={{ position:"relative" }}>
+        <button className="classics-arrow classics-arrow-left" onClick={() => scrollByAmount(-1)} aria-label="Scroll left"
+          style={{ position:"absolute", left:8, top:"50%", transform:"translateY(-50%)", zIndex:10, width:36, height:36, borderRadius:"50%", border:"none", background:"rgba(26,23,20,.65)", color:"#fff", cursor:"pointer", alignItems:"center", justifyContent:"center", boxShadow:"0 2px 8px rgba(0,0,0,.25)" }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+        </button>
+        <div ref={scrollRef} className="classics-scroll"
+          onMouseDown={onMouseDown} onMouseMove={onMouseMove} onMouseUp={endDrag} onMouseLeave={endDrag}
+          style={{ display:"flex", gap:0, overflowX:"auto", scrollSnapType: dragging ? "none" : "x mandatory", WebkitOverflowScrolling:"touch", borderRadius:12, boxShadow:"0 2px 12px rgba(0,0,0,.08)", cursor: dragging ? "grabbing" : "grab", userSelect:"none" }}>
+          {eventSlugs.map(slug => {
+            const e = EVENTS_DB[slug];
+            const path = `/events/${e.region}/${slugify(e.country)}/${e.slug}`;
+            return (
+              <div key={slug} className="classics-card" onClick={() => onCardClick(path)}
+                style={{ width:220, height:280 }}>
+                <img src={e.image} alt={`${e.name} in ${e.loc}, ${e.country}`} draggable={false} style={{ width:"100%", height:"100%", objectFit:"cover", display:"block", pointerEvents:"none" }} />
+                <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(0,0,0,.75) 0%, rgba(0,0,0,.15) 45%, rgba(0,0,0,0) 65%)" }} />
+                <div style={{ position:"absolute", left:0, right:0, bottom:0, padding:"14px 14px 16px" }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:4 }}>
+                    <span style={{ fontSize:13 }}>{e.icon}</span>
+                    <span style={{ fontSize:10.5, color:"rgba(255,255,255,.85)", fontFamily:"Plus Jakarta Sans", fontWeight:600, letterSpacing:".04em", textTransform:"uppercase" }}>{e.country}</span>
+                  </div>
+                  <div style={{ fontFamily:"Fraunces", fontSize:17, fontWeight:700, color:"#fff", lineHeight:1.25 }}>{e.name}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <button className="classics-arrow classics-arrow-right" onClick={() => scrollByAmount(1)} aria-label="Scroll right"
+          style={{ position:"absolute", right:8, top:"50%", transform:"translateY(-50%)", zIndex:10, width:36, height:36, borderRadius:"50%", border:"none", background:"rgba(26,23,20,.65)", color:"#fff", cursor:"pointer", alignItems:"center", justifyContent:"center", boxShadow:"0 2px 8px rgba(0,0,0,.25)" }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function ClassicsCarousel() {
   return <DishCarousel dishKeys={CLASSIC_DISH_KEYS} idPrefix="classics"
     title="World Classics" subtitle="Swipe, drag or use the arrows to explore beloved dishes from every corner of the globe" />;
@@ -2240,6 +2330,10 @@ function RegionMap({ onSelectRegion }) {
 
       {/* Recipe inspiration */}
       <RecipeInspiration recipes={getRandomRecipes(Object.keys(RECIPE_DB), 3)} pool={Object.keys(RECIPE_DB)} title="Recipe Inspiration" />
+
+
+      {/* What's on this month */}
+      <EventsThisMonthCarousel />
 
 
       {/* Sandwiches carousel */}
