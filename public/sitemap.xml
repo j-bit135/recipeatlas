@@ -176,6 +176,11 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://recipeatlas.co.uk/north_america/puerto-rico</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://recipeatlas.co.uk/south_america</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -2402,6 +2407,11 @@
   </url>
   <url>
     <loc>https://recipeatlas.co.uk/north_america/cuba/mojito</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://recipeatlas.co.uk/north_america/puerto-rico/pina-colada</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
