@@ -1836,7 +1836,7 @@ function DishCarousel({ dishKeys, title, subtitle, idPrefix }) {
   };
 
   return (
-    <div style={{ marginBottom:48 }}>
+    <div style={{ marginBottom:64 }}>
       <div style={{ marginBottom:16 }}>
         <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#1a1714", margin:0 }}>{title}</h2>
         <p style={{ fontSize:13, color:"#9a9088", margin:"4px 0 0" }}>{subtitle}</p>
@@ -1887,7 +1887,7 @@ function EventsThisMonthCarousel() {
   if (eventSlugs.length === 0) return null;
 
   return (
-    <div style={{ marginBottom:48 }}>
+    <div style={{ marginBottom:64 }}>
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16, flexWrap:"wrap", gap:8 }}>
         <div>
           <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#1a1714", margin:0 }}>What's On This Month</h2>
@@ -1927,7 +1927,7 @@ function BlogHighlightsSection() {
   if (posts.length === 0) return null;
 
   return (
-    <div style={{ marginBottom:48 }}>
+    <div style={{ marginBottom:64 }}>
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16, flexWrap:"wrap", gap:8 }}>
         <div>
           <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#1a1714", margin:0 }}>From the Blog</h2>
@@ -1981,7 +1981,7 @@ function RecipeInspiration({ recipes: initialRecipes, pool, title }) {
   if (!recipes || recipes.length === 0) return null;
 
   return (
-    <div style={{ marginTop:48, marginBottom:48 }}>
+    <div style={{ marginTop:64, marginBottom:64 }}>
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16, flexWrap:"wrap", gap:8 }}>
         <div>
           <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#1a1714", margin:0 }}>{title}</h2>
@@ -2283,7 +2283,7 @@ function RegionMap({ onSelectRegion }) {
       </div>
 
       {/* Interactive world map */}
-      <div id="ra-world-map" style={{ width:"100%", borderRadius:12, overflow:"hidden", background:"transparent", marginBottom:48 }}></div>
+      <div id="ra-world-map" style={{ width:"100%", borderRadius:12, overflow:"hidden", background:"transparent", marginBottom:64 }}></div>
       <div id="ra-map-tip" style={{ position:"fixed", background:"rgba(26,23,20,.9)", color:"#fff", padding:"6px 14px", borderRadius:8, fontSize:13, fontWeight:600, pointerEvents:"none", display:"none", zIndex:999, whiteSpace:"nowrap" }}></div>
 
 
@@ -2296,7 +2296,7 @@ function RegionMap({ onSelectRegion }) {
         <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#1a1714", margin:0 }}>Explore by Region</h2>
         <p style={{ fontSize:13, color:"#9a9088", margin:"4px 0 0" }}>Click a region to discover its most-loved recipes</p>
       </div>
-      <div className="region-grid" style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(260px, 1fr))", gap:12, marginBottom:48 }}>
+      <div className="region-grid" style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(260px, 1fr))", gap:12, marginBottom:64 }}>
         {REGIONS.map(region => (
           <div key={region.id} onClick={() => onSelectRegion(region.id)}
             onMouseEnter={e => e.currentTarget.style.borderColor=region.color}
