@@ -1793,6 +1793,7 @@ function getRandomRecipes(keys, n) {
 
 const CLASSIC_DISH_KEYS = ["Spaghetti Carbonara", "Steak Frites", "Ramen", "Pad Thai", "Tacos al Pastor", "Butter Chicken", "Fish and Chips", "Peking Duck", "Falafel", "Phở Gà", "Paella Valenciana", "Jerk Chicken", "Key Lime Pie"];
 const SANDWICH_DISH_KEYS = ["Bánh Mì", "Cubano", "Montreal Smoked Meat", "Croque Monsieur", "Fricassée Tunisienne", "Philly Cheesesteak", "Smørrebrød", "Sabich", "Reuben Sandwich", "Bifana", "Katsu Sando"];
+const DRINK_DISH_KEYS = ["Bubble Tea", "Kumys", "Ayran", "Chai", "Mojito", "Chicha", "Chicha Boliviana", "Canelazo", "Kava"];
 
 function DishCarousel({ dishKeys, title, subtitle, idPrefix }) {
   const { navigate } = useAppNavigate();
@@ -1835,7 +1836,7 @@ function DishCarousel({ dishKeys, title, subtitle, idPrefix }) {
   };
 
   return (
-    <div style={{ marginBottom:32 }}>
+    <div style={{ marginBottom:48 }}>
       <div style={{ marginBottom:16 }}>
         <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#1a1714", margin:0 }}>{title}</h2>
         <p style={{ fontSize:13, color:"#9a9088", margin:"4px 0 0" }}>{subtitle}</p>
@@ -1886,7 +1887,7 @@ function EventsThisMonthCarousel() {
   if (eventSlugs.length === 0) return null;
 
   return (
-    <div style={{ marginBottom:32 }}>
+    <div style={{ marginBottom:48 }}>
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16, flexWrap:"wrap", gap:8 }}>
         <div>
           <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#1a1714", margin:0 }}>What's On This Month</h2>
@@ -1919,6 +1920,39 @@ function EventsThisMonthCarousel() {
   );
 }
 
+function BlogHighlightsSection() {
+  const { navigate } = useAppNavigate();
+  const posts = BLOG_POSTS.slice(0, 3);
+
+  if (posts.length === 0) return null;
+
+  return (
+    <div style={{ marginBottom:48 }}>
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16, flexWrap:"wrap", gap:8 }}>
+        <div>
+          <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#1a1714", margin:0 }}>From the Blog</h2>
+          <p style={{ fontSize:13, color:"#9a9088", margin:"4px 0 0" }}>Stories, techniques and histories from the world's great food cultures</p>
+        </div>
+        <button onClick={() => navigate('/blog')}
+          style={{ background:"#fdf3ed", border:"1.5px solid #e8c9b0", borderRadius:8, padding:"8px 16px", fontSize:13, fontWeight:600, color:"#c2622a", cursor:"pointer", fontFamily:"Plus Jakarta Sans", display:"flex", alignItems:"center", gap:6 }}>
+          See more →
+        </button>
+      </div>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(270px, 1fr))", gap:20 }}>
+        {posts.map((p, i) => (
+          <div key={p.slug || i} style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:14, padding:16, cursor:"pointer", boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}
+            onClick={() => navigate(`/blog/${p.slug}`)}>
+            <span style={{ display:"inline-block", fontSize:10, fontWeight:700, letterSpacing:".05em", textTransform:"uppercase", color:"#c2622a", background:"#fdf3ed", borderRadius:12, padding:"4px 10px", marginBottom:10 }}>{p.tag}</span>
+            <h3 style={{ fontFamily:"Fraunces", fontSize:17, fontWeight:600, margin:"0 0 6px", lineHeight:1.3 }}>{p.title}</h3>
+            <p style={{ fontSize:13, color:"#5a5048", lineHeight:1.6, margin:"0 0 10px" }}>{p.excerpt}</p>
+            <span style={{ fontSize:12, color:"#c2622a", fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>Read article →</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ClassicsCarousel() {
   return <DishCarousel dishKeys={CLASSIC_DISH_KEYS} idPrefix="classics"
     title="World Classics" subtitle="Swipe, drag or use the arrows to explore beloved dishes from every corner of the globe" />;
@@ -1927,6 +1961,11 @@ function ClassicsCarousel() {
 function SandwichCarousel() {
   return <DishCarousel dishKeys={SANDWICH_DISH_KEYS} idPrefix="sandwich"
     title="Sandwiches" subtitle="Swipe, drag or use the arrows to explore the world's best handheld classics" />;
+}
+
+function DrinksCarousel() {
+  return <DishCarousel dishKeys={DRINK_DISH_KEYS} idPrefix="drinks"
+    title="Drinks" subtitle="Swipe, drag or use the arrows to explore the world's most iconic drinks" />;
 }
 
 function RecipeInspiration({ recipes: initialRecipes, pool, title }) {
@@ -1942,7 +1981,7 @@ function RecipeInspiration({ recipes: initialRecipes, pool, title }) {
   if (!recipes || recipes.length === 0) return null;
 
   return (
-    <div style={{ marginTop:32, marginBottom:32 }}>
+    <div style={{ marginTop:48, marginBottom:48 }}>
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16, flexWrap:"wrap", gap:8 }}>
         <div>
           <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#1a1714", margin:0 }}>{title}</h2>
@@ -2244,7 +2283,7 @@ function RegionMap({ onSelectRegion }) {
       </div>
 
       {/* Interactive world map */}
-      <div id="ra-world-map" style={{ width:"100%", borderRadius:12, overflow:"hidden", background:"transparent", marginBottom:32 }}></div>
+      <div id="ra-world-map" style={{ width:"100%", borderRadius:12, overflow:"hidden", background:"transparent", marginBottom:48 }}></div>
       <div id="ra-map-tip" style={{ position:"fixed", background:"rgba(26,23,20,.9)", color:"#fff", padding:"6px 14px", borderRadius:8, fontSize:13, fontWeight:600, pointerEvents:"none", display:"none", zIndex:999, whiteSpace:"nowrap" }}></div>
 
 
@@ -2257,7 +2296,7 @@ function RegionMap({ onSelectRegion }) {
         <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#1a1714", margin:0 }}>Explore by Region</h2>
         <p style={{ fontSize:13, color:"#9a9088", margin:"4px 0 0" }}>Click a region to discover its most-loved recipes</p>
       </div>
-      <div className="region-grid" style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(260px, 1fr))", gap:12, marginBottom:32 }}>
+      <div className="region-grid" style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(260px, 1fr))", gap:12, marginBottom:48 }}>
         {REGIONS.map(region => (
           <div key={region.id} onClick={() => onSelectRegion(region.id)}
             onMouseEnter={e => e.currentTarget.style.borderColor=region.color}
@@ -2291,6 +2330,14 @@ function RegionMap({ onSelectRegion }) {
 
       {/* Sandwiches carousel */}
       <SandwichCarousel />
+
+
+      {/* From the blog */}
+      <BlogHighlightsSection />
+
+
+      {/* Drinks carousel */}
+      <DrinksCarousel />
 
     </div>
   );
