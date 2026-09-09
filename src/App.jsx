@@ -3918,7 +3918,6 @@ function App() {
                 </svg>
                 <div>
                   <div style={{ fontFamily:"Fraunces", fontSize:15, fontWeight:700, color:"#1a1714" }}>Recipe Atlas</div>
-                  <div style={{ fontSize:10, color:"#b8b0a8", letterSpacing:".1em", textTransform:"uppercase" }}>World Cuisine Explorer</div>
                 </div>
               </div>
               <div style={{ display:"flex", gap:20, flexWrap:"wrap" }}>
