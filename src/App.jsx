@@ -1811,6 +1811,7 @@ const GOOGLE_AD_SLOTS = {
 function AdSlot({ unit, style }) {
   const ref = useRef(null);
   const pushed = useRef(false);
+  const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
     if (pushed.current) return;
@@ -1820,7 +1821,24 @@ function AdSlot({ unit, style }) {
     } catch (e) {
       // AdSense script may not be ready yet on first paint — safe to ignore.
     }
+
+    // AdSense sets data-ad-status on the <ins> element itself once it resolves
+    // ("filled" or "unfilled") — this is Google's own documented signal, so no
+    // guessing is needed here. Google's docs explicitly warn against starting an
+    // ad unit hidden (it may skip the ad call entirely), so this only reacts
+    // AFTER the real status is known, never before.
+    const el = ref.current;
+    if (!el) return;
+    const checkStatus = () => {
+      const status = el.getAttribute("data-ad-status");
+      if (status === "unfilled" || status === "unfill-optimized") setCollapsed(true);
+    };
+    const observer = new MutationObserver(checkStatus);
+    observer.observe(el, { attributes: true, attributeFilter: ["data-ad-status"] });
+    return () => observer.disconnect();
   }, []);
+
+  if (collapsed) return null;
 
   return (
     <div style={{ width:"100%", textAlign:"center", ...style }}>
@@ -2403,13 +2421,13 @@ function RegionView({ regionId, onBack, onSelectCountry }) {
         style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
         ← All Regions
       </button>
+      <AdSlot unit={1} style={{ marginBottom:24 }} />
       <div style={{ marginBottom:8 }}>
         <div style={{ fontSize:44, marginBottom:8 }}>{region.emoji}</div>
         <h1 style={{ fontFamily:"Fraunces", fontSize:32, fontWeight:700, color:"#1a1714", marginBottom:6 }}>{region.name}</h1>
         <p style={{ fontSize:14, color:"#9a9088", marginBottom:6 }}>{region.description}</p>
         <div style={{ height:3, width:40, background:region.color, borderRadius:2, marginBottom:24 }} />
       </div>
-      <AdSlot unit={1} style={{ marginBottom:28 }} />
       <div style={{ marginBottom:28 }}>
         <p style={{ fontSize:11, color:"#b8b0a8", marginBottom:14, letterSpacing:".08em", textTransform:"uppercase", fontWeight:600 }}>Select a country</p>
         <div style={{ display:"flex", flexWrap:"wrap", gap:10 }}>
@@ -2444,12 +2462,12 @@ function CountryView({ country, onBack, onSelectDish }) {
         style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
         ← Back
       </button>
+      <AdSlot unit={1} style={{ marginBottom:24 }} />
       <div style={{ marginBottom:8 }}>
         <div style={{ fontSize:44, marginBottom:8 }}>{flag}</div>
         <h1 style={{ fontFamily:"Fraunces", fontSize:30, fontWeight:700, color:"#1a1714", marginBottom:6 }}>{country}</h1>
         <p style={{ fontSize:14, color:"#9a9088", marginBottom:20 }}>Choose a dish to view the full recipe</p>
       </div>
-      <AdSlot unit={1} style={{ marginBottom:28 }} />
       <div style={{ marginBottom:28 }}>
         <div className="dish-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
           {dishes.map((dish,i) => (
@@ -2833,10 +2851,9 @@ function EventsListView({ navigate }) {
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
       <div style={{ marginTop:24 }}>
+      <AdSlot unit={1} style={{ marginBottom:24 }} />
       <h1 style={{ fontFamily:"Fraunces", fontSize:32, fontWeight:700, color:"#1a1714", marginBottom:8, lineHeight:1.2 }}>Food events near you</h1>
       <p style={{ fontSize:15, color:"#9a9088", marginBottom:32, maxWidth:560 }}>Festivals, markets and tastings from across the world — browse by region, country and month to find what's on.</p>
-
-      <AdSlot unit={1} style={{ marginBottom:32 }} />
 
       <div style={{ fontSize:11, fontWeight:700, letterSpacing:".06em", textTransform:"uppercase", color:"#c2622a", marginBottom:12 }}>Region</div>
       <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
@@ -4162,9 +4179,9 @@ function BlogPage({ initialSlug, navigate }) {
 
   return (
     <div>
+      <AdSlot unit={1} style={{ marginBottom:24 }} />
       <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,40px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>The Recipe Atlas Blog</h1>
       <p style={{ fontSize:15, color:"#9a9088", lineHeight:1.7, marginBottom:24 }}>Stories, techniques and histories from the world's great food cultures.</p>
-      <AdSlot unit={1} style={{ marginBottom:24 }} />
       <div style={{ display:"grid", gap:20, marginTop:24 }}>
         {BLOG_POSTS.map((p,i) => (
           <div key={i} onClick={() => openPost(i)}
