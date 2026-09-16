@@ -1,0 +1,19 @@
+{
+  "name": "Recipe Atlas",
+  "short_name": "Recipe Atlas",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#c2622a",
+  "background_color": "#fdf8f3",
+  "display": "standalone"
+}
