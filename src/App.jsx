@@ -2369,12 +2369,10 @@ function RegionMap({ onSelectRegion }) {
       {/* Interactive world map */}
       <div id="ra-world-map" style={{ width:"100%", borderRadius:12, overflow:"hidden", background:"transparent", marginBottom:74 }}></div>
       <div id="ra-map-tip" style={{ position:"fixed", background:"rgba(26,23,20,.9)", color:"#fff", padding:"6px 14px", borderRadius:8, fontSize:13, fontWeight:600, pointerEvents:"none", display:"none", zIndex:999, whiteSpace:"nowrap" }}></div>
-      <AdSlot unit={1} style={{ marginBottom:74 }} />
 
 
       {/* World Classics carousel */}
       <ClassicsCarousel />
-      <AdSlot unit={2} style={{ marginBottom:74 }} />
 
 
       {/* Region buttons */}
@@ -2404,32 +2402,26 @@ function RegionMap({ onSelectRegion }) {
           </div>
         ))}
       </div>
-      <AdSlot unit={3} style={{ marginBottom:74 }} />
 
 
       {/* Recipe inspiration */}
       <RecipeInspiration recipes={getRandomRecipes(Object.keys(RECIPE_DB), 3)} pool={Object.keys(RECIPE_DB)} title="Recipe Inspiration" />
-      <AdSlot unit={4} style={{ marginBottom:74 }} />
 
 
       {/* What's on this month */}
       <EventsThisMonthCarousel />
-      <AdSlot unit={5} style={{ marginBottom:74 }} />
 
 
       {/* Sandwiches carousel */}
       <SandwichCarousel />
-      <AdSlot unit={6} style={{ marginBottom:74 }} />
 
 
       {/* From the blog */}
       <BlogHighlightsSection />
-      <AdSlot unit={7} style={{ marginBottom:74 }} />
 
 
       {/* Drinks carousel */}
       <DrinksCarousel />
-      <AdSlot unit={8} />
 
     </div>
   );
@@ -2445,7 +2437,6 @@ function RegionView({ regionId, onBack, onSelectCountry }) {
         style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
         ← All Regions
       </button>
-      <AdSlot unit={1} style={{ marginBottom:24 }} />
       <div style={{ marginBottom:8 }}>
         <div style={{ fontSize:44, marginBottom:8 }}>{region.emoji}</div>
         <h1 style={{ fontFamily:"Fraunces", fontSize:32, fontWeight:700, color:"#1a1714", marginBottom:6 }}>{region.name}</h1>
@@ -2466,9 +2457,7 @@ function RegionView({ regionId, onBack, onSelectCountry }) {
           ))}
         </div>
       </div>
-      <AdSlot unit={2} style={{ marginBottom:28 }} />
       <RecipeInspiration recipes={getRandomRecipes(regionRecipeKeys, 3)} pool={regionRecipeKeys} title="Recipe Inspiration" />
-      <AdSlot unit={3} />
     </div>
   );
 }
@@ -2486,7 +2475,6 @@ function CountryView({ country, onBack, onSelectDish }) {
         style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
         ← Back
       </button>
-      <AdSlot unit={1} style={{ marginBottom:24 }} />
       <div style={{ marginBottom:8 }}>
         <div style={{ fontSize:44, marginBottom:8 }}>{flag}</div>
         <h1 style={{ fontFamily:"Fraunces", fontSize:30, fontWeight:700, color:"#1a1714", marginBottom:6 }}>{country}</h1>
@@ -2505,9 +2493,7 @@ function CountryView({ country, onBack, onSelectDish }) {
           ))}
         </div>
       </div>
-      <AdSlot unit={2} style={{ marginBottom:28 }} />
       <RecipeInspiration recipes={getRandomRecipes(countryRecipeKeys, 3)} pool={countryRecipeKeys} title="Recipe Inspiration" />
-      <AdSlot unit={3} />
     </div>
   );
 }
@@ -2723,7 +2709,6 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
         style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
         ← Back to {country || recipeCountry}
       </button>
-      <AdSlot unit={1} style={{ marginBottom:24 }} />
       <div>
         {loading ? (
           <div style={{ textAlign:"center", padding:"60px 0" }}>
@@ -2865,7 +2850,6 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
                 <p style={{ fontSize:14, color:"#6a6058", lineHeight:1.75 }}>{recipe.tip}</p>
               </div>
             )}
-            <AdSlot unit={2} style={{ marginBottom:12 }} />
 
             {/* You may also like */}
             {(() => {
@@ -2919,7 +2903,6 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
               );
             })()}
 
-            <AdSlot unit={3} style={{ marginTop:32 }} />
           </div>
         ) : (
           <div style={{ textAlign:"center", padding:"40px 0", color:"#b8b0a8" }}>Couldn't load this recipe — please try again.</div>
@@ -2952,7 +2935,6 @@ function EventsListView({ navigate }) {
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
       <div style={{ marginTop:24 }}>
-      <AdSlot unit={1} style={{ marginBottom:24 }} />
       <h1 style={{ fontFamily:"Fraunces", fontSize:32, fontWeight:700, color:"#1a1714", marginBottom:8, lineHeight:1.2 }}>Food events near you</h1>
       <p style={{ fontSize:15, color:"#9a9088", marginBottom:32, maxWidth:560 }}>Festivals, markets and tastings from across the world — browse by region, country and month to find what's on.</p>
 
@@ -3023,7 +3005,6 @@ function EventsListView({ navigate }) {
           )}
         </>
       )}
-      <AdSlot unit={2} style={{ marginTop:32 }} />
       </div>
     </div>
   );
@@ -3049,7 +3030,6 @@ function EventDetailView({ eventSlug, onBack, navigate }) {
         style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
         ← Back to events
       </button>
-      <AdSlot unit={1} style={{ marginBottom:24 }} />
       <div>
       <h1 style={{ fontFamily:"Fraunces", fontSize:32, fontWeight:700, color:"#1a1714", marginBottom:10, lineHeight:1.2 }}>{event.name}</h1>
       <div style={{ display:"block", background:"#fdf3ed", borderRadius:100, padding:"4px 12px", fontSize:11, color:"#c2622a", fontWeight:600, letterSpacing:".06em", textTransform:"uppercase", marginBottom:12, width:"fit-content" }}>
@@ -3075,7 +3055,6 @@ function EventDetailView({ eventSlug, onBack, navigate }) {
           <p key={i} style={{ fontSize:15.5, lineHeight:1.8, color:"#5a5048", marginBottom:18 }}>{p}</p>
         ))}
       </div>
-      <AdSlot unit={2} style={{ marginTop:20 }} />
       </div>
     </div>
   );
@@ -3304,7 +3283,6 @@ function SearchResultsPage({ query, navigate }) {
   return (
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 28px 80px" }}>
       <div style={{ maxWidth: 1070, margin: "0 auto 32px" }}>
-        <AdSlot unit={1} />
       </div>
       <h1 style={{ fontFamily: "Fraunces", fontSize: "clamp(26px,3.5vw,40px)", fontWeight: 700, marginBottom: 8 }}>
         {query ? <>Results for "{query}"</> : "Search"}
@@ -3339,7 +3317,6 @@ function SearchResultsPage({ query, navigate }) {
       )}
 
       <div style={{ maxWidth: 1070, margin: "44px auto 0" }}>
-        <AdSlot unit={2} />
       </div>
     </div>
   );
@@ -3486,7 +3463,6 @@ function PantryToPlate({ navigate }) {
   return (
     <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 28px 80px" }}>
       <div style={{ maxWidth: 1070, margin: "0 auto 32px" }}>
-        <AdSlot unit={1} />
       </div>
       <h1 style={{ fontFamily: "Fraunces", fontSize: "clamp(30px,4vw,48px)", fontWeight: 700, marginBottom: 4 }}>Pantry to Plate</h1>
       <h2 style={{ fontFamily: "Fraunces", fontSize: "clamp(16px,2vw,20px)", fontWeight: 600, color: "#c2622a", marginBottom: 12 }}>What's in your kitchen?</h2>
@@ -3579,7 +3555,6 @@ function PantryToPlate({ navigate }) {
       </div>
 
       <div style={{ maxWidth: 1070, margin: "44px auto 0" }}>
-        <AdSlot unit={2} />
       </div>
     </div>
   );
@@ -4491,7 +4466,6 @@ function BlogPage({ initialSlug, navigate }) {
           style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", marginBottom:20, padding:0, display:"flex", alignItems:"center", gap:6 }}>
           ← Back to Blog
         </button>
-        <AdSlot unit={1} style={{ marginBottom:20 }} />
         <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(22px,3vw,36px)", fontWeight:700, color:"#1a1714", marginBottom:16, lineHeight:1.25 }}>{ post.title}</h1>
         <div style={{ display:"flex", gap:8, marginBottom:16, flexWrap:"wrap" }}>
           <span style={{ fontSize:11, background:"#fdf3ed", color:"#c2622a", padding:"3px 10px", borderRadius:20, fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>{post.tag}</span>
@@ -4510,14 +4484,12 @@ function BlogPage({ initialSlug, navigate }) {
             ) : null
           ))}
         </div>
-        <AdSlot unit={2} style={{ marginTop:12 }} />
       </div>
     );
   }
 
   return (
     <div>
-      <AdSlot unit={1} style={{ marginBottom:24 }} />
       <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,40px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>The Recipe Atlas Blog</h1>
       <p style={{ fontSize:15, color:"#9a9088", lineHeight:1.7, marginBottom:24 }}>Stories, techniques and histories from the world's great food cultures.</p>
       <div style={{ display:"grid", gap:20, marginTop:24 }}>
@@ -4536,7 +4508,6 @@ function BlogPage({ initialSlug, navigate }) {
         ))}
       </div>
       <div style={{ maxWidth:1070, margin:"24px auto 0" }}>
-        <AdSlot unit={2} />
       </div>
     </div>
   );
@@ -4546,7 +4517,6 @@ function AboutPage() {
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
       <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,40px)", fontWeight:700, color:"#1a1714", marginBottom:16 }}>About Recipe Atlas</h1>
-      <AdSlot unit={1} style={{ marginBottom:16 }} />
       <div style={{ marginTop:16, display:"flex", flexDirection:"column", gap:20 }}>
         {[
           ["Our Mission","Recipe Atlas exists to celebrate the extraordinary diversity of world cuisine — from the intricate spice blends of Ethiopian berbere to the precise techniques of Japanese ramen. We believe that cooking another culture's food is one of the most respectful and joyful ways to understand it."],
@@ -4560,7 +4530,6 @@ function AboutPage() {
           </div>
         ))}
       </div>
-      <AdSlot unit={2} style={{ marginTop:20 }} />
     </div>
   );
 }
@@ -4572,7 +4541,6 @@ function ContactPage() {
       <p style={{ fontSize:15, color:"#6a6058", lineHeight:1.8, marginBottom:32, marginTop:16 }}>
         Whether you have a question, a suggestion, or want to talk about advertising — we'd love to hear from you. Get in touch at <a href="mailto:contact.jwgroup@proton.me" style={{ color:"#c2622a", fontWeight:600 }}>contact.jwgroup@proton.me</a> and we'll get back to you as soon as possible.
       </p>
-      <AdSlot unit={1} style={{ marginBottom:32 }} />
 
       <div style={{ marginTop:16, display:"flex", flexDirection:"column", gap:20 }}>
         {[
@@ -4586,7 +4554,6 @@ function ContactPage() {
           </div>
         ))}
       </div>
-      <AdSlot unit={2} style={{ marginTop:20 }} />
     </div>
   );
 }
@@ -4597,7 +4564,6 @@ function TermsPage() {
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
       <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,36px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>Terms of Service</h1>
       <p style={{ fontSize:13, color:"#9a9088", marginBottom:28, marginTop:16 }}>Last updated: June 2025</p>
-      <AdSlot unit={1} style={{ marginBottom:28 }} />
 
       <div style={{ marginTop:24, display:"flex", flexDirection:"column", gap:20 }}>
       {[
@@ -4618,7 +4584,6 @@ function TermsPage() {
         </div>
       ))}
       </div>
-      <AdSlot unit={2} style={{ marginTop:20 }} />
     </div>
   );
 }
@@ -4628,7 +4593,6 @@ function PrivacyPage() {
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
       <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,40px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>Privacy Policy</h1>
       <p style={{ fontSize:12, color:"#c8bfb0", marginBottom:24, fontFamily:"Plus Jakarta Sans" }}>Last updated: June 2025</p>
-      <AdSlot unit={1} style={{ marginBottom:24 }} />
       <div style={{ marginTop:24, display:"flex", flexDirection:"column", gap:16 }}>
         {[
           ["Information We Collect","Recipe Atlas collects minimal data. Any data we do collect we do not sell, rent or share your personal information with third parties."],
@@ -4643,7 +4607,6 @@ function PrivacyPage() {
           </div>
         ))}
       </div>
-      <AdSlot unit={2} style={{ marginTop:16 }} />
     </div>
   );
 }
