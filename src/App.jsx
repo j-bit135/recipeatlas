@@ -1990,12 +1990,13 @@ function DishCarousel({ dishKeys, title, subtitle, idPrefix }) {
   );
 }
 
-function EventsThisMonthCarousel({ headingSize = "clamp(18px,2.5vw,26px)" }) {
+function EventsThisMonthCarousel({ headingSize = "clamp(18px,2.5vw,26px)", randomize = false }) {
   const { navigate } = useAppNavigate();
   const currentMonth = new Date().getMonth();
   const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   const allThisMonth = Object.keys(EVENTS_DB).filter(k => EVENTS_DB[k].month === currentMonth);
-  const [eventSlugs] = useState(() => [...allThisMonth].sort(() => Math.random() - 0.5).slice(0, 3));
+  const pickThree = () => [...allThisMonth].sort(() => Math.random() - 0.5).slice(0, 3);
+  const [eventSlugs, setEventSlugs] = useState(pickThree);
 
   if (eventSlugs.length === 0) return null;
 
@@ -2006,9 +2007,9 @@ function EventsThisMonthCarousel({ headingSize = "clamp(18px,2.5vw,26px)" }) {
           <h2 style={{ fontFamily:"Fraunces", fontSize:headingSize, fontWeight:700, color:"#1a1714", margin:0 }}>What's On This Month</h2>
           <p style={{ fontSize:13, color:"#9a9088", margin:"4px 0 0" }}>Festivals and food events happening in {monthNames[currentMonth]}</p>
         </div>
-        <button onClick={() => navigate('/events')}
+        <button onClick={() => randomize ? setEventSlugs(pickThree()) : navigate('/events')}
           style={{ background:"#fdf3ed", border:"1.5px solid #e8c9b0", borderRadius:8, padding:"8px 16px", fontSize:13, fontWeight:600, color:"#c2622a", cursor:"pointer", fontFamily:"Plus Jakarta Sans", display:"flex", alignItems:"center", gap:6 }}>
-          See more →
+          {randomize ? "↻ Randomise" : "See more →"}
         </button>
       </div>
       <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(270px, 1fr))", gap:20 }}>
@@ -2963,10 +2964,12 @@ function EventsListView({ navigate }) {
 
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
-      <div style={{ marginTop:24 }}>
-      <EventsThisMonthCarousel headingSize="clamp(24px,3vw,40px)" />
-      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,40px)", fontWeight:700, color:"#1a1714", marginBottom:8, lineHeight:1.2 }}>Food events near you</h1>
-      <p style={{ fontSize:15, color:"#9a9088", marginBottom:32, maxWidth:560 }}>Festivals, markets and tastings from across the world — browse by region, country and month to find what's on.</p>
+      <div style={{ marginTop:44 }}>
+      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(30px,4vw,48px)", fontWeight:700, color:"#1a1714", marginBottom:4 }}>Events</h1>
+      <hr style={{ height:2, background:"#c2622a", opacity:.25, border:"none", margin:"28px 0" }} />
+      <EventsThisMonthCarousel randomize />
+      <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#1a1714", marginBottom:8, lineHeight:1.2 }}>Food events near you</h2>
+      <p style={{ fontSize:13, color:"#9a9088", marginBottom:32, maxWidth:560 }}>Festivals, markets and tastings from across the world — browse by region, country and month to find what's on.</p>
 
       <div style={{ fontSize:11, fontWeight:700, letterSpacing:".06em", textTransform:"uppercase", color:"#c2622a", marginBottom:12 }}>Region</div>
       <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
@@ -4520,8 +4523,8 @@ function BlogPage({ initialSlug, navigate }) {
 
   return (
     <div>
-      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,40px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>The Recipe Atlas Blog</h1>
-      <p style={{ fontSize:15, color:"#9a9088", lineHeight:1.7, marginBottom:24 }}>Stories, techniques and histories from the world's great food cultures.</p>
+      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(30px,4vw,48px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>The Recipe Atlas Blog</h1>
+      <p style={{ fontSize:13, color:"#9a9088", marginBottom:24 }}>Stories, techniques and histories from the world's great food cultures.</p>
       <div className="blog-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20, marginTop:24 }}>
         {BLOG_POSTS.map((p,i) => (
           <div key={i} onClick={() => openPost(i)}
