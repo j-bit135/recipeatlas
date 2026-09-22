@@ -1880,11 +1880,16 @@ const styles = `
   .shopping-list-item span:first-child { font-weight: 700; color: #c2622a; min-width: 62px; flex-shrink: 0; }
 
   @media print {
-    body * { visibility: hidden; }
-    .shopping-list-print, .shopping-list-print * { visibility: visible; }
-    .shopping-list-print { position: absolute; top: 0; left: 0; width: 100%; padding: 20px; }
-    .shopping-list-overlay { position: static; background: none; padding: 0; }
-    .shopping-list-modal { box-shadow: none; max-height: none; max-width: 100%; }
+    body.printing-shopping-list * { visibility: hidden; }
+    body.printing-shopping-list .shopping-list-print, body.printing-shopping-list .shopping-list-print * { visibility: visible; }
+    body.printing-shopping-list .shopping-list-print { position: absolute; top: 0; left: 0; width: 100%; padding: 20px; }
+    body.printing-shopping-list .shopping-list-overlay { position: static; background: none; padding: 0; }
+    body.printing-shopping-list .shopping-list-modal { box-shadow: none; max-height: none; max-width: 100%; }
+
+    body.printing-recipe * { visibility: hidden; }
+    body.printing-recipe .recipe-print, body.printing-recipe .recipe-print * { visibility: visible; }
+    body.printing-recipe .recipe-print { position: absolute; top: 0; left: 0; width: 100%; padding: 20px; }
+
     .no-print { display: none !important; }
   }
 
@@ -2947,6 +2952,8 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
   const [scaleServings, setScaleServings] = useState(null);
   const [showShoppingList, setShowShoppingList] = useState(false);
   const [copyFeedback, setCopyFeedback] = useState(false);
+  const [shareFeedback, setShareFeedback] = useState(false);
+  const [recipeShareFeedback, setRecipeShareFeedback] = useState(false);
   const [unitSystem, setUnitSystem] = useState(() => {
     try { return localStorage.getItem('ra-unit-system') || 'metric'; } catch (e) { return 'metric'; }
   });
@@ -2989,8 +2996,34 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
           </div>
         ) : recipe && !recipe.error ? (
           <div>
+          <div className="recipe-print">
             <div style={{ marginBottom:28 }}>
-              <h1 style={{ fontFamily:"Fraunces", fontSize:32, fontWeight:700, color:"#1a1714", marginBottom:16, lineHeight:1.2 }}>{recipe.name}</h1>
+              <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:12, flexWrap:"wrap", marginBottom:16 }}>
+                <h1 style={{ fontFamily:"Fraunces", fontSize:32, fontWeight:700, color:"#1a1714", margin:0, lineHeight:1.2 }}>{recipe.name}</h1>
+                <div className="no-print" style={{ display:"flex", gap:8, flexShrink:0 }}>
+                  <button onClick={() => printSection('printing-recipe')}
+                    style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:8, padding:"7px 12px", fontSize:12, fontWeight:600, color:"#6a6058", cursor:"pointer", fontFamily:"Plus Jakarta Sans", display:"flex", alignItems:"center", gap:5 }}>
+                    🖨️ Print
+                  </button>
+                  <button
+                    onClick={() => {
+                      const shareTitle = recipe.name;
+                      const shareText = `Check out this ${recipe.name} recipe on Recipe Atlas!`;
+                      const shareUrl = window.location.href;
+                      if (navigator.share) {
+                        navigator.share({ title: shareTitle, text: shareText, url: shareUrl }).catch(() => {});
+                      } else {
+                        navigator.clipboard.writeText(`${shareText} ${shareUrl}`).then(() => {
+                          setRecipeShareFeedback(true);
+                          setTimeout(() => setRecipeShareFeedback(false), 1800);
+                        }).catch(() => {});
+                      }
+                    }}
+                    style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:8, padding:"7px 12px", fontSize:12, fontWeight:600, color:"#6a6058", cursor:"pointer", fontFamily:"Plus Jakarta Sans", display:"flex", alignItems:"center", gap:5 }}>
+                    {recipeShareFeedback ? "Link copied!" : "📤 Share"}
+                  </button>
+                </div>
+              </div>
               {country && <div style={{ display:"inline-block", background:"#fdf3ed", borderRadius:100, padding:"4px 12px", fontSize:11, color:"#c2622a", fontWeight:600, letterSpacing:".06em", textTransform:"uppercase", marginBottom:16 }}>
                 {country}
               </div>}
@@ -3099,7 +3132,7 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
                       </div>
                     ))}
                   </div>
-                  <div className="no-print" style={{ display:"flex", gap:10 }}>
+                  <div className="no-print" style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
                     <button
                       onClick={() => {
                         const text = `${recipe.name} — Shopping List (${scaleServings} ${scaleServings === 1 ? "serving" : "servings"})\n\n` +
@@ -3109,10 +3142,27 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
                           setTimeout(() => setCopyFeedback(false), 1800);
                         }).catch(() => {});
                       }}
-                      className="btn" style={{ flex:1, justifyContent:"center" }}>
-                      {copyFeedback ? "Copied!" : "📋 Copy to Clipboard"}
+                      className="btn" style={{ flex:"1 1 140px", justifyContent:"center" }}>
+                      {copyFeedback ? "Copied!" : "📋 Copy"}
                     </button>
-                    <button onClick={() => window.print()} className="btn-ghost" style={{ flex:1, justifyContent:"center" }}>
+                    <button
+                      onClick={() => {
+                        const shareTitle = recipe.name;
+                        const shareText = `Check out this ${recipe.name} recipe on Recipe Atlas!`;
+                        const shareUrl = window.location.href;
+                        if (navigator.share) {
+                          navigator.share({ title: shareTitle, text: shareText, url: shareUrl }).catch(() => {});
+                        } else {
+                          navigator.clipboard.writeText(`${shareText} ${shareUrl}`).then(() => {
+                            setShareFeedback(true);
+                            setTimeout(() => setShareFeedback(false), 1800);
+                          }).catch(() => {});
+                        }
+                      }}
+                      className="btn-ghost" style={{ flex:"1 1 140px", justifyContent:"center" }}>
+                      {shareFeedback ? "Link copied!" : "📤 Share"}
+                    </button>
+                    <button onClick={() => printSection('printing-shopping-list')} className="btn-ghost" style={{ flex:"1 1 140px", justifyContent:"center" }}>
                       🖨️ Print
                     </button>
                   </div>
@@ -3136,6 +3186,7 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
                 <p style={{ fontSize:14, color:"#6a6058", lineHeight:1.75 }}>{recipe.tip}</p>
               </div>
             )}
+            </div>
 
             <CommentSection dish={dish} />
 
@@ -3382,6 +3433,17 @@ function slugify(s) {
   if (!s || typeof s !== 'string') return '';
   const map = {'à':'a','á':'a','â':'a','ã':'a','ä':'a','å':'a','è':'e','é':'e','ê':'e','ë':'e','ì':'i','í':'i','î':'i','ï':'i','ò':'o','ó':'o','ô':'o','õ':'o','ö':'o','ù':'u','ú':'u','û':'u','ü':'u','ý':'y','ÿ':'y','ñ':'n','ç':'c','ß':'ss','ž':'z','ż':'z','ź':'z','ł':'l','š':'s','ă':'a','ț':'t','ő':'o','ű':'u','ā':'a','ē':'e','ī':'i','ō':'o','ū':'u'};
   return s.toLowerCase().split('').map(c => map[c] || c).join('').replace(/[^a-z0-9\s-]/g,'').replace(/[\s_]+/g,'-').trim();
+}
+
+function printSection(className) {
+  document.body.classList.add(className);
+  const cleanup = () => {
+    document.body.classList.remove(className);
+    window.removeEventListener('afterprint', cleanup);
+  };
+  window.addEventListener('afterprint', cleanup);
+  window.print();
+  setTimeout(cleanup, 60000);
 }
 
 function formatScaledNumber(n) {
