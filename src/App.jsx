@@ -2892,34 +2892,9 @@ function CommentSection({ dish }) {
 
   return (
     <div style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:14, padding:24, marginBottom:12, boxShadow:"0 1px 4px rgba(0,0,0,.04)" }}>
-      <h3 style={{ fontFamily:"Fraunces", fontSize:19, color:"#1a1714", marginBottom:4 }}>Leave a Comment</h3>
-      <p style={{ fontSize:12, color:"#9a9088", marginBottom:20 }}>Your email address will not be published. Required fields are marked *</p>
-      <form onSubmit={handleSubmit}>
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:12 }}>
-          <input type="text" placeholder="Name *" value={name} onChange={e=>setName(e.target.value)} style={inputStyle} disabled={submitting} />
-          <input type="email" placeholder="Email *" value={email} onChange={e=>setEmail(e.target.value)} style={inputStyle} disabled={submitting} />
-        </div>
-        <input type="text" placeholder="Website (optional)" value={website} onChange={e=>setWebsite(e.target.value)} disabled={submitting}
-          style={{...inputStyle, width:"100%", marginBottom:12, boxSizing:"border-box"}} />
-        <textarea placeholder="Comment *" value={commentText} onChange={e=>setCommentText(e.target.value)} rows={4} disabled={submitting}
-          style={{...inputStyle, width:"100%", marginBottom:12, resize:"vertical", boxSizing:"border-box"}} />
-        <label style={{ display:"flex", alignItems:"flex-start", gap:8, fontSize:12.5, color:"#6a6058", marginBottom:14, cursor:"pointer" }}>
-          <input type="checkbox" checked={subscribe} onChange={e=>setSubscribe(e.target.checked)} disabled={submitting} style={{ marginTop:2 }} />
-          <span>Also send me occasional recipe emails and updates from Recipe Atlas (optional — you can unsubscribe anytime)</span>
-        </label>
-        {error && <div style={{ color:"#c0392b", fontSize:13, marginBottom:10 }}>{error}</div>}
-        {submitted && <div style={{ color:"#2d7d46", fontSize:13, marginBottom:10 }}>Thanks — your comment has been posted below.</div>}
-        <button type="submit" className="btn" disabled={submitting}>{submitting ? "Posting…" : "Submit Comment"}</button>
-      </form>
-      {comments === null && !loadError && (
-        <p style={{ fontSize:12, color:"#b8b0a8", marginTop:20 }}>Loading comments…</p>
-      )}
-      {loadError && (
-        <p style={{ fontSize:12, color:"#b8b0a8", marginTop:20 }}>Couldn't load comments right now — please refresh.</p>
-      )}
       {comments && comments.length > 0 && (
-        <div style={{ marginTop:28, paddingTop:24, borderTop:"1.5px solid #ece6db" }}>
-          <div style={{ fontSize:13, fontWeight:700, color:"#1a1714", marginBottom:16 }}>{comments.length} Comment{comments.length!==1?"s":""}</div>
+        <div style={{ marginBottom:28, paddingBottom:24, borderBottom:"1.5px solid #ece6db" }}>
+          <h3 style={{ fontFamily:"Fraunces", fontSize:19, color:"#1a1714", marginBottom:16 }}>Comments</h3>
           {comments.map((c, i) => (
             <div key={c.id || i} style={{ marginBottom:18, paddingBottom:18, borderBottom: i < comments.length-1 ? "1px solid #f5f0e8" : "none" }}>
               <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
@@ -2936,6 +2911,31 @@ function CommentSection({ dish }) {
           ))}
         </div>
       )}
+      {comments === null && !loadError && (
+        <p style={{ fontSize:12, color:"#b8b0a8", marginBottom:20 }}>Loading comments…</p>
+      )}
+      {loadError && (
+        <p style={{ fontSize:12, color:"#b8b0a8", marginBottom:20 }}>Couldn't load comments right now — please refresh.</p>
+      )}
+      <h3 style={{ fontFamily:"Fraunces", fontSize:19, color:"#1a1714", marginBottom:4 }}>Leave a Comment</h3>
+      <p style={{ fontSize:12, color:"#9a9088", marginBottom:20 }}>Your email address will not be published. Required fields are marked *</p>
+      <form onSubmit={handleSubmit}>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:12 }}>
+          <input type="text" placeholder="Name *" value={name} onChange={e=>setName(e.target.value)} style={inputStyle} disabled={submitting} />
+          <input type="email" placeholder="Email *" value={email} onChange={e=>setEmail(e.target.value)} style={inputStyle} disabled={submitting} />
+        </div>
+        <input type="text" placeholder="Website (optional)" value={website} onChange={e=>setWebsite(e.target.value)} disabled={submitting}
+          style={{...inputStyle, width:"100%", marginBottom:12, boxSizing:"border-box"}} />
+        <textarea placeholder="Comment *" value={commentText} onChange={e=>setCommentText(e.target.value)} rows={4} disabled={submitting}
+          style={{...inputStyle, width:"100%", marginBottom:12, resize:"vertical", boxSizing:"border-box"}} />
+        <label style={{ display:"flex", alignItems:"flex-start", gap:8, fontSize:12.5, color:"#6a6058", marginBottom:14, cursor:"pointer" }}>
+          <input type="checkbox" checked={subscribe} onChange={e=>setSubscribe(e.target.checked)} disabled={submitting} style={{ marginTop:2 }} />
+          <span>Also send me occasional recipe emails and updates from Recipe Atlas (optional — you can unsubscribe anytime)</span>
+        </label>
+        {error && <div style={{ color:"#c0392b", fontSize:13, marginBottom:10 }}>{error}</div>}
+        {submitted && <div style={{ color:"#2d7d46", fontSize:13, marginBottom:10 }}>Thanks — your comment has been posted above.</div>}
+        <button type="submit" className="btn" disabled={submitting}>{submitting ? "Posting…" : "Submit Comment"}</button>
+      </form>
     </div>
   );
 }
