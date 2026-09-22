@@ -2807,12 +2807,89 @@ function StarRating({ dish, onRatingLoaded }) {
 }
 
 
+function CommentSection({ dish }) {
+  const inputStyle = { padding:"10px 12px", fontSize:14, border:"1.5px solid #ece6db", borderRadius:8, fontFamily:"inherit", color:"#1a1714" };
+  const [comments, setComments] = useState([]);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [website, setWebsite] = useState("");
+  const [commentText, setCommentText] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
+  const storageKey = `ra-comments-${dish}`;
+
+  useEffect(() => {
+    setSubmitted(false);
+    setName(""); setEmail(""); setWebsite(""); setCommentText(""); setError("");
+    try {
+      const stored = localStorage.getItem(storageKey);
+      setComments(stored ? JSON.parse(stored) : []);
+    } catch (e) { setComments([]); }
+  }, [dish]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!name.trim() || !email.trim() || !commentText.trim()) {
+      setError("Please fill in your name, email and comment.");
+      return;
+    }
+    const newComment = { name: name.trim(), email: email.trim(), website: website.trim(), text: commentText.trim(), date: new Date().toISOString() };
+    const updated = [newComment, ...comments];
+    setComments(updated);
+    try { localStorage.setItem(storageKey, JSON.stringify(updated)); } catch (e) {}
+    setName(""); setEmail(""); setWebsite(""); setCommentText(""); setError(""); setSubmitted(true);
+  };
+
+  return (
+    <div style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:14, padding:24, marginBottom:12, boxShadow:"0 1px 4px rgba(0,0,0,.04)" }}>
+      <h3 style={{ fontFamily:"Fraunces", fontSize:19, color:"#1a1714", marginBottom:4 }}>Leave a Comment</h3>
+      <p style={{ fontSize:12, color:"#9a9088", marginBottom:20 }}>Your email address will not be published. Required fields are marked *</p>
+      <form onSubmit={handleSubmit}>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:12 }}>
+          <input type="text" placeholder="Name *" value={name} onChange={e=>setName(e.target.value)} style={inputStyle} />
+          <input type="email" placeholder="Email *" value={email} onChange={e=>setEmail(e.target.value)} style={inputStyle} />
+        </div>
+        <input type="text" placeholder="Website (optional)" value={website} onChange={e=>setWebsite(e.target.value)}
+          style={{...inputStyle, width:"100%", marginBottom:12, boxSizing:"border-box"}} />
+        <textarea placeholder="Comment *" value={commentText} onChange={e=>setCommentText(e.target.value)} rows={4}
+          style={{...inputStyle, width:"100%", marginBottom:12, resize:"vertical", boxSizing:"border-box"}} />
+        {error && <div style={{ color:"#c0392b", fontSize:13, marginBottom:10 }}>{error}</div>}
+        {submitted && <div style={{ color:"#2d7d46", fontSize:13, marginBottom:10 }}>Thanks — your comment has been posted below.</div>}
+        <button type="submit" className="btn">Submit Comment</button>
+      </form>
+      <p style={{ fontSize:11, color:"#b8b0a8", marginTop:14 }}>Comments are currently saved on this device only.</p>
+      {comments.length > 0 && (
+        <div style={{ marginTop:28, paddingTop:24, borderTop:"1.5px solid #ece6db" }}>
+          <div style={{ fontSize:13, fontWeight:700, color:"#1a1714", marginBottom:16 }}>{comments.length} Comment{comments.length!==1?"s":""}</div>
+          {comments.map((c, i) => (
+            <div key={i} style={{ marginBottom:18, paddingBottom:18, borderBottom: i < comments.length-1 ? "1px solid #f5f0e8" : "none" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
+                <div style={{ width:28, height:28, borderRadius:"50%", background:ACCENT, color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:700, flexShrink:0 }}>
+                  {c.name.charAt(0).toUpperCase()}
+                </div>
+                <span style={{ fontSize:13, fontWeight:700, color:"#1a1714" }}>
+                  {c.website ? <a href={c.website} target="_blank" rel="noopener noreferrer" style={{color:"#1a1714", textDecoration:"none"}}>{c.name}</a> : c.name}
+                </span>
+                <span style={{ fontSize:11, color:"#b8b0a8" }}>{new Date(c.date).toLocaleDateString()}</span>
+              </div>
+              <p style={{ fontSize:14, color:"#5a5048", lineHeight:1.7, margin:0, paddingLeft:36 }}>{c.text}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [scaleServings, setScaleServings] = useState(null);
   const [showShoppingList, setShowShoppingList] = useState(false);
   const [copyFeedback, setCopyFeedback] = useState(false);
+  const [unitSystem, setUnitSystem] = useState(() => {
+    try { return localStorage.getItem('ra-unit-system') || 'metric'; } catch (e) { return 'metric'; }
+  });
   const flag = COUNTRY_DISHES[country]?.flag || "🌍";
 
   useEffect(() => {
@@ -2822,12 +2899,21 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
     else { setRecipe({ error: true }); }
   }, [dish, country]);
 
+  const setUnitSystemPersist = (val) => {
+    setUnitSystem(val);
+    try { localStorage.setItem('ra-unit-system', val); } catch (e) {}
+  };
+
   const scaledIngredients = useMemo(() => {
     if (!recipe || !recipe.ingredients) return [];
     const base = recipe.serves || 1;
     const factor = scaleServings ? scaleServings / base : 1;
-    return recipe.ingredients.map(ing => ({ ...ing, amount: scaleIngredientAmount(ing.amount, factor) }));
-  }, [recipe, scaleServings]);
+    return recipe.ingredients.map(ing => {
+      let amount = scaleIngredientAmount(ing.amount, factor);
+      if (unitSystem === 'imperial') amount = convertToImperial(amount);
+      return { ...ing, amount };
+    });
+  }, [recipe, scaleServings, unitSystem]);
 
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
@@ -2906,9 +2992,23 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
             <div style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:14, padding:24, marginBottom:12, boxShadow:"0 1px 4px rgba(0,0,0,.04)" }}>
               <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:18, flexWrap:"wrap", gap:10 }}>
                 <h3 style={{ fontFamily:"Fraunces", fontSize:19, color:"#1a1714", margin:0 }}>Ingredients</h3>
-                <button onClick={() => setShowShoppingList(true)} className="btn-ghost">
-                  🛒 Shopping List
-                </button>
+                <div style={{ display:"flex", alignItems:"center", gap:10, flexWrap:"wrap" }}>
+                  <div style={{ display:"flex", border:"1.5px solid #ece6db", borderRadius:8, overflow:"hidden" }}>
+                    <button onClick={() => setUnitSystemPersist('metric')}
+                      style={{ padding:"6px 14px", fontSize:12, fontWeight:700, fontFamily:"Plus Jakarta Sans", border:"none", cursor:"pointer",
+                        background: unitSystem === 'metric' ? ACCENT : "#fff", color: unitSystem === 'metric' ? "#fff" : "#9a9088" }}>
+                      Metric
+                    </button>
+                    <button onClick={() => setUnitSystemPersist('imperial')}
+                      style={{ padding:"6px 14px", fontSize:12, fontWeight:700, fontFamily:"Plus Jakarta Sans", border:"none", cursor:"pointer",
+                        background: unitSystem === 'imperial' ? ACCENT : "#fff", color: unitSystem === 'imperial' ? "#fff" : "#9a9088" }}>
+                      Imperial
+                    </button>
+                  </div>
+                  <button onClick={() => setShowShoppingList(true)} className="btn-ghost">
+                    🛒 Shopping List
+                  </button>
+                </div>
               </div>
               <div className="ing-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0 20px" }}>
                 {scaledIngredients.map((ing,i)=>(
@@ -2976,6 +3076,8 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
                 <p style={{ fontSize:14, color:"#6a6058", lineHeight:1.75 }}>{recipe.tip}</p>
               </div>
             )}
+
+            <CommentSection dish={dish} />
 
             {/* You may also like */}
             {(() => {
@@ -3226,6 +3328,60 @@ function formatScaledNumber(n) {
   if (n < 10) n = Math.round(n * 4) / 4;
   else n = Math.round(n);
   return parseFloat(n.toFixed(2)).toString();
+}
+
+function convertToImperial(amountStr) {
+  if (!amountStr) return amountStr;
+  const m = amountStr.match(/^(\d+(?:\.\d+)?)(\s*-\s*(\d+(?:\.\d+)?))?\s*(g|kg|ml|l)\b(.*)$/i);
+  if (!m) return amountStr;
+  const num1 = parseFloat(m[1]);
+  const num2 = m[3] ? parseFloat(m[3]) : null;
+  const unit = m[4].toLowerCase();
+  const rest = m[5] || "";
+
+  const convertOne = (n) => {
+    let valueInGrams = null, valueInMl = null;
+    if (unit === 'g') valueInGrams = n;
+    else if (unit === 'kg') valueInGrams = n * 1000;
+    else if (unit === 'ml') valueInMl = n;
+    else if (unit === 'l') valueInMl = n * 1000;
+
+    if (valueInGrams !== null) {
+      if (valueInGrams < 450) {
+        const oz = valueInGrams / 28.3495;
+        const granularity = oz < 4 ? 4 : 2;
+        const rounded = Math.round(oz * granularity) / granularity;
+        return `${formatScaledNumber(rounded)}oz`;
+      } else {
+        const lb = valueInGrams / 453.592;
+        const rounded = Math.round(lb * 4) / 4;
+        return `${formatScaledNumber(rounded)}lb`;
+      }
+    }
+    if (valueInMl !== null) {
+      if (valueInMl < 15) {
+        const tsp = valueInMl / 4.92892;
+        const rounded = Math.round(tsp * 4) / 4;
+        return `${formatScaledNumber(rounded)}tsp`;
+      } else if (valueInMl < 60) {
+        const tbsp = valueInMl / 14.7868;
+        const rounded = Math.round(tbsp * 2) / 2;
+        return `${formatScaledNumber(rounded)}tbsp`;
+      } else {
+        const cups = valueInMl / 236.588;
+        const rounded = Math.round(cups * 4) / 4;
+        return `${formatScaledNumber(rounded)} cup${rounded !== 1 ? "s" : ""}`;
+      }
+    }
+    return `${n}${unit}`;
+  };
+
+  const converted1 = convertOne(num1);
+  if (num2 !== null) {
+    const converted2 = convertOne(num2);
+    return `${converted1}-${converted2}${rest}`;
+  }
+  return `${converted1}${rest}`;
 }
 
 function scaleIngredientAmount(amountStr, factor) {
