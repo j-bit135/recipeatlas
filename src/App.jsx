@@ -2998,32 +2998,7 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
           <div>
           <div className="recipe-print">
             <div style={{ marginBottom:28 }}>
-              <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:12, flexWrap:"wrap", marginBottom:16 }}>
-                <h1 style={{ fontFamily:"Fraunces", fontSize:32, fontWeight:700, color:"#1a1714", margin:0, lineHeight:1.2 }}>{recipe.name}</h1>
-                <div className="no-print" style={{ display:"flex", gap:8, flexShrink:0 }}>
-                  <button onClick={() => printSection('printing-recipe')}
-                    style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:8, padding:"7px 12px", fontSize:12, fontWeight:600, color:"#6a6058", cursor:"pointer", fontFamily:"Plus Jakarta Sans", display:"flex", alignItems:"center", gap:5 }}>
-                    🖨️ Print
-                  </button>
-                  <button
-                    onClick={() => {
-                      const shareTitle = recipe.name;
-                      const shareText = `Check out this ${recipe.name} recipe on Recipe Atlas!`;
-                      const shareUrl = window.location.href;
-                      if (navigator.share) {
-                        navigator.share({ title: shareTitle, text: shareText, url: shareUrl }).catch(() => {});
-                      } else {
-                        navigator.clipboard.writeText(`${shareText} ${shareUrl}`).then(() => {
-                          setRecipeShareFeedback(true);
-                          setTimeout(() => setRecipeShareFeedback(false), 1800);
-                        }).catch(() => {});
-                      }
-                    }}
-                    style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:8, padding:"7px 12px", fontSize:12, fontWeight:600, color:"#6a6058", cursor:"pointer", fontFamily:"Plus Jakarta Sans", display:"flex", alignItems:"center", gap:5 }}>
-                    {recipeShareFeedback ? "Link copied!" : "📤 Share"}
-                  </button>
-                </div>
-              </div>
+              <h1 style={{ fontFamily:"Fraunces", fontSize:32, fontWeight:700, color:"#1a1714", marginBottom:16, lineHeight:1.2 }}>{recipe.name}</h1>
               {country && <div style={{ display:"inline-block", background:"#fdf3ed", borderRadius:100, padding:"4px 12px", fontSize:11, color:"#c2622a", fontWeight:600, letterSpacing:".06em", textTransform:"uppercase", marginBottom:16 }}>
                 {country}
               </div>}
@@ -3179,6 +3154,29 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
                   </div>
                 ))}
               </div>
+            </div>
+            <div className="no-print" style={{ display:"flex", gap:10, marginBottom:12, flexWrap:"wrap" }}>
+              <button onClick={() => printSection('printing-recipe')}
+                style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:8, padding:"9px 16px", fontSize:13, fontWeight:600, color:"#6a6058", cursor:"pointer", fontFamily:"Plus Jakarta Sans", display:"flex", alignItems:"center", gap:6, flex:"1 1 140px", justifyContent:"center" }}>
+                🖨️ Print
+              </button>
+              <button
+                onClick={() => {
+                  const shareTitle = recipe.name;
+                  const shareText = `Check out this ${recipe.name} recipe on Recipe Atlas!`;
+                  const shareUrl = window.location.href;
+                  if (navigator.share) {
+                    navigator.share({ title: shareTitle, text: shareText, url: shareUrl }).catch(() => {});
+                  } else {
+                    navigator.clipboard.writeText(`${shareText} ${shareUrl}`).then(() => {
+                      setRecipeShareFeedback(true);
+                      setTimeout(() => setRecipeShareFeedback(false), 1800);
+                    }).catch(() => {});
+                  }
+                }}
+                style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:8, padding:"9px 16px", fontSize:13, fontWeight:600, color:"#6a6058", cursor:"pointer", fontFamily:"Plus Jakarta Sans", display:"flex", alignItems:"center", gap:6, flex:"1 1 140px", justifyContent:"center" }}>
+                {recipeShareFeedback ? "Link copied!" : "📤 Share"}
+              </button>
             </div>
             {recipe.tip && (
               <div style={{ background:"#fdf8f3", border:"1.5px solid #f0e4d4", borderRadius:14, padding:18, borderLeft:`4px solid ${ACCENT}`, marginBottom:12 }}>
