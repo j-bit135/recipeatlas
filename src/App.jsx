@@ -1801,6 +1801,7 @@ const styles = `
     .region-grid { grid-template-columns: 1fr !important; }
     .stat-row { flex-wrap: wrap; }
     .ing-grid { grid-template-columns: 1fr !important; }
+    .blog-grid { grid-template-columns: 1fr !important; }
   }
 
   .ptp-card {
@@ -1989,7 +1990,7 @@ function DishCarousel({ dishKeys, title, subtitle, idPrefix }) {
   );
 }
 
-function EventsThisMonthCarousel() {
+function EventsThisMonthCarousel({ headingSize = "clamp(18px,2.5vw,26px)" }) {
   const { navigate } = useAppNavigate();
   const currentMonth = new Date().getMonth();
   const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -2002,7 +2003,7 @@ function EventsThisMonthCarousel() {
     <div style={{ marginBottom:74 }}>
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16, flexWrap:"wrap", gap:8 }}>
         <div>
-          <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#1a1714", margin:0 }}>What's On This Month</h2>
+          <h2 style={{ fontFamily:"Fraunces", fontSize:headingSize, fontWeight:700, color:"#1a1714", margin:0 }}>What's On This Month</h2>
           <p style={{ fontSize:13, color:"#9a9088", margin:"4px 0 0" }}>Festivals and food events happening in {monthNames[currentMonth]}</p>
         </div>
         <button onClick={() => navigate('/events')}
@@ -2963,7 +2964,8 @@ function EventsListView({ navigate }) {
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
       <div style={{ marginTop:24 }}>
-      <h1 style={{ fontFamily:"Fraunces", fontSize:32, fontWeight:700, color:"#1a1714", marginBottom:8, lineHeight:1.2 }}>Food events near you</h1>
+      <EventsThisMonthCarousel headingSize="clamp(24px,3vw,40px)" />
+      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,40px)", fontWeight:700, color:"#1a1714", marginBottom:8, lineHeight:1.2 }}>Food events near you</h1>
       <p style={{ fontSize:15, color:"#9a9088", marginBottom:32, maxWidth:560 }}>Festivals, markets and tastings from across the world — browse by region, country and month to find what's on.</p>
 
       <div style={{ fontSize:11, fontWeight:700, letterSpacing:".06em", textTransform:"uppercase", color:"#c2622a", marginBottom:12 }}>Region</div>
@@ -4520,18 +4522,25 @@ function BlogPage({ initialSlug, navigate }) {
     <div>
       <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,40px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>The Recipe Atlas Blog</h1>
       <p style={{ fontSize:15, color:"#9a9088", lineHeight:1.7, marginBottom:24 }}>Stories, techniques and histories from the world's great food cultures.</p>
-      <div style={{ display:"grid", gap:20, marginTop:24 }}>
+      <div className="blog-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20, marginTop:24 }}>
         {BLOG_POSTS.map((p,i) => (
           <div key={i} onClick={() => openPost(i)}
-            style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, padding:24, cursor:"pointer", transition:"border-color .2s, box-shadow .2s" }}
+            style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, overflow:"hidden", cursor:"pointer", transition:"border-color .2s, box-shadow .2s" }}
             onMouseEnter={e => { e.currentTarget.style.borderColor="#c2622a"; e.currentTarget.style.boxShadow="0 2px 12px rgba(194,98,42,.08)"; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor="#ece6db"; e.currentTarget.style.boxShadow="none"; }}>
-            <div style={{ display:"flex", gap:8, marginBottom:10, flexWrap:"wrap" }}>
-              <span style={{ fontSize:11, background:"#fdf3ed", color:"#c2622a", padding:"3px 10px", borderRadius:20, fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>{p.tag}</span>
+            {p.image && (
+              <div style={{ background:"#f0e8e0" }}>
+                <img src={p.image} alt={p.title} style={{ width:"100%", height:170, objectFit:"cover", display:"block" }} />
+              </div>
+            )}
+            <div style={{ padding:24 }}>
+              <div style={{ display:"flex", gap:8, marginBottom:10, flexWrap:"wrap" }}>
+                <span style={{ fontSize:11, background:"#fdf3ed", color:"#c2622a", padding:"3px 10px", borderRadius:20, fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>{p.tag}</span>
+              </div>
+              <h2 style={{ fontFamily:"Fraunces", fontSize:18, fontWeight:700, color:"#1a1714", marginBottom:8, lineHeight:1.3 }}>{p.title}</h2>
+              <p style={{ fontSize:14, color:"#6a6058", lineHeight:1.75, margin:"0 0 12px" }}>{p.excerpt}</p>
+              <span style={{ fontSize:12, color:"#c2622a", fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>Read article →</span>
             </div>
-            <h2 style={{ fontFamily:"Fraunces", fontSize:18, fontWeight:700, color:"#1a1714", marginBottom:8, lineHeight:1.3 }}>{p.title}</h2>
-            <p style={{ fontSize:14, color:"#6a6058", lineHeight:1.75, margin:"0 0 12px" }}>{p.excerpt}</p>
-            <span style={{ fontSize:12, color:"#c2622a", fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>Read article →</span>
           </div>
         ))}
       </div>
