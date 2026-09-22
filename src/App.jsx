@@ -2682,6 +2682,21 @@ async function submitCommentREST(dishKey, comment) {
   return { id: result.name, ...comment };
 }
 
+function subscriberKeyFor(email) {
+  return (email || "").trim().toLowerCase().replace(/[.#$\[\]/]/g, "_");
+}
+
+async function submitSubscriberREST(name, email, source) {
+  const key = subscriberKeyFor(email);
+  if (!key) return;
+  const res = await fetch(`${FIREBASE_CONFIG.databaseURL}/subscribers/${key}.json`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: name || "", email: email.trim().toLowerCase(), source: source || "", date: new Date().toISOString() })
+  });
+  if (!res.ok) throw new Error("subscribe write failed");
+}
+
 function parseDurationParts(text) {
   if (!text) return null;
   const hourMatch = text.match(/(\d+)\s*(?:hours?|hrs?)/i);
@@ -2836,6 +2851,7 @@ function CommentSection({ dish }) {
   const [email, setEmail] = useState("");
   const [website, setWebsite] = useState("");
   const [commentText, setCommentText] = useState("");
+  const [subscribe, setSubscribe] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
@@ -2845,7 +2861,7 @@ function CommentSection({ dish }) {
     setComments(null);
     setLoadError(false);
     setSubmitted(false);
-    setName(""); setEmail(""); setWebsite(""); setCommentText(""); setError("");
+    setName(""); setEmail(""); setWebsite(""); setCommentText(""); setSubscribe(false); setError("");
     fetchComments(dish).then(list => { if (!cancelled) setComments(list); })
       .catch(() => { if (!cancelled) setLoadError(true); });
     return () => { cancelled = true; };
@@ -2863,7 +2879,10 @@ function CommentSection({ dish }) {
       const newComment = { name: name.trim(), email: email.trim(), website: website.trim(), text: commentText.trim(), date: new Date().toISOString() };
       const saved = await submitCommentREST(dish, newComment);
       setComments(prev => [saved, ...(prev || [])]);
-      setName(""); setEmail(""); setWebsite(""); setCommentText(""); setSubmitted(true);
+      if (subscribe) {
+        try { await submitSubscriberREST(name.trim(), email.trim(), dish); } catch (e3) { /* don't block the comment on a subscribe failure */ }
+      }
+      setName(""); setEmail(""); setWebsite(""); setCommentText(""); setSubscribe(false); setSubmitted(true);
     } catch (e2) {
       setError("Something went wrong posting your comment — please try again.");
     } finally {
@@ -2884,6 +2903,10 @@ function CommentSection({ dish }) {
           style={{...inputStyle, width:"100%", marginBottom:12, boxSizing:"border-box"}} />
         <textarea placeholder="Comment *" value={commentText} onChange={e=>setCommentText(e.target.value)} rows={4} disabled={submitting}
           style={{...inputStyle, width:"100%", marginBottom:12, resize:"vertical", boxSizing:"border-box"}} />
+        <label style={{ display:"flex", alignItems:"flex-start", gap:8, fontSize:12.5, color:"#6a6058", marginBottom:14, cursor:"pointer" }}>
+          <input type="checkbox" checked={subscribe} onChange={e=>setSubscribe(e.target.checked)} disabled={submitting} style={{ marginTop:2 }} />
+          <span>Also send me occasional recipe emails and updates from Recipe Atlas (optional — you can unsubscribe anytime)</span>
+        </label>
         {error && <div style={{ color:"#c0392b", fontSize:13, marginBottom:10 }}>{error}</div>}
         {submitted && <div style={{ color:"#2d7d46", fontSize:13, marginBottom:10 }}>Thanks — your comment has been posted below.</div>}
         <button type="submit" className="btn" disabled={submitting}>{submitting ? "Posting…" : "Submit Comment"}</button>
