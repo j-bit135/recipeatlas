@@ -3155,6 +3155,12 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
                 ))}
               </div>
             </div>
+            {recipe.tip && (
+              <div style={{ background:"#fdf8f3", border:"1.5px solid #f0e4d4", borderRadius:14, padding:18, borderLeft:`4px solid ${ACCENT}`, marginBottom:12 }}>
+                <div style={{ fontSize:11, color:ACCENT, letterSpacing:".08em", textTransform:"uppercase", fontWeight:700, marginBottom:6 }}>Chef's Tip</div>
+                <p style={{ fontSize:14, color:"#6a6058", lineHeight:1.75 }}>{recipe.tip}</p>
+              </div>
+            )}
             <div className="no-print" style={{ display:"flex", gap:10, marginBottom:12, flexWrap:"wrap" }}>
               <button onClick={() => printSection('printing-recipe')}
                 style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:8, padding:"9px 16px", fontSize:13, fontWeight:600, color:"#6a6058", cursor:"pointer", fontFamily:"Plus Jakarta Sans", display:"flex", alignItems:"center", gap:6, flex:"1 1 140px", justifyContent:"center" }}>
@@ -3178,12 +3184,6 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
                 {recipeShareFeedback ? "Link copied!" : "📤 Share"}
               </button>
             </div>
-            {recipe.tip && (
-              <div style={{ background:"#fdf8f3", border:"1.5px solid #f0e4d4", borderRadius:14, padding:18, borderLeft:`4px solid ${ACCENT}`, marginBottom:12 }}>
-                <div style={{ fontSize:11, color:ACCENT, letterSpacing:".08em", textTransform:"uppercase", fontWeight:700, marginBottom:6 }}>Chef's Tip</div>
-                <p style={{ fontSize:14, color:"#6a6058", lineHeight:1.75 }}>{recipe.tip}</p>
-              </div>
-            )}
             </div>
 
             <CommentSection dish={dish} />
