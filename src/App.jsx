@@ -3059,7 +3059,15 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
             </div>
             <div style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:14, padding:24, marginBottom:12, boxShadow:"0 1px 4px rgba(0,0,0,.04)" }}>
               <h3 style={{ fontFamily:"Fraunces", fontSize:19, color:"#1a1714", margin:0, marginBottom:16 }}>Ingredients</h3>
-              <div style={{ display:"flex", alignItems:"center", gap:10, flexWrap:"wrap", marginBottom:18 }}>
+              <div className="ing-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0 20px" }}>
+                {scaledIngredients.map((ing,i)=>(
+                  <div key={i} style={{ display:"flex", gap:10, paddingBottom:9, borderBottom:"1px solid #f5f0e8", marginBottom:1, alignItems:"baseline" }}>
+                    <span style={{ fontSize:12, fontWeight:700, color:ACCENT, minWidth:60, flexShrink:0 }}>{ing.amount}</span>
+                    <span style={{ fontSize:13, color:"#5a5048" }}>{ing.item}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display:"flex", alignItems:"center", gap:10, flexWrap:"wrap", marginTop:20 }}>
                 <div style={{ display:"flex", border:"1.5px solid #ece6db", borderRadius:8, overflow:"hidden" }}>
                   <button onClick={() => setUnitSystemPersist('metric')}
                     style={{ padding:"8px 14px", fontSize:12, fontWeight:700, fontFamily:"Plus Jakarta Sans", border:"none", cursor:"pointer",
@@ -3075,14 +3083,6 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
                 <button onClick={() => setShowShoppingList(true)} className="btn-ghost" style={{ padding:"8px 16px", fontSize:12, boxSizing:"border-box" }}>
                   🛒 Shopping List
                 </button>
-              </div>
-              <div className="ing-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0 20px" }}>
-                {scaledIngredients.map((ing,i)=>(
-                  <div key={i} style={{ display:"flex", gap:10, paddingBottom:9, borderBottom:"1px solid #f5f0e8", marginBottom:1, alignItems:"baseline" }}>
-                    <span style={{ fontSize:12, fontWeight:700, color:ACCENT, minWidth:60, flexShrink:0 }}>{ing.amount}</span>
-                    <span style={{ fontSize:13, color:"#5a5048" }}>{ing.item}</span>
-                  </div>
-                ))}
               </div>
             </div>
             {showShoppingList && (
