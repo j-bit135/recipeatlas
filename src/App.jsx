@@ -1879,6 +1879,11 @@ const styles = `
   }
   .shopping-list-item span:first-child { font-weight: 700; color: #c2622a; min-width: 62px; flex-shrink: 0; }
 
+  .pa-ad-wrap { display: flex; justify-content: center; align-items: center; margin: 24px 0; min-height: 50px; }
+  .pa-ad-slot { width: 100%; max-width: 320px; min-height: 50px; }
+  @media (min-width: 500px) { .pa-ad-slot { max-width: 728px; min-height: 90px; } }
+  @media (min-width: 992px) { .pa-ad-slot { max-width: 970px; min-height: 90px; } }
+
   @media (max-height: 700px) {
     .shopping-list-overlay { padding: 10px; }
     .shopping-list-modal { padding: 18px; max-height: 92vh; max-height: 92dvh; }
@@ -2512,6 +2517,7 @@ function RegionMap({ onSelectRegion }) {
 
       {/* Interactive world map */}
       <div id="ra-world-map" style={{ width:"100%", borderRadius:12, overflow:"hidden", background:"transparent", marginBottom:93 }}></div>
+      <PurpleAdSlot />
       <div id="ra-map-tip" style={{ position:"fixed", background:"rgba(26,23,20,.9)", color:"#fff", padding:"6px 14px", borderRadius:8, fontSize:13, fontWeight:600, pointerEvents:"none", display:"none", zIndex:999, whiteSpace:"nowrap" }}></div>
 
 
@@ -2546,6 +2552,7 @@ function RegionMap({ onSelectRegion }) {
           </div>
         ))}
       </div>
+      <PurpleAdSlot />
 
 
       {/* Recipe inspiration */}
@@ -2567,6 +2574,55 @@ function RegionMap({ onSelectRegion }) {
       {/* Drinks carousel */}
       <DrinksCarousel />
 
+    </div>
+  );
+}
+
+function PurpleAdSlot() {
+  const containerRef = useRef(null);
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const el = containerRef.current;
+
+    const script = document.createElement('script');
+    script.src = "https://cdn.prplads.com/agent.js?publisherId=fa39bc0409f74281489dbfa3a0c72c01:b9db810c103e05c40722e0ed383f723eeaaf6c9bb8e13a5a2956ba57898db08e9ffc1d6d9334aa154c2d7182dac67f9538334833ef17b003beb7026b0bd172fd";
+    script.async = true;
+    script.setAttribute('data-pa-tag', '');
+    el.appendChild(script);
+
+    // Stability-window collapse: wait for the slot's rendered height to stop
+    // changing (so we don't catch a creative mid-resize), then only collapse
+    // if it settled essentially empty -- i.e. genuinely no fill, not just slow to load.
+    let stableCount = 0;
+    let lastHeight = -1;
+    const checkInterval = setInterval(() => {
+      const h = el.scrollHeight;
+      if (h === lastHeight) {
+        stableCount++;
+      } else {
+        stableCount = 0;
+        lastHeight = h;
+      }
+      if (stableCount >= 3) {
+        if (h < 10) setCollapsed(true);
+        clearInterval(checkInterval);
+      }
+    }, 500);
+    const maxTimeout = setTimeout(() => clearInterval(checkInterval), 8000);
+
+    return () => {
+      clearInterval(checkInterval);
+      clearTimeout(maxTimeout);
+    };
+  }, []);
+
+  if (collapsed) return null;
+
+  return (
+    <div className="pa-ad-wrap no-print">
+      <div ref={containerRef} className="pa-ad-slot" />
     </div>
   );
 }
@@ -2601,6 +2657,7 @@ function RegionView({ regionId, onBack, onSelectCountry }) {
           ))}
         </div>
       </div>
+      <PurpleAdSlot />
       <RecipeInspiration recipes={getRandomRecipes(regionRecipeKeys, 3)} pool={regionRecipeKeys} title="Recipe Inspiration" />
     </div>
   );
@@ -2637,6 +2694,7 @@ function CountryView({ country, onBack, onSelectDish }) {
           ))}
         </div>
       </div>
+      <PurpleAdSlot />
       <RecipeInspiration recipes={getRandomRecipes(countryRecipeKeys, 3)} pool={countryRecipeKeys} title="Recipe Inspiration" />
     </div>
   );
@@ -2963,6 +3021,19 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
   const [loading, setLoading] = useState(true);
   const [scaleServings, setScaleServings] = useState(null);
   const [showShoppingList, setShowShoppingList] = useState(false);
+  const [modalMaxHeight, setModalMaxHeight] = useState(600);
+
+  useEffect(() => {
+    if (!showShoppingList) return;
+    const updateHeight = () => setModalMaxHeight(Math.min(window.innerHeight * 0.85, window.innerHeight - 40));
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+    window.addEventListener('orientationchange', updateHeight);
+    return () => {
+      window.removeEventListener('resize', updateHeight);
+      window.removeEventListener('orientationchange', updateHeight);
+    };
+  }, [showShoppingList]);
   const [copyFeedback, setCopyFeedback] = useState(false);
   const [shareFeedback, setShareFeedback] = useState(false);
   const [recipeShareFeedback, setRecipeShareFeedback] = useState(false);
@@ -2996,6 +3067,7 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
 
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
+      <PurpleAdSlot />
       <button onClick={onBack}
         style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
         ← Back to {country || recipeCountry}
@@ -3099,7 +3171,9 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
             </div>
             {showShoppingList && (
               <div className="shopping-list-overlay" onClick={() => setShowShoppingList(false)}>
-                <div className="shopping-list-modal shopping-list-print" onClick={(e) => e.stopPropagation()}>
+                <div className="shopping-list-modal shopping-list-print"
+                  style={{ maxHeight: modalMaxHeight }}
+                  onClick={(e) => e.stopPropagation()}>
                   <button onClick={() => setShowShoppingList(false)} className="no-print"
                     style={{ position:"absolute", top:16, right:16, background:"none", border:"none", fontSize:20, color:"#b8b0a8", cursor:"pointer", lineHeight:1, padding:4 }}
                     aria-label="Close shopping list">
@@ -3376,6 +3450,7 @@ function EventDetailView({ eventSlug, onBack, navigate }) {
   }
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
+      <PurpleAdSlot />
       <button onClick={onBack}
         style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
         ← Back to events
@@ -4903,6 +4978,7 @@ function BlogPage({ initialSlug, navigate }) {
     const post = BLOG_POSTS[activePost];
     return (
       <div style={{ maxWidth:1070, margin:"0 auto" }}>
+        <PurpleAdSlot />
         <button onClick={closePost}
           style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", marginBottom:20, padding:0, display:"flex", alignItems:"center", gap:6 }}>
           ← Back to Blog
