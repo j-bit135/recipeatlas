@@ -1870,7 +1870,7 @@ const styles = `
   }
   .shopping-list-modal {
     background: #fff; border-radius: 16px; max-width: 440px; width: 100%;
-    max-height: 85vh; overflow-y: auto; padding: 28px; position: relative;
+    max-height: 85vh; max-height: 85dvh; overflow-y: auto; padding: 28px; position: relative;
     box-shadow: 0 20px 60px rgba(0,0,0,.25);
   }
   .shopping-list-item {
@@ -1878,6 +1878,18 @@ const styles = `
     font-size: 14px; color: #3a3028; align-items: baseline;
   }
   .shopping-list-item span:first-child { font-weight: 700; color: #c2622a; min-width: 62px; flex-shrink: 0; }
+
+  @media (max-height: 700px) {
+    .shopping-list-overlay { padding: 10px; }
+    .shopping-list-modal { padding: 18px; max-height: 92vh; max-height: 92dvh; }
+    .shopping-list-item { font-size: 12.5px; padding: 6px 0; }
+    .shopping-list-item span:first-child { min-width: 52px; }
+  }
+  @media (max-height: 560px) {
+    .shopping-list-modal { padding: 14px; }
+    .shopping-list-item { font-size: 11.5px; padding: 5px 0; }
+    .shopping-list-item span:first-child { min-width: 46px; }
+  }
 
   @media print {
     body.printing-shopping-list * { visibility: hidden; }
