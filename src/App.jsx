@@ -1891,7 +1891,7 @@ const styles = `
      breakpoint (300x50/320x50 -> 468x60 -> 728x90 -> 970x90), with
      overflow hidden as a backstop, so nothing large/vertical can ever
      render at the top of a page. */
-  .pa-ad-slot-banner { width: 100%; max-width: 320px; max-height: 50px; overflow: hidden; }
+  .pa-ad-slot-banner { width: 100%; max-width: 320px; max-height: 100px; overflow: hidden; }
   @media (min-width: 500px) { .pa-ad-slot-banner { max-width: 468px; max-height: 60px; } }
   @media (min-width: 760px) { .pa-ad-slot-banner { max-width: 728px; max-height: 90px; } }
   @media (min-width: 992px) { .pa-ad-slot-banner { max-width: 970px; max-height: 90px; } }
