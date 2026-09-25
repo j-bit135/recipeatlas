@@ -1865,12 +1865,13 @@ const styles = `
   }
 
   .shopping-list-overlay {
-    position: fixed; inset: 0; background: rgba(26,23,20,.55); z-index: 200;
-    display: flex; align-items: center; justify-content: center; padding: 20px;
+    position: fixed; inset: 0; background: rgba(26,23,20,.55); z-index: 9999;
   }
   .shopping-list-modal {
-    background: #fff; border-radius: 16px; max-width: 440px; width: 100%;
-    max-height: 85vh; max-height: 85dvh; overflow-y: auto; padding: 28px; position: relative;
+    position: fixed; top: 78px; bottom: 20px; left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 40px); max-width: 440px;
+    background: #fff; border-radius: 16px; overflow-y: auto; padding: 28px;
     box-shadow: 0 20px 60px rgba(0,0,0,.25);
   }
   .shopping-list-item {
@@ -1879,14 +1880,24 @@ const styles = `
   }
   .shopping-list-item span:first-child { font-weight: 700; color: #c2622a; min-width: 62px; flex-shrink: 0; }
 
-  .pa-ad-wrap { display: flex; justify-content: center; align-items: center; margin: 24px 0; min-height: 50px; }
-  .pa-ad-slot { width: 100%; max-width: 320px; min-height: 50px; }
-  @media (min-width: 500px) { .pa-ad-slot { max-width: 728px; min-height: 90px; } }
-  @media (min-width: 992px) { .pa-ad-slot { max-width: 970px; min-height: 90px; } }
+  .pa-ad-wrap { display: flex; justify-content: center; align-items: center; margin: 24px 0; }
+  .pa-ad-slot { width: 100%; max-width: 320px; }
+  @media (min-width: 500px) { .pa-ad-slot { max-width: 728px; } }
+  @media (min-width: 992px) { .pa-ad-slot { max-width: 970px; } }
+  /* First-ad-on-page restriction: PurpleAds' own documented mechanism for
+     limiting creative size is the container's own width/height -- so unlike
+     the general slot above (any size, used for the second ad on a page),
+     this one fixes an explicit height matching a real banner size at each
+     breakpoint (300x50/320x50 -> 468x60 -> 728x90 -> 970x90), with
+     overflow hidden as a backstop, so nothing large/vertical can ever
+     render at the top of a page. */
+  .pa-ad-slot-banner { width: 100%; max-width: 320px; height: 50px; overflow: hidden; }
+  @media (min-width: 500px) { .pa-ad-slot-banner { max-width: 468px; height: 60px; } }
+  @media (min-width: 760px) { .pa-ad-slot-banner { max-width: 728px; height: 90px; } }
+  @media (min-width: 992px) { .pa-ad-slot-banner { max-width: 970px; height: 90px; } }
 
   @media (max-height: 700px) {
-    .shopping-list-overlay { padding: 10px; }
-    .shopping-list-modal { padding: 18px; max-height: 92vh; max-height: 92dvh; }
+    .shopping-list-modal { top: 70px; bottom: 10px; padding: 18px; }
     .shopping-list-item { font-size: 12.5px; padding: 6px 0; }
     .shopping-list-item span:first-child { min-width: 52px; }
   }
@@ -1900,8 +1911,8 @@ const styles = `
     body.printing-shopping-list * { visibility: hidden; }
     body.printing-shopping-list .shopping-list-print, body.printing-shopping-list .shopping-list-print * { visibility: visible; }
     body.printing-shopping-list .shopping-list-print { position: absolute; top: 0; left: 0; width: 100%; padding: 20px; }
-    body.printing-shopping-list .shopping-list-overlay { position: static; background: none; padding: 0; }
-    body.printing-shopping-list .shopping-list-modal { box-shadow: none; max-height: none; max-width: 100%; }
+    body.printing-shopping-list .shopping-list-overlay { position: static; background: none; }
+    body.printing-shopping-list .shopping-list-modal { box-shadow: none; max-width: 100%; bottom: auto; overflow: visible; transform: none; }
 
     body.printing-recipe * { visibility: hidden; }
     body.printing-recipe .recipe-print, body.printing-recipe .recipe-print * { visibility: visible; }
@@ -1944,12 +1955,26 @@ const styles = `
   }
 
   .header-nav-mobile { display: none; }
-  @media (max-width: 768px) {
+  @media (max-width: 1100px) {
     .header-nav-desktop { display: none !important; }
     .header-nav-mobile { display: flex !important; }
   }
-  @media (min-width: 769px) {
+  @media (min-width: 1101px) {
     .header-nav-mobile-panel { display: none !important; }
+  }
+  /* Any desktop-width screen with limited vertical space (most small/older
+     laptops, or a browser window that isn't maximised): shrink the homepage
+     headline and map just enough to leave at least ~120px clear beneath the
+     map (room for a 90px ad plus a little breathing room), without shrinking
+     the map so far that it looks disproportionately small next to the
+     full-width carousel below it. Tall desktop screens keep their full
+     current size; mobile is a completely separate layout and is unaffected
+     either way. */
+  @media (min-width: 1101px) and (max-height: 900px) {
+    .ra-home-badge { font-size: 9px !important; }
+    .ra-home-h1 { font-size: 30px !important; }
+    .ra-home-subtitle { font-size: 11px !important; margin-bottom: 18px !important; }
+    .ra-home-map { max-width: 1050px !important; margin-left: auto !important; margin-right: auto !important; margin-bottom: 120px !important; }
   }
 `;
 
@@ -2359,9 +2384,17 @@ function RegionMap({ onSelectRegion }) {
         return null;
       };
 
-      fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
-        .then(r => r.json())
-        .then(world => {
+      Promise.all([
+        fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(r => r.json()),
+        new Promise((resolve) => {
+          const topoImg = new Image();
+          topoImg.crossOrigin = 'anonymous';
+          topoImg.onload = () => resolve(topoImg);
+          topoImg.onerror = () => resolve(null);
+          topoImg.src = 'https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png';
+        })
+      ])
+        .then(([world, topoImg]) => {
           const countries = topojson.feature(world, world.objects.countries);
           const land = {
             type: 'FeatureCollection',
@@ -2379,18 +2412,107 @@ function RegionMap({ onSelectRegion }) {
 
           svg.append('rect').attr('width', w).attr('height', h).attr('fill', 'none');
 
-          // Diagonal gradient sweep across the whole map (not per-country) for a
-          // more modern look — one continuous gradient behind every country path,
-          // rather than each filled with a single flat colour. The map sits on
-          // this orange gradient at rest; hovering applies a single, static
-          // darker orange-black filter to emphasise the region being explored.
           const defs = svg.append('defs');
-          const orangeGrad = defs.append('linearGradient')
+
+          // Real elevation-based terrain texture: samples an actual grayscale
+          // elevation/bump-map image at every point on the map (via the same
+          // projection used for the country shapes, so it stays correctly
+          // aligned), and maps elevation to a brand-orange colour ramp --
+          // faint orange for lowlands, brand orange dominant across most of
+          // the range, deep orange-rust only at genuinely high elevation.
+          // Falls back to the plain two-stop brand gradient if the elevation
+          // image doesn't load, so the map is never left broken.
+          let fillRef = 'url(#ra-map-orange-grad)';
+          const fallbackGrad = defs.append('linearGradient')
             .attr('id', 'ra-map-orange-grad')
             .attr('gradientUnits', 'userSpaceOnUse')
             .attr('x1', 0).attr('y1', 0).attr('x2', w).attr('y2', h);
-          orangeGrad.append('stop').attr('offset', '0%').attr('stop-color', '#c2622a');
-          orangeGrad.append('stop').attr('offset', '100%').attr('stop-color', '#f2822e');
+          fallbackGrad.append('stop').attr('offset', '0%').attr('stop-color', '#c2622a');
+          fallbackGrad.append('stop').attr('offset', '100%').attr('stop-color', '#f2822e');
+
+          if (topoImg) {
+            try {
+              const lerpColor = (c1, c2, t) => [
+                Math.round(c1[0] + (c2[0]-c1[0])*t),
+                Math.round(c1[1] + (c2[1]-c1[1])*t),
+                Math.round(c1[2] + (c2[2]-c1[2])*t)
+              ];
+              const STOPS = [
+                { t: 0.00, color: [235, 158, 96] },
+                { t: 0.22, color: [226, 130, 56] },
+                { t: 0.42, color: [194, 98, 42] },
+                { t: 0.62, color: [150, 75, 35] },
+                { t: 0.80, color: [110, 55, 25] },
+                { t: 1.00, color: [75, 38, 18] },
+              ];
+              const multiLerp = (t) => {
+                t = Math.max(0, Math.min(1, t));
+                for (let i = 0; i < STOPS.length - 1; i++) {
+                  if (t >= STOPS[i].t && t <= STOPS[i+1].t) {
+                    const localT = (t - STOPS[i].t) / (STOPS[i+1].t - STOPS[i].t);
+                    return lerpColor(STOPS[i].color, STOPS[i+1].color, localT);
+                  }
+                }
+                return STOPS[STOPS.length-1].color;
+              };
+
+              const sampleCanvas = document.createElement('canvas');
+              sampleCanvas.width = topoImg.width;
+              sampleCanvas.height = topoImg.height;
+              const sctx = sampleCanvas.getContext('2d');
+              sctx.drawImage(topoImg, 0, 0);
+              const texData = sctx.getImageData(0, 0, topoImg.width, topoImg.height).data;
+              const texW = topoImg.width, texH = topoImg.height;
+
+              let minB = 255, maxB = 0;
+              for (let i = 0; i < texData.length; i += 4) {
+                const v = texData[i];
+                if (v < minB) minB = v;
+                if (v > maxB) maxB = v;
+              }
+
+              const outCanvas = document.createElement('canvas');
+              outCanvas.width = w; outCanvas.height = h;
+              const octx = outCanvas.getContext('2d');
+              const outImg = octx.createImageData(w, h);
+
+              const FLOOR = 0.22;
+              const FLOOR_TEXTURE = 0.22;
+
+              for (let py = 0; py < h; py++) {
+                for (let px = 0; px < w; px++) {
+                  const lonlat = projection.invert([px, py]);
+                  const idx = (py * w + px) * 4;
+                  if (!lonlat || isNaN(lonlat[0]) || isNaN(lonlat[1])) { outImg.data[idx+3] = 0; continue; }
+                  let [lon, lat] = lonlat;
+                  let tx = Math.max(0, Math.min(texW - 1, Math.floor((lon + 180) / 360 * texW)));
+                  let ty = Math.max(0, Math.min(texH - 1, Math.floor((90 - lat) / 180 * texH)));
+                  const raw = texData[(ty * texW + tx) * 4];
+                  let norm = (raw - minB) / (maxB - minB);
+                  let t;
+                  if (norm < FLOOR) {
+                    t = (norm / FLOOR) * FLOOR_TEXTURE;
+                  } else {
+                    const upperT = (norm - FLOOR) / (1 - FLOOR);
+                    t = FLOOR_TEXTURE + Math.pow(upperT, 0.5) * (1 - FLOOR_TEXTURE);
+                  }
+                  const [r,g,b] = multiLerp(t);
+                  outImg.data[idx] = r; outImg.data[idx+1] = g; outImg.data[idx+2] = b; outImg.data[idx+3] = 255;
+                }
+              }
+              octx.putImageData(outImg, 0, 0);
+              const dataUrl = outCanvas.toDataURL();
+
+              const pattern = defs.append('pattern').attr('id', 'ra-elev-pattern')
+                .attr('patternUnits', 'userSpaceOnUse')
+                .attr('width', w).attr('height', h).attr('x', 0).attr('y', 0);
+              pattern.append('image').attr('href', dataUrl).attr('width', w).attr('height', h);
+              fillRef = 'url(#ra-elev-pattern)';
+            } catch (e) {
+              // Sampling failed for any reason (e.g. browser canvas
+              // restriction) -- fillRef stays the plain fallback gradient.
+            }
+          }
 
           const DARK = '#1a1714';
           const HOVER_FILL = '#61361d';
@@ -2428,7 +2550,7 @@ function RegionMap({ onSelectRegion }) {
             .data(exploded)
             .enter().append('path')
             .attr('d', path)
-            .attr('fill', d => { const rid = regionOf(d); return rid ? 'url(#ra-map-orange-grad)' : DARK; })
+            .attr('fill', d => { const rid = regionOf(d); return rid ? fillRef : DARK; })
             .attr('stroke', '#4a4237')
             .attr('stroke-width', 0.5)
             .style('cursor', 'pointer')
@@ -2444,7 +2566,7 @@ function RegionMap({ onSelectRegion }) {
             })
             .on('mouseout', function(event, d) {
               const rid = regionOf(d);
-              d3.select(this).attr('fill', rid ? 'url(#ra-map-orange-grad)' : DARK).attr('stroke-width', 0.5);
+              d3.select(this).attr('fill', rid ? fillRef : DARK).attr('stroke-width', 0.5);
               if (tip) tip.style.display = 'none';
             })
             .on('click', function(event, d) {
@@ -2495,7 +2617,7 @@ function RegionMap({ onSelectRegion }) {
   return (
     <div>
       <div style={{ textAlign:"center", marginBottom:16 }}>
-        <div style={{ display:"inline-block", background:"#fdf3ed", borderRadius:100, padding:"6px 16px", fontSize:11, fontWeight:700, color:"#c2622a", letterSpacing:".08em", textTransform:"uppercase", fontFamily:"Plus Jakarta Sans", marginBottom:12 }}>
+        <div className="ra-home-badge" style={{ display:"inline-block", background:"#fdf3ed", borderRadius:100, padding:"6px 16px", fontSize:11, fontWeight:700, color:"#c2622a", letterSpacing:".08em", textTransform:"uppercase", fontFamily:"Plus Jakarta Sans", marginBottom:12 }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{display:"inline",verticalAlign:"middle",marginRight:4}}>
                 <circle cx="14" cy="12" r="8" stroke="#c2622a" strokeWidth="2" fill="none"/>
                 <path d="M6 12 Q14 8 22 12" stroke="#c2622a" strokeWidth="1.5" fill="none"/>
@@ -2507,17 +2629,17 @@ function RegionMap({ onSelectRegion }) {
                 <path d="M1 9 Q3 13 5 9" stroke="#c2622a" strokeWidth="1.5" fill="none"/>
               </svg> World Cuisine Explorer
         </div>
-        <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(26px,4vw,48px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>
+        <h1 className="ra-home-h1" style={{ fontFamily:"Fraunces", fontSize:"clamp(26px,4vw,48px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>
           What would you like to cook?
         </h1>
-        <p style={{ fontSize:"clamp(13px,1.5vw,16px)", color:"#9a9088", maxWidth:480, margin:"0 auto 24px", lineHeight:1.7 }}>
+        <p className="ra-home-subtitle" style={{ fontSize:"clamp(13px,1.5vw,16px)", color:"#9a9088", maxWidth:480, margin:"0 auto 24px", lineHeight:1.7 }}>
           Choose a region to explore its most beloved dishes and get the full recipe.
         </p>
       </div>
 
       {/* Interactive world map */}
-      <div id="ra-world-map" style={{ width:"100%", borderRadius:12, overflow:"hidden", background:"transparent", marginBottom:93 }}></div>
-      <PurpleAdSlot />
+      <div id="ra-world-map" className="ra-home-map" style={{ width:"100%", borderRadius:12, overflow:"hidden", background:"transparent", marginBottom:93 }}></div>
+      <PurpleAdSlot variant="banner" />
       <div id="ra-map-tip" style={{ position:"fixed", background:"rgba(26,23,20,.9)", color:"#fff", padding:"6px 14px", borderRadius:8, fontSize:13, fontWeight:600, pointerEvents:"none", display:"none", zIndex:999, whiteSpace:"nowrap" }}></div>
 
 
@@ -2578,7 +2700,7 @@ function RegionMap({ onSelectRegion }) {
   );
 }
 
-function PurpleAdSlot() {
+function PurpleAdSlot({ variant }) {
   const containerRef = useRef(null);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -2594,11 +2716,14 @@ function PurpleAdSlot() {
 
     // Stability-window collapse: wait for the slot's rendered height to stop
     // changing (so we don't catch a creative mid-resize), then only collapse
-    // if it settled essentially empty -- i.e. genuinely no fill, not just slow to load.
+    // if it settled essentially empty AND no extra content was ever injected
+    // beyond our own script tag -- two independent signals agreeing, rather
+    // than relying on height alone (which CSS sizing can distort).
     let stableCount = 0;
     let lastHeight = -1;
     const checkInterval = setInterval(() => {
       const h = el.scrollHeight;
+      const hasExtraContent = el.children.length > 1;
       if (h === lastHeight) {
         stableCount++;
       } else {
@@ -2606,7 +2731,7 @@ function PurpleAdSlot() {
         lastHeight = h;
       }
       if (stableCount >= 3) {
-        if (h < 10) setCollapsed(true);
+        if (h < 10 && !hasExtraContent) setCollapsed(true);
         clearInterval(checkInterval);
       }
     }, 500);
@@ -2622,7 +2747,7 @@ function PurpleAdSlot() {
 
   return (
     <div className="pa-ad-wrap no-print">
-      <div ref={containerRef} className="pa-ad-slot" />
+      <div ref={containerRef} className={variant === 'banner' ? 'pa-ad-slot-banner' : 'pa-ad-slot'} />
     </div>
   );
 }
@@ -2633,6 +2758,7 @@ function RegionView({ regionId, onBack, onSelectCountry }) {
   const regionRecipeKeys = Object.keys(RECIPE_DB).filter(k => region.countries.includes(RECIPE_DB[k].country));
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
+      <PurpleAdSlot variant="banner" />
       <button onClick={onBack}
         style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
         ← All Regions
@@ -2672,6 +2798,7 @@ function CountryView({ country, onBack, onSelectDish }) {
 
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
+      <PurpleAdSlot variant="banner" />
       <button onClick={onBack}
         style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
         ← Back
@@ -3021,19 +3148,6 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
   const [loading, setLoading] = useState(true);
   const [scaleServings, setScaleServings] = useState(null);
   const [showShoppingList, setShowShoppingList] = useState(false);
-  const [modalMaxHeight, setModalMaxHeight] = useState(600);
-
-  useEffect(() => {
-    if (!showShoppingList) return;
-    const updateHeight = () => setModalMaxHeight(Math.min(window.innerHeight * 0.85, window.innerHeight - 40));
-    updateHeight();
-    window.addEventListener('resize', updateHeight);
-    window.addEventListener('orientationchange', updateHeight);
-    return () => {
-      window.removeEventListener('resize', updateHeight);
-      window.removeEventListener('orientationchange', updateHeight);
-    };
-  }, [showShoppingList]);
   const [copyFeedback, setCopyFeedback] = useState(false);
   const [shareFeedback, setShareFeedback] = useState(false);
   const [recipeShareFeedback, setRecipeShareFeedback] = useState(false);
@@ -3067,7 +3181,7 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
 
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
-      <PurpleAdSlot />
+      <PurpleAdSlot variant="banner" />
       <button onClick={onBack}
         style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
         ← Back to {country || recipeCountry}
@@ -3172,7 +3286,6 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
             {showShoppingList && (
               <div className="shopping-list-overlay" onClick={() => setShowShoppingList(false)}>
                 <div className="shopping-list-modal shopping-list-print"
-                  style={{ maxHeight: modalMaxHeight }}
                   onClick={(e) => e.stopPropagation()}>
                   <button onClick={() => setShowShoppingList(false)} className="no-print"
                     style={{ position:"absolute", top:16, right:16, background:"none", border:"none", fontSize:20, color:"#b8b0a8", cursor:"pointer", lineHeight:1, padding:4 }}
@@ -3269,6 +3382,7 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
               </button>
             </div>
             </div>
+            <PurpleAdSlot />
 
             <CommentSection dish={dish} />
 
@@ -3450,7 +3564,7 @@ function EventDetailView({ eventSlug, onBack, navigate }) {
   }
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
-      <PurpleAdSlot />
+      <PurpleAdSlot variant="banner" />
       <button onClick={onBack}
         style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
         ← Back to events
@@ -3507,6 +3621,7 @@ function EventDetailView({ eventSlug, onBack, navigate }) {
         </div>
       )}
       </div>
+      <PurpleAdSlot />
     </div>
   );
 }
@@ -4978,7 +5093,7 @@ function BlogPage({ initialSlug, navigate }) {
     const post = BLOG_POSTS[activePost];
     return (
       <div style={{ maxWidth:1070, margin:"0 auto" }}>
-        <PurpleAdSlot />
+        <PurpleAdSlot variant="banner" />
         <button onClick={closePost}
           style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", marginBottom:20, padding:0, display:"flex", alignItems:"center", gap:6 }}>
           ← Back to Blog
@@ -5001,6 +5116,7 @@ function BlogPage({ initialSlug, navigate }) {
             ) : null
           ))}
         </div>
+        <PurpleAdSlot />
       </div>
     );
   }
