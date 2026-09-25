@@ -1891,10 +1891,10 @@ const styles = `
      breakpoint (300x50/320x50 -> 468x60 -> 728x90 -> 970x90), with
      overflow hidden as a backstop, so nothing large/vertical can ever
      render at the top of a page. */
-  .pa-ad-slot-banner { width: 100%; max-width: 320px; height: 50px; overflow: hidden; }
-  @media (min-width: 500px) { .pa-ad-slot-banner { max-width: 468px; height: 60px; } }
-  @media (min-width: 760px) { .pa-ad-slot-banner { max-width: 728px; height: 90px; } }
-  @media (min-width: 992px) { .pa-ad-slot-banner { max-width: 970px; height: 90px; } }
+  .pa-ad-slot-banner { width: 100%; max-width: 320px; max-height: 50px; overflow: hidden; }
+  @media (min-width: 500px) { .pa-ad-slot-banner { max-width: 468px; max-height: 60px; } }
+  @media (min-width: 760px) { .pa-ad-slot-banner { max-width: 728px; max-height: 90px; } }
+  @media (min-width: 992px) { .pa-ad-slot-banner { max-width: 970px; max-height: 90px; } }
 
   @media (max-height: 700px) {
     .shopping-list-modal { top: 70px; bottom: 10px; padding: 18px; }
@@ -2672,7 +2672,7 @@ function RegionMap({ onSelectRegion }) {
 
 
       {/* World Classics carousel */}
-      <ClassicsCarousel marginTop={32} marginBottom={48} />
+      <ClassicsCarousel marginTop={32} marginBottom={93} />
 
 
       {/* Region buttons */}
