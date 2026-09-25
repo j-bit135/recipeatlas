@@ -2762,7 +2762,7 @@ function PurpleAdSlot({ variant, lazy }) {
         setShouldLoad(true);
         observer.disconnect();
       }
-    }, { rootMargin: '400px 0px' });
+    }, { rootMargin: '0px' });
     observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, [lazy, shouldLoad]);
