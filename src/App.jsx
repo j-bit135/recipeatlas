@@ -2049,7 +2049,7 @@ function AdSlot({ unit, style }) {
   );
 }
 
-function DishCarousel({ dishKeys, title, subtitle, idPrefix }) {
+function DishCarousel({ dishKeys, title, subtitle, idPrefix, marginTop = 0, marginBottom = 93 }) {
   const { navigate } = useAppNavigate();
   const dishes = dishKeys.filter(k => RECIPE_DB[k]).map(k => ({ key: k, ...RECIPE_DB[k] }));
   const scrollRef = useRef(null);
@@ -2090,7 +2090,7 @@ function DishCarousel({ dishKeys, title, subtitle, idPrefix }) {
   };
 
   return (
-    <div style={{ marginBottom:93 }}>
+    <div style={{ marginTop, marginBottom }}>
       <div style={{ marginBottom:16 }}>
         <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#1a1714", margin:0 }}>{title}</h2>
         <p style={{ fontSize:13, color:"#9a9088", margin:"4px 0 0" }}>{subtitle}</p>
@@ -2208,8 +2208,8 @@ function BlogHighlightsSection() {
   );
 }
 
-function ClassicsCarousel() {
-  return <DishCarousel dishKeys={CLASSIC_DISH_KEYS} idPrefix="classics"
+function ClassicsCarousel({ marginTop, marginBottom }) {
+  return <DishCarousel dishKeys={CLASSIC_DISH_KEYS} idPrefix="classics" marginTop={marginTop} marginBottom={marginBottom}
     title="World Classics" subtitle="Swipe, drag or use the arrows to explore beloved dishes from every corner of the globe" />;
 }
 
@@ -2672,7 +2672,7 @@ function RegionMap({ onSelectRegion }) {
 
 
       {/* World Classics carousel */}
-      <ClassicsCarousel />
+      <ClassicsCarousel marginTop={32} marginBottom={48} />
 
 
       {/* Region buttons */}
