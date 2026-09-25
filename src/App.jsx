@@ -1962,19 +1962,25 @@ const styles = `
   @media (min-width: 1101px) {
     .header-nav-mobile-panel { display: none !important; }
   }
-  /* Any desktop-width screen with limited vertical space (most small/older
-     laptops, or a browser window that isn't maximised): shrink the homepage
-     headline and map just enough to leave at least ~120px clear beneath the
-     map (room for a 90px ad plus a little breathing room), without shrinking
-     the map so far that it looks disproportionately small next to the
-     full-width carousel below it. Tall desktop screens keep their full
-     current size; mobile is a completely separate layout and is unaffected
-     either way. */
-  @media (min-width: 1101px) and (max-height: 900px) {
+  /* Desktop only (mobile is a separate layout, unaffected). The headline
+     block uses a fixed, moderately-reduced size -- this was already
+     confirmed to look right and isn't the thing that needs to flex.
+     The map is the one that needs to actually respond to available space:
+     its max-width is calculated directly from real viewport height, not a
+     fixed breakpoint, so on any screen -- 14" laptop or otherwise -- there
+     is always at least ~120px clear beneath it for the ad, without ever
+     needing a device-specific number. Reserves roughly: header + headline
+     block + the ad's own space, then sizes the map (height = width * 0.52,
+     matching the map's own draw logic) to fit whatever's left, clamped
+     between a sensible minimum and its normal full size. */
+  @media (min-width: 1101px) {
     .ra-home-badge { font-size: 9px !important; }
     .ra-home-h1 { font-size: 30px !important; }
     .ra-home-subtitle { font-size: 11px !important; margin-bottom: 18px !important; }
-    .ra-home-map { max-width: 1050px !important; margin-left: auto !important; margin-right: auto !important; margin-bottom: 120px !important; }
+    .ra-home-map {
+      max-width: clamp(320px, calc((100vh - 450px) / 0.52), 1050px) !important;
+      margin-left: auto !important; margin-right: auto !important; margin-bottom: 120px !important;
+    }
   }
 `;
 
@@ -2674,7 +2680,7 @@ function RegionMap({ onSelectRegion }) {
           </div>
         ))}
       </div>
-      <PurpleAdSlot />
+      <PurpleAdSlot lazy />
 
 
       {/* Recipe inspiration */}
@@ -2712,35 +2718,63 @@ function RegionMap({ onSelectRegion }) {
 const purpleAdRegistry = new Map();
 
 function ensurePurpleUnfilledHandler() {
-  window.purpleDisplay = window.purpleDisplay || {};
-  if (window.purpleDisplay.onUnfilled) return;
-  window.purpleDisplay.onUnfilled = function(placement) {
-    const setCollapsed = purpleAdRegistry.get(placement.element);
-    if (setCollapsed) setCollapsed(true);
-  };
+  // Best-effort only: this must never be able to stop the ad script itself
+  // from loading. If anything here throws for any reason, the collapse
+  // feature is simply lost for this page view -- ads still load and serve
+  // normally, which is a far better failure mode than losing ads entirely.
+  try {
+    window.purpleDisplay = window.purpleDisplay || {};
+    if (window.purpleDisplay.onUnfilled) return;
+    window.purpleDisplay.onUnfilled = function(placement) {
+      try {
+        const setCollapsed = purpleAdRegistry.get(placement.element);
+        if (setCollapsed) setCollapsed(true);
+      } catch (e) {}
+    };
+  } catch (e) {}
 }
 
-function PurpleAdSlot({ variant }) {
+function loadPurpleAd(el, setCollapsed) {
+  // The ad script itself is always appended first and unconditionally --
+  // nothing above this can prevent it from loading.
+  const script = document.createElement('script');
+  script.src = "https://cdn.prplads.com/agent.js?publisherId=fa39bc0409f74281489dbfa3a0c72c01:b9db810c103e05c40722e0ed383f723eeaaf6c9bb8e13a5a2956ba57898db08e9ffc1d6d9334aa154c2d7182dac67f9538334833ef17b003beb7026b0bd172fd";
+  script.async = true;
+  script.setAttribute('data-pa-tag', '');
+  el.appendChild(script);
+
+  ensurePurpleUnfilledHandler();
+  purpleAdRegistry.set(el, setCollapsed);
+}
+
+function PurpleAdSlot({ variant, lazy }) {
   const containerRef = useRef(null);
   const [collapsed, setCollapsed] = useState(false);
+  const [shouldLoad, setShouldLoad] = useState(!lazy);
+
+  // Lazy variant: don't request the ad at all until the slot is about to
+  // scroll into view. Avoids spending an ad request on visitors who never
+  // scroll that far, and keeps the initial page load lighter.
+  useEffect(() => {
+    if (!lazy || shouldLoad || !containerRef.current) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        setShouldLoad(true);
+        observer.disconnect();
+      }
+    }, { rootMargin: '400px 0px' });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [lazy, shouldLoad]);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!shouldLoad || !containerRef.current) return;
     const el = containerRef.current;
-
-    ensurePurpleUnfilledHandler();
-    purpleAdRegistry.set(el, setCollapsed);
-
-    const script = document.createElement('script');
-    script.src = "https://cdn.prplads.com/agent.js?publisherId=fa39bc0409f74281489dbfa3a0c72c01:b9db810c103e05c40722e0ed383f723eeaaf6c9bb8e13a5a2956ba57898db08e9ffc1d6d9334aa154c2d7182dac67f9538334833ef17b003beb7026b0bd172fd";
-    script.async = true;
-    script.setAttribute('data-pa-tag', '');
-    el.appendChild(script);
-
+    loadPurpleAd(el, setCollapsed);
     return () => {
       purpleAdRegistry.delete(el);
     };
-  }, []);
+  }, [shouldLoad]);
 
   if (collapsed) return null;
 
@@ -2782,7 +2816,7 @@ function RegionView({ regionId, onBack, onSelectCountry }) {
           ))}
         </div>
       </div>
-      <PurpleAdSlot />
+      <PurpleAdSlot lazy />
       <RecipeInspiration recipes={getRandomRecipes(regionRecipeKeys, 3)} pool={regionRecipeKeys} title="Recipe Inspiration" />
     </div>
   );
@@ -2820,7 +2854,7 @@ function CountryView({ country, onBack, onSelectDish }) {
           ))}
         </div>
       </div>
-      <PurpleAdSlot />
+      <PurpleAdSlot lazy />
       <RecipeInspiration recipes={getRandomRecipes(countryRecipeKeys, 3)} pool={countryRecipeKeys} title="Recipe Inspiration" />
     </div>
   );
@@ -3381,7 +3415,7 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
               </button>
             </div>
             </div>
-            <PurpleAdSlot />
+            <PurpleAdSlot lazy />
 
             <CommentSection dish={dish} />
 
@@ -3620,7 +3654,7 @@ function EventDetailView({ eventSlug, onBack, navigate }) {
         </div>
       )}
       </div>
-      <PurpleAdSlot />
+      <PurpleAdSlot lazy />
     </div>
   );
 }
@@ -5115,7 +5149,7 @@ function BlogPage({ initialSlug, navigate }) {
             ) : null
           ))}
         </div>
-        <PurpleAdSlot />
+        <PurpleAdSlot lazy />
       </div>
     );
   }
