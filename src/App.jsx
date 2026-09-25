@@ -2700,6 +2700,26 @@ function RegionMap({ onSelectRegion }) {
   );
 }
 
+// A single global registry mapping each ad slot's DOM element to its React
+// collapse-setter. PurpleAds' own API (window.purpleDisplay.onUnfilled) is
+// one shared function for the whole page, called directly by their script
+// the moment a specific banner is confirmed unfilled (no demand, or their
+// request timed out) -- not a guess based on rendered size or DOM content,
+// but the real, documented signal from PurpleAds itself. Since multiple
+// PurpleAdSlot instances can exist on one page, each instance registers
+// itself here on mount so the single shared callback can find and collapse
+// the right one using the `element` PurpleAds hands back.
+const purpleAdRegistry = new Map();
+
+function ensurePurpleUnfilledHandler() {
+  window.purpleDisplay = window.purpleDisplay || {};
+  if (window.purpleDisplay.onUnfilled) return;
+  window.purpleDisplay.onUnfilled = function(placement) {
+    const setCollapsed = purpleAdRegistry.get(placement.element);
+    if (setCollapsed) setCollapsed(true);
+  };
+}
+
 function PurpleAdSlot({ variant }) {
   const containerRef = useRef(null);
   const [collapsed, setCollapsed] = useState(false);
@@ -2708,39 +2728,17 @@ function PurpleAdSlot({ variant }) {
     if (!containerRef.current) return;
     const el = containerRef.current;
 
+    ensurePurpleUnfilledHandler();
+    purpleAdRegistry.set(el, setCollapsed);
+
     const script = document.createElement('script');
     script.src = "https://cdn.prplads.com/agent.js?publisherId=fa39bc0409f74281489dbfa3a0c72c01:b9db810c103e05c40722e0ed383f723eeaaf6c9bb8e13a5a2956ba57898db08e9ffc1d6d9334aa154c2d7182dac67f9538334833ef17b003beb7026b0bd172fd";
     script.async = true;
     script.setAttribute('data-pa-tag', '');
     el.appendChild(script);
 
-    // Stability-window collapse: wait for a few checks (so we don't judge an
-    // ad that's still loading), then collapse based on whether the ad script
-    // ever actually injected any content of its own beyond our script tag --
-    // NOT on the container's rendered height. Height is unreliable here: the
-    // banner-restricted variant sets an explicit CSS height so it can never
-    // measure below that value even with zero fill, which would otherwise
-    // stop the collapse check from ever firing on that variant.
-    let stableCount = 0;
-    let lastContentState = null;
-    const checkInterval = setInterval(() => {
-      const hasExtraContent = el.children.length > 1;
-      if (hasExtraContent === lastContentState) {
-        stableCount++;
-      } else {
-        stableCount = 0;
-        lastContentState = hasExtraContent;
-      }
-      if (stableCount >= 3) {
-        if (!hasExtraContent) setCollapsed(true);
-        clearInterval(checkInterval);
-      }
-    }, 500);
-    const maxTimeout = setTimeout(() => clearInterval(checkInterval), 8000);
-
     return () => {
-      clearInterval(checkInterval);
-      clearTimeout(maxTimeout);
+      purpleAdRegistry.delete(el);
     };
   }, []);
 
