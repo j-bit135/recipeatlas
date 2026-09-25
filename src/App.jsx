@@ -1965,22 +1965,13 @@ const styles = `
   /* Desktop only (mobile is a separate layout, unaffected). The headline
      block uses a fixed, moderately-reduced size -- this was already
      confirmed to look right and isn't the thing that needs to flex.
-     The map is the one that needs to actually respond to available space:
-     its max-width is calculated directly from real viewport height, not a
-     fixed breakpoint, so on any screen -- 14" laptop or otherwise -- there
-     is always at least ~120px clear beneath it for the ad, without ever
-     needing a device-specific number. Reserves roughly: header + headline
-     block + the ad's own space, then sizes the map (height = width * 0.52,
-     matching the map's own draw logic) to fit whatever's left, clamped
-     between a sensible minimum and its normal full size. */
+     The map's own sizing is now computed in JS from real measured layout
+     (see RegionMap), not a CSS formula with an estimated constant -- that
+     was producing inaccurate results on real screens. */
   @media (min-width: 1101px) {
     .ra-home-badge { font-size: 9px !important; }
     .ra-home-h1 { font-size: 30px !important; }
     .ra-home-subtitle { font-size: 11px !important; margin-bottom: 18px !important; }
-    .ra-home-map {
-      max-width: clamp(320px, calc((100vh - 450px) / 0.52), 1050px) !important;
-      margin-left: auto !important; margin-right: auto !important; margin-bottom: 120px !important;
-    }
   }
 `;
 
@@ -2290,6 +2281,37 @@ function useAppNavigate() {
 
 function RegionMap({ onSelectRegion }) {
   const [hovered, setHovered] = useState(null);
+  const textBlockRef = useRef(null);
+  const [mapMaxWidth, setMapMaxWidth] = useState(1050);
+  const [mapMarginBottom, setMapMarginBottom] = useState(93);
+
+  // Measures real, actual rendered space rather than guessing at a fixed
+  // reserved-pixel constant: takes the true bottom edge of the header+headline
+  // block (whatever it actually rendered at, on this exact page), and fits
+  // the map into whatever's genuinely left before the ad needs its own room.
+  // Recalculates on resize, so it keeps adapting rather than being tuned for
+  // one specific screen size. Desktop only -- mobile keeps its existing,
+  // unrelated layout and spacing untouched.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.innerWidth < 1101) { setMapMarginBottom(93); return; }
+    const AD_SPACE = 140; // the ad wrap's own ~24px top margin + ~90px ad height + a little buffer
+    const MIN_MAP = 320, MAX_MAP = 1050;
+    const recalc = () => {
+      if (window.innerWidth < 1101) { setMapMarginBottom(93); return; }
+      if (!textBlockRef.current) return;
+      const textBottom = textBlockRef.current.getBoundingClientRect().bottom;
+      const available = window.innerHeight - textBottom - AD_SPACE;
+      const widthForHeight = available / 0.52;
+      setMapMaxWidth(Math.max(MIN_MAP, Math.min(MAX_MAP, widthForHeight)));
+      setMapMarginBottom(0);
+    };
+    recalc();
+    let resizeTimer;
+    const onResize = () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(recalc, 100); };
+    window.addEventListener('resize', onResize);
+    return () => { window.removeEventListener('resize', onResize); clearTimeout(resizeTimer); };
+  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -2622,7 +2644,7 @@ function RegionMap({ onSelectRegion }) {
 
   return (
     <div>
-      <div style={{ textAlign:"center", marginBottom:16 }}>
+      <div style={{ textAlign:"center", marginBottom:16 }} ref={textBlockRef}>
         <div className="ra-home-badge" style={{ display:"inline-block", background:"#fdf3ed", borderRadius:100, padding:"6px 16px", fontSize:11, fontWeight:700, color:"#c2622a", letterSpacing:".08em", textTransform:"uppercase", fontFamily:"Plus Jakarta Sans", marginBottom:12 }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{display:"inline",verticalAlign:"middle",marginRight:4}}>
                 <circle cx="14" cy="12" r="8" stroke="#c2622a" strokeWidth="2" fill="none"/>
@@ -2644,7 +2666,7 @@ function RegionMap({ onSelectRegion }) {
       </div>
 
       {/* Interactive world map */}
-      <div id="ra-world-map" className="ra-home-map" style={{ width:"100%", borderRadius:12, overflow:"hidden", background:"transparent", marginBottom:93 }}></div>
+      <div id="ra-world-map" className="ra-home-map" style={{ width:"100%", maxWidth:mapMaxWidth, marginLeft:"auto", marginRight:"auto", borderRadius:12, overflow:"hidden", background:"transparent", marginBottom:mapMarginBottom }}></div>
       <PurpleAdSlot variant="banner" />
       <div id="ra-map-tip" style={{ position:"fixed", background:"rgba(26,23,20,.9)", color:"#fff", padding:"6px 14px", borderRadius:8, fontSize:13, fontWeight:600, pointerEvents:"none", display:"none", zIndex:999, whiteSpace:"nowrap" }}></div>
 
@@ -4713,9 +4735,9 @@ function App() {
             {view === "regions"  && <RegionMap onSelectRegion={goToRegion} />}
             {view === "region"   && selectedRegion && <RegionView regionId={selectedRegion} onBack={goToRegions} onSelectCountry={goToCountry} />}
             {view === "country"  && selectedCountry && <CountryView country={selectedCountry} onBack={goToRegionBack} onSelectDish={goToDish} />}
-            {view === "recipe"   && selectedDish && <RecipeView country={recipeCountry || selectedCountry} dish={selectedDish} navigate={navigate} onRatingChange={setCurrentRating} onBack={() => { const r = REGIONS.find(r => r.countries?.includes(recipeCountry)); navigate(recipeCountry && r ? `/${r.id}/${slugify(recipeCountry)}` : '/'); }} />}
+            {view === "recipe"   && selectedDish && <RecipeView key={selectedDish} country={recipeCountry || selectedCountry} dish={selectedDish} navigate={navigate} onRatingChange={setCurrentRating} onBack={() => { const r = REGIONS.find(r => r.countries?.includes(recipeCountry)); navigate(recipeCountry && r ? `/${r.id}/${slugify(recipeCountry)}` : '/'); }} />}
             {view === "events"   && <EventsListView navigate={navigate} />}
-            {view === "event"    && selectedEventSlug && <EventDetailView eventSlug={selectedEventSlug} navigate={navigate} onBack={() => navigate('/events')} />}
+            {view === "event"    && selectedEventSlug && <EventDetailView key={selectedEventSlug} eventSlug={selectedEventSlug} navigate={navigate} onBack={() => navigate('/events')} />}
             {(view === "region" && !selectedRegion) && <RegionMap onSelectRegion={goToRegion} />}
             {(view === "country" && !selectedCountry) && <RegionMap onSelectRegion={goToRegion} />}
             {(view === "recipe" && !selectedDish) && <RegionMap onSelectRegion={goToRegion} />}
