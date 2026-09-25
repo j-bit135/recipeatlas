@@ -2711,6 +2711,7 @@ function RegionMap({ onSelectRegion }) {
 
       {/* What's on this month */}
       <EventsThisMonthCarousel spacing={93} />
+      <PurpleAdSlot lazy />
 
 
       {/* Sandwiches carousel */}
@@ -3492,6 +3493,8 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
                 </div>
               );
             })()}
+
+            <PurpleAdSlot lazy />
 
           </div>
         ) : (
