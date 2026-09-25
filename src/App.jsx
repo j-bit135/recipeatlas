@@ -2714,24 +2714,25 @@ function PurpleAdSlot({ variant }) {
     script.setAttribute('data-pa-tag', '');
     el.appendChild(script);
 
-    // Stability-window collapse: wait for the slot's rendered height to stop
-    // changing (so we don't catch a creative mid-resize), then only collapse
-    // if it settled essentially empty AND no extra content was ever injected
-    // beyond our own script tag -- two independent signals agreeing, rather
-    // than relying on height alone (which CSS sizing can distort).
+    // Stability-window collapse: wait for a few checks (so we don't judge an
+    // ad that's still loading), then collapse based on whether the ad script
+    // ever actually injected any content of its own beyond our script tag --
+    // NOT on the container's rendered height. Height is unreliable here: the
+    // banner-restricted variant sets an explicit CSS height so it can never
+    // measure below that value even with zero fill, which would otherwise
+    // stop the collapse check from ever firing on that variant.
     let stableCount = 0;
-    let lastHeight = -1;
+    let lastContentState = null;
     const checkInterval = setInterval(() => {
-      const h = el.scrollHeight;
       const hasExtraContent = el.children.length > 1;
-      if (h === lastHeight) {
+      if (hasExtraContent === lastContentState) {
         stableCount++;
       } else {
         stableCount = 0;
-        lastHeight = h;
+        lastContentState = hasExtraContent;
       }
       if (stableCount >= 3) {
-        if (h < 10 && !hasExtraContent) setCollapsed(true);
+        if (!hasExtraContent) setCollapsed(true);
         clearInterval(checkInterval);
       }
     }, 500);
