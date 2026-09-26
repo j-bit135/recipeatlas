@@ -4646,7 +4646,7 @@ function App() {
   const pantryPillMobile = (
     <span onClick={() => navigate('/pantry-to-plate')}
       style={{ display:"inline-flex", alignItems:"center", gap:8, cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
-        color:"#c2622a", padding:"6px 0", borderBottom: view==="pantry-to-plate" ? "3.5px solid #c2622a" : "3.5px solid transparent" }}>
+        color:"#c2622a", padding:"6px 0", borderBottom: view==="pantry-to-plate" ? "2px solid #c2622a" : "2px solid transparent" }}>
       🥕 Pantry to Plate
     </span>
   );
@@ -4654,7 +4654,7 @@ function App() {
   const blogPillMobile = (
     <span onClick={() => navigate('/blog')}
       style={{ display:"inline-flex", alignItems:"center", gap:8, cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
-        color:"#c2622a", padding:"6px 0", borderBottom: view==="blog" ? "3.5px solid #c2622a" : "3.5px solid transparent" }}>
+        color:"#c2622a", padding:"6px 0", borderBottom: view==="blog" ? "2px solid #c2622a" : "2px solid transparent" }}>
       📖 Blog
     </span>
   );
@@ -4662,7 +4662,7 @@ function App() {
   const eventsPillMobile = (
     <span onClick={() => navigate('/events')}
       style={{ display:"inline-flex", alignItems:"center", gap:8, cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
-        color:"#c2622a", padding:"6px 0", borderBottom: (view==="events"||view==="event") ? "3.5px solid #c2622a" : "3.5px solid transparent" }}>
+        color:"#c2622a", padding:"6px 0", borderBottom: (view==="events"||view==="event") ? "2px solid #c2622a" : "2px solid transparent" }}>
       🎉 Events
     </span>
   );
@@ -4670,7 +4670,7 @@ function App() {
   const pantryPill = (
     <span onClick={() => navigate('/pantry-to-plate')}
       style={{ display:"inline-flex", alignItems:"center", gap:6, cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
-        color:"#c2622a", paddingBottom:3, borderBottom: view==="pantry-to-plate" ? "3.5px solid #c2622a" : "3.5px solid transparent" }}>
+        color:"#c2622a", paddingBottom:3, borderBottom: view==="pantry-to-plate" ? "2px solid #c2622a" : "2px solid transparent" }}>
       🥕 Pantry to Plate
     </span>
   );
@@ -4678,7 +4678,7 @@ function App() {
   const blogPill = (
     <span onClick={() => navigate('/blog')}
       style={{ display:"inline-flex", alignItems:"center", gap:6, cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
-        color:"#c2622a", paddingBottom:3, borderBottom: view==="blog" ? "3.5px solid #c2622a" : "3.5px solid transparent" }}>
+        color:"#c2622a", paddingBottom:3, borderBottom: view==="blog" ? "2px solid #c2622a" : "2px solid transparent" }}>
       📖 Blog
     </span>
   );
@@ -4686,7 +4686,7 @@ function App() {
   const eventsPill = (
     <span onClick={() => navigate('/events')}
       style={{ display:"inline-flex", alignItems:"center", gap:6, cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
-        color:"#c2622a", paddingBottom:3, borderBottom: (view==="events"||view==="event") ? "3.5px solid #c2622a" : "3.5px solid transparent" }}>
+        color:"#c2622a", paddingBottom:3, borderBottom: (view==="events"||view==="event") ? "2px solid #c2622a" : "2px solid transparent" }}>
       🎉 Events
     </span>
   );
@@ -4738,7 +4738,7 @@ function App() {
 
         {mobileMenuOpen && (
           <div ref={mobileMenuRef} className="header-nav-mobile-panel"
-            style={{ background:"#fff", borderBottom:"1.5px solid #ece6db", padding:"14px 20px 18px", display:"flex", flexDirection:"column", gap:14, position:"sticky", top:62, zIndex:49, boxShadow:"0 6px 20px rgba(0,0,0,.08)" }}
+            style={{ background:"#fff", borderBottom:"1.5px solid #ece6db", padding:"14px 20px 18px", display:"flex", flexDirection:"column", alignItems:"flex-start", gap:14, position:"sticky", top:62, zIndex:49, boxShadow:"0 6px 20px rgba(0,0,0,.08)" }}
             onClick={() => setMobileMenuOpen(false)}>
             {pantryPillMobile}
             {eventsPillMobile}
