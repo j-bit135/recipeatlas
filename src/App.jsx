@@ -3911,7 +3911,7 @@ function SearchBox({ navigate, mobile, onOpenChange }) {
                 onChange={e => setQuery(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter") submitSearch(); }}
                 placeholder="Search recipes..."
-                style={{ border: "none", outline: "none", background: "transparent", fontSize: 15, fontFamily: "Plus Jakarta Sans", color: "#1a1714", width: "100%" }}
+                style={{ border: "none", outline: "none", background: "transparent", fontSize: 16, fontFamily: "Plus Jakarta Sans", color: "#1a1714", width: "100%" }}
               />
             </div>
             {query.trim() && (
@@ -4646,7 +4646,7 @@ function App() {
   const pantryPillMobile = (
     <span onClick={() => navigate('/pantry-to-plate')}
       style={{ display:"inline-flex", alignItems:"center", gap:8, cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
-        color:"#c2622a", padding:"6px 0", borderBottom: view==="pantry-to-plate" ? "2.5px solid #c2622a" : "2.5px solid transparent" }}>
+        color:"#c2622a", padding:"6px 0", borderBottom: view==="pantry-to-plate" ? "3.5px solid #c2622a" : "3.5px solid transparent" }}>
       🥕 Pantry to Plate
     </span>
   );
@@ -4654,7 +4654,7 @@ function App() {
   const blogPillMobile = (
     <span onClick={() => navigate('/blog')}
       style={{ display:"inline-flex", alignItems:"center", gap:8, cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
-        color:"#c2622a", padding:"6px 0", borderBottom: view==="blog" ? "2.5px solid #c2622a" : "2.5px solid transparent" }}>
+        color:"#c2622a", padding:"6px 0", borderBottom: view==="blog" ? "3.5px solid #c2622a" : "3.5px solid transparent" }}>
       📖 Blog
     </span>
   );
@@ -4662,7 +4662,7 @@ function App() {
   const eventsPillMobile = (
     <span onClick={() => navigate('/events')}
       style={{ display:"inline-flex", alignItems:"center", gap:8, cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
-        color:"#c2622a", padding:"6px 0", borderBottom: (view==="events"||view==="event") ? "2.5px solid #c2622a" : "2.5px solid transparent" }}>
+        color:"#c2622a", padding:"6px 0", borderBottom: (view==="events"||view==="event") ? "3.5px solid #c2622a" : "3.5px solid transparent" }}>
       🎉 Events
     </span>
   );
@@ -4670,7 +4670,7 @@ function App() {
   const pantryPill = (
     <span onClick={() => navigate('/pantry-to-plate')}
       style={{ display:"inline-flex", alignItems:"center", gap:6, cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
-        color:"#c2622a", paddingBottom:3, borderBottom: view==="pantry-to-plate" ? "2.5px solid #c2622a" : "2.5px solid transparent" }}>
+        color:"#c2622a", paddingBottom:3, borderBottom: view==="pantry-to-plate" ? "3.5px solid #c2622a" : "3.5px solid transparent" }}>
       🥕 Pantry to Plate
     </span>
   );
@@ -4678,7 +4678,7 @@ function App() {
   const blogPill = (
     <span onClick={() => navigate('/blog')}
       style={{ display:"inline-flex", alignItems:"center", gap:6, cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
-        color:"#c2622a", paddingBottom:3, borderBottom: view==="blog" ? "2.5px solid #c2622a" : "2.5px solid transparent" }}>
+        color:"#c2622a", paddingBottom:3, borderBottom: view==="blog" ? "3.5px solid #c2622a" : "3.5px solid transparent" }}>
       📖 Blog
     </span>
   );
@@ -4686,7 +4686,7 @@ function App() {
   const eventsPill = (
     <span onClick={() => navigate('/events')}
       style={{ display:"inline-flex", alignItems:"center", gap:6, cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
-        color:"#c2622a", paddingBottom:3, borderBottom: (view==="events"||view==="event") ? "2.5px solid #c2622a" : "2.5px solid transparent" }}>
+        color:"#c2622a", paddingBottom:3, borderBottom: (view==="events"||view==="event") ? "3.5px solid #c2622a" : "3.5px solid transparent" }}>
       🎉 Events
     </span>
   );
@@ -4743,7 +4743,6 @@ function App() {
             {pantryPillMobile}
             {eventsPillMobile}
             {blogPillMobile}
-            {(view === "region" || view === "country" || view === "recipe") && <div style={{ paddingLeft:38 }}>{breadcrumbContent}</div>}
           </div>
         )}
 
