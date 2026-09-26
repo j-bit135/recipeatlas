@@ -3926,12 +3926,12 @@ function SearchBox({ navigate, mobile, onOpenChange }) {
   }
 
   return (
-    <div ref={boxRef} style={{ position: "relative", display: "flex", alignItems: "center" }}>
+    <div ref={boxRef} style={{ position: "relative", display: "flex", alignItems: "center", marginTop: -2 }}>
       {!open ? (
         <span onClick={() => setOpen(true)}
-          style={{ cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: "50%", color: "#9a9088" }}
+          style={{ cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: "50%", color: "#1a1714" }}
           onMouseEnter={e => { e.currentTarget.style.background = "#fdf3ed"; e.currentTarget.style.color = "#c2622a"; }}
-          onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#9a9088"; }}
+          onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#1a1714"; }}
           aria-label="Search recipes">
           {searchIcon(2.6)}
         </span>
@@ -4645,37 +4645,31 @@ function App() {
 
   const pantryPillMobile = (
     <span onClick={() => navigate('/pantry-to-plate')}
-      style={{ display:"inline-flex", alignItems:"center", gap:6, cursor:"pointer", fontSize:12, fontWeight:700, fontFamily:"Plus Jakarta Sans",
-        color: view==="pantry-to-plate" ? "#fff" : "#c2622a",
-        background: view==="pantry-to-plate" ? "#c2622a" : "#fdf3ed",
-        border: "1.5px solid #e8c9b0", borderRadius:20, padding:"7px 14px" }}>
+      style={{ display:"inline-flex", alignItems:"center", gap:8, cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
+        color:"#c2622a", padding:"6px 0", borderBottom: view==="pantry-to-plate" ? "2.5px solid #c2622a" : "2.5px solid transparent" }}>
       🥕 Pantry to Plate
     </span>
   );
 
   const blogPillMobile = (
     <span onClick={() => navigate('/blog')}
-      style={{ display:"inline-flex", alignItems:"center", gap:6, cursor:"pointer", fontSize:12, fontWeight:700, fontFamily:"Plus Jakarta Sans",
-        color: view==="blog" ? "#fff" : "#c2622a",
-        background: view==="blog" ? "#c2622a" : "#fdf3ed",
-        border: "1.5px solid #e8c9b0", borderRadius:20, padding:"7px 14px" }}>
+      style={{ display:"inline-flex", alignItems:"center", gap:8, cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
+        color:"#c2622a", padding:"6px 0", borderBottom: view==="blog" ? "2.5px solid #c2622a" : "2.5px solid transparent" }}>
       📖 Blog
     </span>
   );
 
   const eventsPillMobile = (
     <span onClick={() => navigate('/events')}
-      style={{ display:"inline-flex", alignItems:"center", gap:6, cursor:"pointer", fontSize:12, fontWeight:700, fontFamily:"Plus Jakarta Sans",
-        color: (view==="events"||view==="event") ? "#fff" : "#c2622a",
-        background: (view==="events"||view==="event") ? "#c2622a" : "#fdf3ed",
-        border: "1.5px solid #e8c9b0", borderRadius:20, padding:"7px 14px" }}>
+      style={{ display:"inline-flex", alignItems:"center", gap:8, cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
+        color:"#c2622a", padding:"6px 0", borderBottom: (view==="events"||view==="event") ? "2.5px solid #c2622a" : "2.5px solid transparent" }}>
       🎉 Events
     </span>
   );
 
   const pantryPill = (
     <span onClick={() => navigate('/pantry-to-plate')}
-      style={{ display:"inline-flex", alignItems:"center", gap:6, cursor:"pointer", fontSize:13, fontWeight:700, fontFamily:"Plus Jakarta Sans",
+      style={{ display:"inline-flex", alignItems:"center", gap:6, cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
         color:"#c2622a", paddingBottom:3, borderBottom: view==="pantry-to-plate" ? "2.5px solid #c2622a" : "2.5px solid transparent" }}>
       🥕 Pantry to Plate
     </span>
@@ -4683,7 +4677,7 @@ function App() {
 
   const blogPill = (
     <span onClick={() => navigate('/blog')}
-      style={{ display:"inline-flex", alignItems:"center", gap:6, cursor:"pointer", fontSize:13, fontWeight:700, fontFamily:"Plus Jakarta Sans",
+      style={{ display:"inline-flex", alignItems:"center", gap:6, cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
         color:"#c2622a", paddingBottom:3, borderBottom: view==="blog" ? "2.5px solid #c2622a" : "2.5px solid transparent" }}>
       📖 Blog
     </span>
@@ -4691,7 +4685,7 @@ function App() {
 
   const eventsPill = (
     <span onClick={() => navigate('/events')}
-      style={{ display:"inline-flex", alignItems:"center", gap:6, cursor:"pointer", fontSize:13, fontWeight:700, fontFamily:"Plus Jakarta Sans",
+      style={{ display:"inline-flex", alignItems:"center", gap:6, cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
         color:"#c2622a", paddingBottom:3, borderBottom: (view==="events"||view==="event") ? "2.5px solid #c2622a" : "2.5px solid transparent" }}>
       🎉 Events
     </span>
