@@ -4643,7 +4643,7 @@ function App() {
     </div>
   );
 
-  const pantryPill = (
+  const pantryPillMobile = (
     <span onClick={() => navigate('/pantry-to-plate')}
       style={{ display:"inline-flex", alignItems:"center", gap:6, cursor:"pointer", fontSize:12, fontWeight:700, fontFamily:"Plus Jakarta Sans",
         color: view==="pantry-to-plate" ? "#fff" : "#c2622a",
@@ -4653,7 +4653,7 @@ function App() {
     </span>
   );
 
-  const blogPill = (
+  const blogPillMobile = (
     <span onClick={() => navigate('/blog')}
       style={{ display:"inline-flex", alignItems:"center", gap:6, cursor:"pointer", fontSize:12, fontWeight:700, fontFamily:"Plus Jakarta Sans",
         color: view==="blog" ? "#fff" : "#c2622a",
@@ -4663,12 +4663,36 @@ function App() {
     </span>
   );
 
-  const eventsPill = (
+  const eventsPillMobile = (
     <span onClick={() => navigate('/events')}
       style={{ display:"inline-flex", alignItems:"center", gap:6, cursor:"pointer", fontSize:12, fontWeight:700, fontFamily:"Plus Jakarta Sans",
         color: (view==="events"||view==="event") ? "#fff" : "#c2622a",
         background: (view==="events"||view==="event") ? "#c2622a" : "#fdf3ed",
         border: "1.5px solid #e8c9b0", borderRadius:20, padding:"7px 14px" }}>
+      🎉 Events
+    </span>
+  );
+
+  const pantryPill = (
+    <span onClick={() => navigate('/pantry-to-plate')}
+      style={{ display:"inline-flex", alignItems:"center", gap:6, cursor:"pointer", fontSize:13, fontWeight:700, fontFamily:"Plus Jakarta Sans",
+        color:"#c2622a", paddingBottom:3, borderBottom: view==="pantry-to-plate" ? "2.5px solid #c2622a" : "2.5px solid transparent" }}>
+      🥕 Pantry to Plate
+    </span>
+  );
+
+  const blogPill = (
+    <span onClick={() => navigate('/blog')}
+      style={{ display:"inline-flex", alignItems:"center", gap:6, cursor:"pointer", fontSize:13, fontWeight:700, fontFamily:"Plus Jakarta Sans",
+        color:"#c2622a", paddingBottom:3, borderBottom: view==="blog" ? "2.5px solid #c2622a" : "2.5px solid transparent" }}>
+      📖 Blog
+    </span>
+  );
+
+  const eventsPill = (
+    <span onClick={() => navigate('/events')}
+      style={{ display:"inline-flex", alignItems:"center", gap:6, cursor:"pointer", fontSize:13, fontWeight:700, fontFamily:"Plus Jakarta Sans",
+        color:"#c2622a", paddingBottom:3, borderBottom: (view==="events"||view==="event") ? "2.5px solid #c2622a" : "2.5px solid transparent" }}>
       🎉 Events
     </span>
   );
@@ -4722,9 +4746,9 @@ function App() {
           <div ref={mobileMenuRef} className="header-nav-mobile-panel"
             style={{ background:"#fff", borderBottom:"1.5px solid #ece6db", padding:"14px 20px 18px", display:"flex", flexDirection:"column", gap:14, position:"sticky", top:62, zIndex:49, boxShadow:"0 6px 20px rgba(0,0,0,.08)" }}
             onClick={() => setMobileMenuOpen(false)}>
-            {pantryPill}
-            {eventsPill}
-            {blogPill}
+            {pantryPillMobile}
+            {eventsPillMobile}
+            {blogPillMobile}
             {view !== "regions" && <div style={{ paddingLeft:38 }}>{breadcrumbContent}</div>}
           </div>
         )}
