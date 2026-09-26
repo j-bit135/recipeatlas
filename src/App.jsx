@@ -4719,7 +4719,7 @@ function App() {
             {eventsPill}
             {blogPill}
             <SearchBox navigate={navigate} />
-            {view !== "regions" && breadcrumbContent}
+            {(view === "region" || view === "country" || view === "recipe") && breadcrumbContent}
           </div>
           <div className="header-nav-mobile" style={{ alignItems:"center", gap:10 }}>
             <SearchBox navigate={navigate} mobile onOpenChange={(isOpen) => { if (isOpen) setMobileMenuOpen(false); }} />
@@ -4743,7 +4743,7 @@ function App() {
             {pantryPillMobile}
             {eventsPillMobile}
             {blogPillMobile}
-            {view !== "regions" && <div style={{ paddingLeft:38 }}>{breadcrumbContent}</div>}
+            {(view === "region" || view === "country" || view === "recipe") && <div style={{ paddingLeft:38 }}>{breadcrumbContent}</div>}
           </div>
         )}
 
