@@ -2759,11 +2759,13 @@ const purpleAdRegistry = new Map();
 //   Wide screens use the desktop zones, narrow screens the mobile ones.
 const EXOCLICK_ENABLED = true;        // set to false to switch this fallback off completely
 const EXOCLICK_ROTATE_LOWER = true;   // false = always use the biggest zone that fits instead
-const EXOCLICK_ATTEMPT_MS = 6000;      // how long each zone gets to show an ad before the next one is tried
+const EXOCLICK_ATTEMPT_MS = 5000;      // how long the first zone gets to show an ad (includes loading ExoClick's script)
+const EXOCLICK_RETRY_MS = 3000;        // how long each later zone in the same slot gets. Not an auction window: ExoClick decides
+                                       // server-side, normally well under a second; this is only our give-up point
 const EXOCLICK_DEBUG = true;         // logs what the fallback does to the browser console; set false once you're happy
 function exoLog(...a) { if (EXOCLICK_DEBUG) { try { console.info('[ExoClick]', ...a); } catch (e) {} } }
 const EXOCLICK_ZONES = [
-  { zone: '6042588', cls: 'eas6a97888e2',  w: 728, h: 90,  device: 'desktop', top: true  },
+  { zone: '6042588', cls: 'eas6a97888e2',  w: 728, h: 90,  device: 'desktop', top: true,  first: true }, // tried first in lower slots; falls through if it doesn't fill
   { zone: '6042552', cls: 'eas6a97888e2',  w: 300, h: 500, device: 'desktop', top: false },
   { zone: '6042592', cls: 'eas6a97888e2',  w: 300, h: 250, device: 'desktop', top: false },
   { zone: '6042554', cls: 'eas6a97888e10', w: 300, h: 250, device: 'mobile',  top: false },
@@ -2796,6 +2798,7 @@ function exoClickCandidates(el) {
       [order[i], order[j]] = [order[j], order[i]];
     }
   }
+  order = order.map((z, i) => ({ z, i })).sort((a, b) => ((b.z.first ? 1 : 0) - (a.z.first ? 1 : 0)) || (a.i - b.i)).map((o) => o.z);
   exoLog('zones to try for the ' + (isTop ? 'top' : 'lower') + ' slot, in order: ' + order.map((z) => z.zone + ' (' + z.w + 'x' + z.h + ')').join(', '));
   return order;
 }
@@ -2877,11 +2880,12 @@ function fitExoClickAd(el, ins, collapse) {
     }
     if (r.width < mr.width - 1 && n !== el) n.style.setProperty('width', Math.ceil(mr.width) + 'px', 'important');
   }
-  if (!ins.__exoLogged) { ins.__exoLogged = true; exoLog('zone ' + ins.getAttribute('data-zoneid') + ': ad rendered at ' + Math.round(mr.width) + 'x' + Math.round(mr.height) + ' (' + media.tagName.toLowerCase() + ' inside a zone box of ' + Math.round(ins.getBoundingClientRect().width) + 'x' + Math.round(ins.getBoundingClientRect().height) + ')'); }
+  if (!ins.__exoLogged) { ins.__exoLogged = true; exoLog('zone ' + ins.getAttribute('data-zoneid') + ': ad rendered at ' + Math.round(mr.width) + 'x' + Math.round(mr.height) + ' after ' + (Date.now() - (ins.__exoStart || Date.now())) + 'ms (' + media.tagName.toLowerCase() + ' inside a zone box of ' + Math.round(ins.getBoundingClientRect().width) + 'x' + Math.round(ins.getBoundingClientRect().height) + ')'); }
   return 'ok';
 }
 
-function showExoClick(el, z, fail) {
+function showExoClick(el, z, fail, attemptMs) {
+  const startedAt = Date.now();
   // Never place an ad wider than the space it's going into.
   const room = el.parentElement ? el.parentElement.clientWidth : window.innerWidth;
   if (room && room < z.w) { exoLog('zone ' + z.zone + ' is wider than the space available'); return fail(); }
@@ -2900,6 +2904,7 @@ function showExoClick(el, z, fail) {
   // together (their docs stress using both). Not a guarantee -- worth watching.
   ins.setAttribute('data-ex_av', '2');
   ins.setAttribute('data-block-ad-types', '101');
+  ins.__exoStart = startedAt;
   el.appendChild(ins);
   // The ExoClick script is loaded once per page; each "serve" call fills any
   // zones on the page that haven't been served yet.
@@ -2934,11 +2939,11 @@ function showExoClick(el, z, fail) {
   noFillTimer = setTimeout(() => {
     try {
       if (!over && !ins.querySelector('iframe, img, a') && ins.offsetHeight < 10) {
-        exoLog('zone ' + z.zone + ' (' + z.w + 'x' + z.h + '): NO AD came back within ' + Math.round(EXOCLICK_ATTEMPT_MS / 1000) + 's');
+        exoLog('zone ' + z.zone + ' (' + z.w + 'x' + z.h + '): NO AD came back within ' + ((attemptMs || EXOCLICK_ATTEMPT_MS) / 1000) + 's');
         abandon();
       }
     } catch (e) {}
-  }, EXOCLICK_ATTEMPT_MS);
+  }, attemptMs || EXOCLICK_ATTEMPT_MS);
 }
 
 // Tries each zone in turn until one shows an ad; the slot is hidden only if none do.
@@ -2947,7 +2952,7 @@ function tryExoClickZones(el, zones, collapse) {
   const next = () => {
     if (i >= zones.length) { exoLog('no zone filled this slot -> hidden'); return collapse(); }
     const z = zones[i++];
-    try { showExoClick(el, z, next); } catch (e) { next(); }
+    try { showExoClick(el, z, next, i === 1 ? EXOCLICK_ATTEMPT_MS : EXOCLICK_RETRY_MS); } catch (e) { next(); }
   };
   next();
 }
@@ -4164,7 +4169,7 @@ function SearchBox({ navigate, mobile, onOpenChange }) {
   }
 
   return (
-    <div ref={boxRef} style={{ position: "relative", display: "flex", alignItems: "center", marginTop: -2 }}>
+    <div ref={boxRef} style={{ position: "relative", display: "flex", alignItems: "center" }}>
       {!open ? (
         <span onClick={() => setOpen(true)}
           style={{ cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: "50%", color: "#1a1714" }}
@@ -4884,49 +4889,49 @@ function App() {
 
   const pantryPillMobile = (
     <span onClick={() => navigate('/pantry-to-plate')}
-      style={{ display:"inline-flex", alignItems:"center", gap:8, cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
-        color:"#c2622a", padding:"6px 0", borderBottom: view==="pantry-to-plate" ? "2px solid #c2622a" : "2px solid transparent" }}>
-      🥕 Pantry to Plate
+      style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
+        color: view==="pantry-to-plate" ? "#c2622a" : "#1a1714", padding:"6px 0" }}>
+      Pantry to Plate
     </span>
   );
 
   const blogPillMobile = (
     <span onClick={() => navigate('/blog')}
-      style={{ display:"inline-flex", alignItems:"center", gap:8, cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
-        color:"#c2622a", padding:"6px 0", borderBottom: view==="blog" ? "2px solid #c2622a" : "2px solid transparent" }}>
-      📖 Blog
+      style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
+        color: view==="blog" ? "#c2622a" : "#1a1714", padding:"6px 0" }}>
+      Blog
     </span>
   );
 
   const eventsPillMobile = (
     <span onClick={() => navigate('/events')}
-      style={{ display:"inline-flex", alignItems:"center", gap:8, cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
-        color:"#c2622a", padding:"6px 0", borderBottom: (view==="events"||view==="event") ? "2px solid #c2622a" : "2px solid transparent" }}>
-      🎉 Events
+      style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
+        color: (view==="events"||view==="event") ? "#c2622a" : "#1a1714", padding:"6px 0" }}>
+      Events
     </span>
   );
 
   const pantryPill = (
     <span onClick={() => navigate('/pantry-to-plate')}
-      style={{ display:"inline-flex", alignItems:"center", gap:6, cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
-        color:"#c2622a", paddingBottom:3, borderBottom: view==="pantry-to-plate" ? "2px solid #c2622a" : "2px solid transparent" }}>
-      🥕 Pantry to Plate
+      style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
+        color: view==="pantry-to-plate" ? "#c2622a" : "#1a1714", padding:0 }}>
+      Pantry to Plate
     </span>
   );
 
   const blogPill = (
     <span onClick={() => navigate('/blog')}
-      style={{ display:"inline-flex", alignItems:"center", gap:6, cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
-        color:"#c2622a", paddingBottom:3, borderBottom: view==="blog" ? "2px solid #c2622a" : "2px solid transparent" }}>
-      📖 Blog
+      style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
+        color: view==="blog" ? "#c2622a" : "#1a1714", padding:0 }}>
+      Blog
     </span>
   );
 
   const eventsPill = (
     <span onClick={() => navigate('/events')}
-      style={{ display:"inline-flex", alignItems:"center", gap:6, cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
-        color:"#c2622a", paddingBottom:3, borderBottom: (view==="events"||view==="event") ? "2px solid #c2622a" : "2px solid transparent" }}>
-      🎉 Events
+      style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
+        color: (view==="events"||view==="event") ? "#c2622a" : "#1a1714", padding:0 }}>
+      Events
     </span>
   );
 
