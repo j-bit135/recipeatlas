@@ -2759,9 +2759,9 @@ const purpleAdRegistry = new Map();
 //   Wide screens use the desktop zones, narrow screens the mobile ones.
 const EXOCLICK_ENABLED = true;        // set to false to switch this fallback off completely
 const EXOCLICK_ROTATE_LOWER = true;   // false = always use the biggest zone that fits instead
-const EXOCLICK_ATTEMPT_MS = 5000;      // how long the first zone gets to show an ad (includes loading ExoClick's script)
-const EXOCLICK_RETRY_MS = 3000;        // how long each later zone in the same slot gets. Not an auction window: ExoClick decides
-                                       // server-side, normally well under a second; this is only our give-up point
+const EXOCLICK_ATTEMPT_MS = 3000;      // how long the first zone gets to show an ad (includes loading ExoClick's script)
+const EXOCLICK_RETRY_MS = 1200;        // how long each later zone in the same slot gets. Not an auction window: ExoClick decides
+                                       // server-side and answers in about 0.1s (measured), so this is only our give-up point
 const EXOCLICK_DEBUG = true;         // logs what the fallback does to the browser console; set false once you're happy
 function exoLog(...a) { if (EXOCLICK_DEBUG) { try { console.info('[ExoClick]', ...a); } catch (e) {} } }
 const EXOCLICK_ZONES = [
