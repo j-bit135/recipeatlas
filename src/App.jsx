@@ -2740,94 +2740,18 @@ function RegionMap({ onSelectRegion }) {
 // the right one using the `element` PurpleAds hands back.
 const purpleAdRegistry = new Map();
 
-// ── ADSTERRA BANNER FALLBACK ─────────────────────────────────────────────
-// When PurpleAds has no ad for a banner, its onUnfilled callback (below) hands
-// us the container plus the banner sizes that fit it, largest first. We pick the
-// first size we hold an Adsterra tag for. Adsterra keys are tied to one exact
-// size each, which is why this is chosen in code rather than pasted as a single
-// dashboard tag. Leave PurpleAds' dashboard "Banner Fallback" box empty: when
-// this function exists PurpleAds calls it instead of the saved code.
-const ADSTERRA_TAGS = {
-  '320x50':  'd5f04eef4458100b10a56573268a7c1e',
-  '300x250': 'd7fd60cf1c83b8ad95329e78a13ef7c8',
-  '728x90':  'f5ba0f06afc15d11f4b5eb434ce08d76',
-  '468x60':  '7859d35fe3fb21d2414e67bce8c7c871',
-};
-
-function pickAdsterraTag(sizes) {
-  for (const s of (sizes || [])) {
-    const w = Array.isArray(s) ? s[0] : (s && s.width);
-    const h = Array.isArray(s) ? s[1] : (s && s.height);
-    const key = ADSTERRA_TAGS[w + 'x' + h];
-    if (key) return { w, h, key };
-  }
-  return null;
-}
-
-// Fails closed: Adsterra loads outside PurpleAds' own consent handling, so only
-// load it when GDPR doesn't apply, or the visitor has consented to storing /
-// accessing information on their device (TCF purpose 1) via the site's CMP.
-function hasAdConsent() {
-  return new Promise((resolve) => {
-    let done = false;
-    const finish = (v) => { if (!done) { done = true; resolve(v); } };
-    setTimeout(() => finish(false), 3000);
-    try {
-      if (typeof window.__tcfapi !== 'function') return finish(false);
-      window.__tcfapi('getTCData', 2, (tc, ok) => {
-        if (!ok || !tc) return finish(false);
-        if (tc.gdprApplies === false) return finish(true);
-        finish(!!(tc.purpose && tc.purpose.consents && tc.purpose.consents[1]));
-      });
-    } catch (e) { finish(false); }
-  });
-}
-
-function showAdsterra(el, choice, collapse) {
-  // Each tag runs inside its own iframe. Adsterra's snippet reads a global
-  // (atOptions) at the moment it executes, so two banners loading at once on
-  // the same page would otherwise overwrite each other's size and key.
-  const frame = document.createElement('iframe');
-  frame.width = choice.w;
-  frame.height = choice.h;
-  frame.title = 'Advertisement';
-  frame.setAttribute('scrolling', 'no');
-  frame.style.cssText = 'border:0;display:block;margin:0 auto;overflow:hidden;max-width:100%;';
-  frame.srcdoc =
-    '<!doctype html><html><head><meta charset="utf-8"></head>' +
-    '<body style="margin:0;overflow:hidden">' +
-    '<script>atOptions={"key":"' + choice.key + '","format":"iframe","height":' + choice.h + ',"width":' + choice.w + ',"params":{}};<\/script>' +
-    '<script src="https://www.highrevenueformat.com/' + choice.key + '/invoke.js"><\/script>' +
-    '</body></html>';
-  el.appendChild(frame);
-  // If Adsterra's script never produced an ad frame (blocked, offline), don't
-  // leave an empty box on the page. Can't see inside a served ad itself.
-  setTimeout(() => {
-    try {
-      const d = frame.contentDocument;
-      if (!d || !d.querySelector('iframe')) { frame.remove(); collapse(); }
-    } catch (e) {}
-  }, 8000);
-}
-
 function ensurePurpleUnfilledHandler() {
   // Best-effort only: this must never be able to stop the ad script itself
-  // from loading. If anything here throws for any reason, the fallback is
-  // simply lost for this page view -- PurpleAds ads still load and serve
+  // from loading. If anything here throws for any reason, the collapse
+  // feature is simply lost for this page view -- ads still load and serve
   // normally, which is a far better failure mode than losing ads entirely.
   try {
     window.purpleDisplay = window.purpleDisplay || {};
     if (window.purpleDisplay.onUnfilled) return;
     window.purpleDisplay.onUnfilled = function(placement) {
       try {
-        const el = placement.element;
-        const collapse = () => { const c = purpleAdRegistry.get(el); if (c) c(true); };
-        const choice = pickAdsterraTag(placement.sizes);
-        if (!choice) return collapse();
-        hasAdConsent().then((ok) => {
-          if (!ok) return collapse();
-          try { showAdsterra(el, choice, collapse); } catch (e) { collapse(); }
-        });
+        const setCollapsed = purpleAdRegistry.get(placement.element);
+        if (setCollapsed) setCollapsed(true);
       } catch (e) {}
     };
   } catch (e) {}
