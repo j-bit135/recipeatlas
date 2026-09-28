@@ -1895,6 +1895,12 @@ const styles = `
   @media (min-width: 500px) { .pa-ad-slot-banner { max-width: 468px; max-height: 60px; } }
   @media (min-width: 760px) { .pa-ad-slot-banner { max-width: 728px; max-height: 90px; } }
   @media (min-width: 992px) { .pa-ad-slot-banner { max-width: 970px; max-height: 90px; } }
+  /* Centre whatever a fallback network puts in its zone. ExoClick's zone element
+     otherwise keeps its own fixed width and sits at the left of a wider slot.
+     Scoped to zone elements only, so PurpleAds' own ads are untouched. */
+  .pa-ad-wrap ins[data-zoneid] { display: flex !important; justify-content: center !important; align-items: center;
+    width: 100% !important; max-width: 100% !important; margin: 0 auto !important; text-align: center !important; text-decoration: none; }
+  .pa-ad-wrap ins[data-zoneid] > * { margin-left: auto !important; margin-right: auto !important; }
 
   @media (max-height: 700px) {
     .shopping-list-modal { top: 70px; bottom: 10px; padding: 18px; }
