@@ -2746,27 +2746,42 @@ function RegionMap({ onSelectRegion }) {
 const purpleAdRegistry = new Map();
 
 // ── EXOCLICK BANNER FALLBACK ─────────────────────────────────────────────
-// When PurpleAds has no ad for a banner, its onUnfilled callback (below) gives
-// us the container plus the banner sizes that fit it, largest first. We fill it
-// with an ExoClick zone, but only where that zone's real size fits -- so the
-// strict size limits on the top-of-page slot are never broken. Leave PurpleAds'
-// dashboard "Banner Fallback" box empty: when this function exists PurpleAds
-// calls it instead of the saved code.
-//   wide screens  -> the 728x90 zone   (only if a 728x90 fits the slot)
-//   narrow screens -> the 300x250 zone (only if a 300x250 fits the slot)
-const EXOCLICK_ENABLED = true; // set to false to switch this fallback off completely
-const EXOCLICK_ZONES = {
-  desktop: { zone: '6042552', cls: 'eas6a97888e2',  w: 728, h: 90 },
-  mobile:  { zone: '6042554', cls: 'eas6a97888e10', w: 300, h: 250 },
-};
+// When PurpleAds has no ad for a banner, its onUnfilled callback (below) hands us the
+// slot. We fill it with a fixed-size ExoClick zone chosen from the slot's real limits:
+// the width it has, and the maximum height its CSS allows (the same caps the top-of-page
+// slot has always had). We use the slot's own geometry rather than PurpleAds' size list
+// because PurpleAds doesn't list every size we hold zones for (e.g. 300x50).
+// Leave PurpleAds' dashboard "Banner Fallback" box empty: when this function exists
+// PurpleAds calls it instead of the saved code.
+//   Top-of-page slot : only ever 728x90, 300x100 or 300x50 (biggest that fits).
+//   Every other slot : any zone that fits, picked at random so each gets traffic and the
+//                      per-zone stats in ExoClick show which sizes actually earn.
+//   Wide screens use the desktop zones, narrow screens the mobile ones.
+const EXOCLICK_ENABLED = true;        // set to false to switch this fallback off completely
+const EXOCLICK_ROTATE_LOWER = true;   // false = always use the biggest zone that fits instead
+const EXOCLICK_ZONES = [
+  { zone: '6042588', cls: 'eas6a97888e2',  w: 728, h: 90,  device: 'desktop', top: true  },
+  { zone: '6042552', cls: 'eas6a97888e2',  w: 300, h: 500, device: 'desktop', top: false },
+  { zone: '6042592', cls: 'eas6a97888e2',  w: 300, h: 250, device: 'desktop', top: false },
+  { zone: '6042554', cls: 'eas6a97888e10', w: 300, h: 250, device: 'mobile',  top: false },
+  { zone: '6042594', cls: 'eas6a97888e10', w: 300, h: 100, device: 'mobile',  top: true  },
+  { zone: '6042598', cls: 'eas6a97888e10', w: 300, h: 50,  device: 'mobile',  top: true  },
+];
 
-function pickExoClickZone(sizes) {
-  const has = (w, h) => (sizes || []).some((s) =>
-    Array.isArray(s) ? (s[0] === w && s[1] === h) : (s && s.width === w && s.height === h));
-  const wide = window.innerWidth >= 768;
-  if (wide && has(728, 90)) return EXOCLICK_ZONES.desktop;
-  if (!wide && has(300, 250)) return EXOCLICK_ZONES.mobile;
-  return null;
+// Must run BEFORE showExoClick changes the slot's styles, so it reads the slot's real limits.
+function pickExoClickZone(el) {
+  const cs = getComputedStyle(el);
+  const isTop = el.className.indexOf('pa-ad-slot-banner') > -1;
+  const room = el.clientWidth || (el.parentElement ? el.parentElement.clientWidth : 0);
+  const mh = parseFloat(cs.maxHeight);
+  const maxH = isNaN(mh) ? Infinity : mh;                       // "none" = no height limit
+  const device = window.innerWidth >= 768 ? 'desktop' : 'mobile';
+  const fits = EXOCLICK_ZONES.filter((z) =>
+    z.device === device && z.w <= room && z.h <= maxH && (!isTop || z.top));
+  if (!fits.length) return null;
+  const biggest = fits.slice().sort((x, y) => y.w * y.h - x.w * x.h)[0];
+  if (isTop || !EXOCLICK_ROTATE_LOWER) return biggest;
+  return fits[Math.floor(Math.random() * fits.length)];
 }
 
 // Fails closed: ExoClick loads outside PurpleAds' own consent handling, so only
@@ -2818,7 +2833,7 @@ function fitExoClickAd(el, ins, collapse) {
   } catch (e) { /* cross-origin frame: can't look inside, skip */ }
   const room = el.parentElement ? el.parentElement.clientWidth : window.innerWidth;
   // Top-of-page slots never take anything taller than a banner, whatever ExoClick sends.
-  if (el.className.indexOf('pa-ad-slot-banner') > -1 && mr.height > 100) { ins.remove(); collapse(); return 'collapsed'; }
+  if (el.className.indexOf('pa-ad-slot-banner') > -1 && mr.height > 110) { ins.remove(); collapse(); return 'collapsed'; }
   // Wider than the space available: hide it rather than clip or overflow the page.
   if (mr.width > room + 1) { ins.remove(); collapse(); return 'collapsed'; }
   // Grow the slot to the ad that really arrived (stays centred by its parent).
@@ -2895,7 +2910,7 @@ function ensurePurpleUnfilledHandler() {
         const el = placement.element;
         const collapse = () => { const c = purpleAdRegistry.get(el); if (c) c(true); };
         if (!EXOCLICK_ENABLED) return collapse();
-        const zone = pickExoClickZone(placement.sizes);
+        const zone = pickExoClickZone(el);
         if (!zone) return collapse();
         hasAdConsent().then((ok) => {
           if (!ok) return collapse();
