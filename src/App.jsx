@@ -1895,11 +1895,10 @@ const styles = `
   @media (min-width: 500px) { .pa-ad-slot-banner { max-width: 468px; max-height: 60px; } }
   @media (min-width: 760px) { .pa-ad-slot-banner { max-width: 728px; max-height: 90px; } }
   @media (min-width: 992px) { .pa-ad-slot-banner { max-width: 970px; max-height: 90px; } }
-  /* Centre whatever a fallback network puts in its zone. ExoClick's zone element
-     otherwise keeps its own fixed width and sits at the left of a wider slot.
-     Scoped to zone elements only, so PurpleAds' own ads are untouched. */
-  .pa-ad-wrap ins[data-zoneid] { display: flex !important; justify-content: center !important; align-items: center;
-    width: 100% !important; max-width: 100% !important; margin: 0 auto !important; text-align: center !important; text-decoration: none; }
+  /* Fallback zones (ExoClick): the slot itself is sized to the ad in JS (see showExoClick),
+     so the zone element just fills it. Scoped to zone elements only -- PurpleAds is untouched. */
+  .pa-ad-wrap ins[data-zoneid] { display: block !important; width: 100% !important; margin: 0 auto !important; text-align: center !important; text-decoration: none; }
+  .pa-ad-wrap ins[data-zoneid] iframe { display: block !important; margin: 0 auto !important; }
   .pa-ad-wrap ins[data-zoneid] > * { margin-left: auto !important; margin-right: auto !important; }
 
   @media (max-height: 700px) {
@@ -2790,6 +2789,17 @@ function hasAdConsent() {
 }
 
 function showExoClick(el, z, collapse) {
+  // Never place an ad wider than the space it's going into.
+  const room = el.parentElement ? el.parentElement.clientWidth : window.innerWidth;
+  if (room && room < z.w) return collapse();
+  // Size the slot to exactly this ad. Zones set to "responsive" pick their size from the
+  // box they sit in, so a full-width slot lets them draw wider than the ad and leaves it
+  // off-centre. An exact-size slot is centred by its parent, and the top slot's height cap
+  // and clipping are lifted so nothing is trimmed.
+  el.style.width = z.w + 'px';
+  el.style.maxWidth = '100%';
+  el.style.maxHeight = 'none';
+  el.style.overflow = 'visible';
   const ins = document.createElement('ins');
   ins.className = z.cls;
   ins.setAttribute('data-zoneid', z.zone);
@@ -2797,7 +2807,6 @@ function showExoClick(el, z, collapse) {
   // together (their docs stress using both). Not a guarantee -- worth watching.
   ins.setAttribute('data-ex_av', '2');
   ins.setAttribute('data-block-ad-types', '101');
-  ins.style.cssText = 'display:block;text-align:center;';
   el.appendChild(ins);
   // The ExoClick script is loaded once per page; each "serve" call fills any
   // zones on the page that haven't been served yet.
