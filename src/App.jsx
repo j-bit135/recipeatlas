@@ -2759,6 +2759,7 @@ const purpleAdRegistry = new Map();
 //   Wide screens use the desktop zones, narrow screens the mobile ones.
 const EXOCLICK_ENABLED = true;        // set to false to switch this fallback off completely
 const EXOCLICK_ROTATE_LOWER = true;   // false = always use the biggest zone that fits instead
+const EXOCLICK_ATTEMPT_MS = 6000;      // how long each zone gets to show an ad before the next one is tried
 const EXOCLICK_DEBUG = true;         // logs what the fallback does to the browser console; set false once you're happy
 function exoLog(...a) { if (EXOCLICK_DEBUG) { try { console.info('[ExoClick]', ...a); } catch (e) {} } }
 const EXOCLICK_ZONES = [
@@ -2770,8 +2771,10 @@ const EXOCLICK_ZONES = [
   { zone: '6042598', cls: 'eas6a97888e10', w: 300, h: 50,  device: 'mobile',  top: true  },
 ];
 
-// Must run BEFORE showExoClick changes the slot's styles, so it reads the slot's real limits.
-function pickExoClickZone(el) {
+// Returns the zones to try for this slot, in order. Must run BEFORE showExoClick changes the
+// slot's styles, so it reads the slot's real limits. Lower slots get a random order so every
+// zone gets a first chance; the top slot goes biggest-first.
+function exoClickCandidates(el) {
   const cs = getComputedStyle(el);
   const isTop = el.className.indexOf('pa-ad-slot-banner') > -1;
   const room = el.clientWidth || (el.parentElement ? el.parentElement.clientWidth : 0);
@@ -2784,12 +2787,23 @@ function pickExoClickZone(el) {
   if (!fits.length) fits = fitsFor(device === 'desktop' ? 'mobile' : 'desktop'); // e.g. iPad portrait
   if (!fits.length) {
     exoLog('no zone fits this ' + (isTop ? 'top' : 'lower') + ' slot (width ' + room + 'px, max height ' + maxH + ', ' + device + ') -> hidden');
-    return null;
+    return [];
   }
-  const biggest = fits.slice().sort((x, y) => y.w * y.h - x.w * x.h)[0];
-  const chosen = (isTop || !EXOCLICK_ROTATE_LOWER) ? biggest : fits[Math.floor(Math.random() * fits.length)];
-  exoLog('chose zone ' + chosen.zone + ' (' + chosen.w + 'x' + chosen.h + ') for the ' + (isTop ? 'top' : 'lower') + ' slot; ' + fits.length + ' zone(s) fit');
-  return chosen;
+  let order = fits.slice().sort((x, y) => y.w * y.h - x.w * x.h);   // biggest first
+  if (!isTop && EXOCLICK_ROTATE_LOWER) {
+    for (let i = order.length - 1; i > 0; i--) {                    // shuffle
+      const j = Math.floor(Math.random() * (i + 1));
+      [order[i], order[j]] = [order[j], order[i]];
+    }
+  }
+  exoLog('zones to try for the ' + (isTop ? 'top' : 'lower') + ' slot, in order: ' + order.map((z) => z.zone + ' (' + z.w + 'x' + z.h + ')').join(', '));
+  return order;
+}
+
+// Kept so a single choice can still be asked for (first in the order).
+function pickExoClickZone(el) {
+  const list = exoClickCandidates(el);
+  return list.length ? list[0] : null;
 }
 
 // Fails closed: ExoClick loads outside PurpleAds' own consent handling, so only
@@ -2842,12 +2856,12 @@ function fitExoClickAd(el, ins, collapse) {
   const room = el.parentElement ? el.parentElement.clientWidth : window.innerWidth;
   // Top-of-page slots never take anything taller than a banner, whatever ExoClick sends.
   if (el.className.indexOf('pa-ad-slot-banner') > -1 && mr.height > 110) {
-    exoLog('zone ' + ins.getAttribute('data-zoneid') + ' delivered a ' + Math.round(mr.width) + 'x' + Math.round(mr.height) + ' ad, which is taller than the top-of-page slot allows -> hidden');
+    exoLog('zone ' + ins.getAttribute('data-zoneid') + ' delivered a ' + Math.round(mr.width) + 'x' + Math.round(mr.height) + ' ad, which is taller than the top-of-page slot allows -> skipping this zone');
     ins.remove(); collapse(); return 'collapsed';
   }
   // Wider than the space available: hide it rather than clip or overflow the page.
   if (mr.width > room + 1) {
-    exoLog('zone ' + ins.getAttribute('data-zoneid') + ' delivered a ' + Math.round(mr.width) + 'x' + Math.round(mr.height) + ' ad, wider than the ' + Math.round(room) + 'px available -> hidden');
+    exoLog('zone ' + ins.getAttribute('data-zoneid') + ' delivered a ' + Math.round(mr.width) + 'x' + Math.round(mr.height) + ' ad, wider than the ' + Math.round(room) + 'px available -> skipping this zone');
     ins.remove(); collapse(); return 'collapsed';
   }
   // Grow the slot to the ad that really arrived (stays centred by its parent).
@@ -2867,10 +2881,10 @@ function fitExoClickAd(el, ins, collapse) {
   return 'ok';
 }
 
-function showExoClick(el, z, collapse) {
+function showExoClick(el, z, fail) {
   // Never place an ad wider than the space it's going into.
   const room = el.parentElement ? el.parentElement.clientWidth : window.innerWidth;
-  if (room && room < z.w) return collapse();
+  if (room && room < z.w) { exoLog('zone ' + z.zone + ' is wider than the space available'); return fail(); }
   // Size the slot to exactly this ad. Zones set to "responsive" pick their size from the
   // box they sit in, so a full-width slot lets them draw wider than the ad and leaves it
   // off-centre. An exact-size slot is centred by its parent, and the top slot's height cap
@@ -2899,18 +2913,43 @@ function showExoClick(el, z, collapse) {
   }
   exoLog('requesting zone ' + z.zone + ' (' + z.w + 'x' + z.h + ')');
   (window.AdProvider = window.AdProvider || []).push({ serve: {} });
+
+  // This attempt ends exactly once: either an ad renders and stays, or it is abandoned
+  // (no ad, oversized, too wide) and the next zone in line gets its turn.
+  let over = false, fitTimer = null, noFillTimer = null;
+  const abandon = () => {
+    if (over) return;
+    over = true;
+    clearInterval(fitTimer); clearTimeout(noFillTimer);
+    try { ins.remove(); } catch (e) {}
+    fail();
+  };
   // Once the ad has drawn, check it fits and isn't being clipped (re-checks briefly in
   // case the creative resizes after loading).
-  const fitTimer = setInterval(() => {
-    try { if (fitExoClickAd(el, ins, collapse) === 'collapsed') clearInterval(fitTimer); } catch (e) { clearInterval(fitTimer); }
+  fitTimer = setInterval(() => {
+    try { if (fitExoClickAd(el, ins, abandon) === 'collapsed') clearInterval(fitTimer); } catch (e) { clearInterval(fitTimer); }
   }, 300);
   setTimeout(() => clearInterval(fitTimer), 10000);
-  // If nothing rendered (blocked script, no ad), don't leave an empty box.
-  setTimeout(() => {
+  // Nothing rendered (blocked script, no ad for this zone): move on to the next zone.
+  noFillTimer = setTimeout(() => {
     try {
-      if (!ins.querySelector('iframe, img, a') && ins.offsetHeight < 10) { exoLog('zone ' + z.zone + ' (' + z.w + 'x' + z.h + '): NO AD came back within 8s -> slot hidden'); ins.remove(); collapse(); }
+      if (!over && !ins.querySelector('iframe, img, a') && ins.offsetHeight < 10) {
+        exoLog('zone ' + z.zone + ' (' + z.w + 'x' + z.h + '): NO AD came back within ' + Math.round(EXOCLICK_ATTEMPT_MS / 1000) + 's');
+        abandon();
+      }
     } catch (e) {}
-  }, 8000);
+  }, EXOCLICK_ATTEMPT_MS);
+}
+
+// Tries each zone in turn until one shows an ad; the slot is hidden only if none do.
+function tryExoClickZones(el, zones, collapse) {
+  let i = 0;
+  const next = () => {
+    if (i >= zones.length) { exoLog('no zone filled this slot -> hidden'); return collapse(); }
+    const z = zones[i++];
+    try { showExoClick(el, z, next); } catch (e) { next(); }
+  };
+  next();
 }
 
 function ensurePurpleUnfilledHandler() {
@@ -2927,11 +2966,11 @@ function ensurePurpleUnfilledHandler() {
         const collapse = () => { const c = purpleAdRegistry.get(el); if (c) c(true); };
         exoLog('PurpleAds had no ad for a slot (' + placement.reason + ')');
         if (!EXOCLICK_ENABLED) return collapse();
-        const zone = pickExoClickZone(el);
-        if (!zone) return collapse();
+        const zones = exoClickCandidates(el);
+        if (!zones.length) return collapse();
         hasAdConsent().then((ok) => {
           if (!ok) { exoLog('skipped: visitor has not consented (or the cookie banner has not answered)'); return collapse(); }
-          try { showExoClick(el, zone, collapse); } catch (e) { collapse(); }
+          try { tryExoClickZones(el, zones, collapse); } catch (e) { collapse(); }
         });
       } catch (e) {}
     };
