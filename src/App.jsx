@@ -4388,7 +4388,7 @@ function App() {
   // ── DYNAMIC TITLE & META DESCRIPTION ──────────────────────────────────
   useEffect(() => {
     let title = 'Recipe Atlas — World Cuisine Explorer';
-    let description = 'Explore authentic recipes from 85 countries and 7 regions. From Italian carbonara to Georgian khachapuri — discover the world through food.';
+    let description = 'Explore authentic recipes from 87 countries and 7 regions. From Italian carbonara to Georgian khachapuri — discover the world through food.';
     let imageUrl = null; // only recipe pages, event pages and blog articles get an image — every other page (home, region, country, hub pages) stays image-free
 
     if (view === 'recipe' && selectedDish) {
@@ -4437,7 +4437,7 @@ function App() {
       }
     } else if (view === 'about') {
       title = 'About Recipe Atlas — World Cuisine Explorer';
-      description = 'Recipe Atlas celebrates the extraordinary diversity of world cuisine across 85 countries and 7 regions. Learn about our mission and approach.';
+      description = 'Recipe Atlas celebrates the extraordinary diversity of world cuisine across 87 countries and 7 regions. Learn about our mission and approach.';
     } else if (view === 'contact') {
       title = 'Contact Recipe Atlas — Get in Touch';
       description = 'Get in touch with Recipe Atlas for general enquiries, advertising opportunities, recipe submissions or partnerships. We\'d love to hear from you.';
@@ -4592,8 +4592,9 @@ function App() {
         '@context': 'https://schema.org',
         '@type': 'WebSite',
         'name': 'Recipe Atlas',
-        'url': 'https://recipeatlas.co.uk',
-        'description': 'Explore authentic recipes from 85 countries and 7 regions. Discover the world through food.',
+        'alternateName': ['RecipeAtlas', 'recipeatlas.co.uk'],
+        'url': 'https://recipeatlas.co.uk/',
+        'description': 'Explore authentic recipes from 87 countries and 7 regions. Discover the world through food.',
         'potentialAction': {
           '@type': 'SearchAction',
           'target': { '@type': 'EntryPoint', 'urlTemplate': 'https://recipeatlas.co.uk/?q={search_term_string}' },
@@ -5253,7 +5254,7 @@ function AboutPage() {
       <div style={{ marginTop:16, display:"flex", flexDirection:"column", gap:20 }}>
         {[
           ["Our Mission","Recipe Atlas exists to celebrate the extraordinary diversity of world cuisine — from the intricate spice blends of Ethiopian berbere to the precise techniques of Japanese ramen. We believe that cooking another culture's food is one of the most respectful and joyful ways to understand it."],
-          ["What We Cover","We currently feature 1,007 recipes across 86 countries and 7 regions. Every recipe is written to be genuinely achievable at home, with honest notes on technique, cultural context and the history behind each dish."],
+          ["What We Cover","We currently feature 1,008 recipes across 87 countries and 7 regions. Every recipe is written to be genuinely achievable at home, with honest notes on technique, cultural context and the history behind each dish."],
           ["Our Approach","We research each recipe carefully, consulting multiple sources and traditional methods. Where a dish has strong regional variations we explain the differences and choose the most widely celebrated version as our baseline."],
           ["Get In Touch","We love hearing from readers — whether you've cooked one of our recipes, spotted an error, or want to suggest a dish we're missing. Reach us at contact.jwgroup@proton.me"],
         ].map(([title, text]) => (

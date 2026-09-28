@@ -335,7 +335,19 @@
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Recipe Atlas — World Cuisine Explorer</title>
-    <meta name="description" content="Explore authentic recipes from 86 countries and 7 regions. From Italian carbonara to Ethiopian doro wat — discover the world through food." />
+    <meta name="description" content="Explore authentic recipes from 87 countries and 7 regions. From Italian carbonara to Georgian khachapuri — discover the world through food." />
+    <meta property="og:site_name" content="Recipe Atlas" />
+    <!-- Site name for Google/Bing results. Kept in the raw HTML (not just added by JavaScript)
+         so crawlers see it immediately. data-schema="website" stops the app injecting a duplicate. -->
+    <script type="application/ld+json" data-schema="website">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Recipe Atlas",
+      "alternateName": ["RecipeAtlas", "recipeatlas.co.uk"],
+      "url": "https://recipeatlas.co.uk/"
+    }
+    </script>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-E5VXYPSKPJ"></script>
     <script>
