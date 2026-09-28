@@ -2793,10 +2793,29 @@ function hasAdConsent() {
 // ExoClick's own markup trimming the bottom of the ad; a wider creative (e.g. 970)
 // arriving in a narrower slot; and anything taller than a banner in a top-of-page slot.
 function fitExoClickAd(el, ins, collapse) {
-  const media = ins.querySelector('iframe, img, canvas, video, object, embed');
+  // Pick the biggest thing inside the zone, not the first: networks often put a tiny
+  // invisible tracking pixel or frame ahead of the real ad.
+  let media = null, best = 0;
+  ins.querySelectorAll('iframe, img, canvas, video, object, embed').forEach((m) => {
+    const b = m.getBoundingClientRect(); const area = b.width * b.height;
+    if (area > best) { best = area; media = m; }
+  });
   if (!media) return 'waiting';
-  const mr = media.getBoundingClientRect();
+  let mr = media.getBoundingClientRect();
   if (mr.width < 20 || mr.height < 20) return 'waiting';           // not drawn yet
+  // If the ad's own frame is a few pixels shorter than what's inside it (readable only when
+  // the frame is same-origin), grow the frame so the bottom of the creative isn't cut off.
+  try {
+    const d = media.contentDocument;
+    if (d && d.documentElement) {
+      const need = Math.max(d.documentElement.scrollHeight, d.body ? d.body.scrollHeight : 0);
+      if (need > mr.height + 1 && need < mr.height + 60) {
+        media.style.setProperty('height', need + 'px', 'important');
+        media.setAttribute('height', String(need));
+        mr = media.getBoundingClientRect();
+      }
+    }
+  } catch (e) { /* cross-origin frame: can't look inside, skip */ }
   const room = el.parentElement ? el.parentElement.clientWidth : window.innerWidth;
   // Top-of-page slots never take anything taller than a banner, whatever ExoClick sends.
   if (el.className.indexOf('pa-ad-slot-banner') > -1 && mr.height > 100) { ins.remove(); collapse(); return 'collapsed'; }
