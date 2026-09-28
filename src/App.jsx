@@ -2740,18 +2740,97 @@ function RegionMap({ onSelectRegion }) {
 // the right one using the `element` PurpleAds hands back.
 const purpleAdRegistry = new Map();
 
+// ── EXOCLICK BANNER FALLBACK ─────────────────────────────────────────────
+// When PurpleAds has no ad for a banner, its onUnfilled callback (below) gives
+// us the container plus the banner sizes that fit it, largest first. We fill it
+// with an ExoClick zone, but only where that zone's real size fits -- so the
+// strict size limits on the top-of-page slot are never broken. Leave PurpleAds'
+// dashboard "Banner Fallback" box empty: when this function exists PurpleAds
+// calls it instead of the saved code.
+//   wide screens  -> the 728x90 zone   (only if a 728x90 fits the slot)
+//   narrow screens -> the 300x250 zone (only if a 300x250 fits the slot)
+const EXOCLICK_ENABLED = true; // set to false to switch this fallback off completely
+const EXOCLICK_ZONES = {
+  desktop: { zone: '6042552', cls: 'eas6a97888e2',  w: 728, h: 90 },
+  mobile:  { zone: '6042554', cls: 'eas6a97888e10', w: 300, h: 250 },
+};
+
+function pickExoClickZone(sizes) {
+  const has = (w, h) => (sizes || []).some((s) =>
+    Array.isArray(s) ? (s[0] === w && s[1] === h) : (s && s.width === w && s.height === h));
+  const wide = window.innerWidth >= 768;
+  if (wide && has(728, 90)) return EXOCLICK_ZONES.desktop;
+  if (!wide && has(300, 250)) return EXOCLICK_ZONES.mobile;
+  return null;
+}
+
+// Fails closed: ExoClick loads outside PurpleAds' own consent handling, so only
+// load it when GDPR doesn't apply, or the visitor has consented to storing /
+// accessing information on their device (TCF purpose 1) via the site's CMP.
+function hasAdConsent() {
+  return new Promise((resolve) => {
+    let done = false;
+    const finish = (v) => { if (!done) { done = true; resolve(v); } };
+    setTimeout(() => finish(false), 3000);
+    try {
+      if (typeof window.__tcfapi !== 'function') return finish(false);
+      window.__tcfapi('getTCData', 2, (tc, ok) => {
+        if (!ok || !tc) return finish(false);
+        if (tc.gdprApplies === false) return finish(true);
+        finish(!!(tc.purpose && tc.purpose.consents && tc.purpose.consents[1]));
+      });
+    } catch (e) { finish(false); }
+  });
+}
+
+function showExoClick(el, z, collapse) {
+  const ins = document.createElement('ins');
+  ins.className = z.cls;
+  ins.setAttribute('data-zoneid', z.zone);
+  // ExoClick's documented way to serve safe-for-work ads only: BOTH parameters
+  // together (their docs stress using both). Not a guarantee -- worth watching.
+  ins.setAttribute('data-ex_av', '2');
+  ins.setAttribute('data-block-ad-types', '101');
+  ins.style.cssText = 'display:block;text-align:center;';
+  el.appendChild(ins);
+  // The ExoClick script is loaded once per page; each "serve" call fills any
+  // zones on the page that haven't been served yet.
+  if (!document.querySelector('script[data-exoclick-provider]')) {
+    const sc = document.createElement('script');
+    sc.async = true;
+    sc.type = 'application/javascript';
+    sc.src = 'https://a.magsrv.com/ad-provider.js';
+    sc.setAttribute('data-exoclick-provider', '1');
+    document.body.appendChild(sc);
+  }
+  (window.AdProvider = window.AdProvider || []).push({ serve: {} });
+  // If nothing rendered (blocked script, no ad), don't leave an empty box.
+  setTimeout(() => {
+    try {
+      if (!ins.querySelector('iframe, img, a') && ins.offsetHeight < 10) { ins.remove(); collapse(); }
+    } catch (e) {}
+  }, 8000);
+}
+
 function ensurePurpleUnfilledHandler() {
   // Best-effort only: this must never be able to stop the ad script itself
-  // from loading. If anything here throws for any reason, the collapse
-  // feature is simply lost for this page view -- ads still load and serve
+  // from loading. If anything here throws for any reason, the fallback is
+  // simply lost for this page view -- PurpleAds ads still load and serve
   // normally, which is a far better failure mode than losing ads entirely.
   try {
     window.purpleDisplay = window.purpleDisplay || {};
     if (window.purpleDisplay.onUnfilled) return;
     window.purpleDisplay.onUnfilled = function(placement) {
       try {
-        const setCollapsed = purpleAdRegistry.get(placement.element);
-        if (setCollapsed) setCollapsed(true);
+        const el = placement.element;
+        const collapse = () => { const c = purpleAdRegistry.get(el); if (c) c(true); };
+        if (!EXOCLICK_ENABLED) return collapse();
+        const zone = pickExoClickZone(placement.sizes);
+        if (!zone) return collapse();
+        hasAdConsent().then((ok) => {
+          if (!ok) return collapse();
+          try { showExoClick(el, zone, collapse); } catch (e) { collapse(); }
+        });
       } catch (e) {}
     };
   } catch (e) {}
