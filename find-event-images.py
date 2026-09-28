@@ -47,6 +47,9 @@ import urllib.request
 import urllib.parse
 
 DEFAULT_IMAGE_MARKER = "images.pexels.com/photos/1640777"
+TITLE_BLOCKLIST = ("minister", "president", "protest", "election", "politic", "rally", "refugee", "out of ukraine")
+GENERIC_LOCS = {"nationwide", "various", "multiple", "national", "countrywide", "worldwide", "throughout"}
+USED_IMAGE_URLS = set()  # images already on other events -- never reuse these
 REQUEST_DELAY_SECONDS = 0.4  # be polite to both APIs
 MAX_RETRIES = 3
 
@@ -108,10 +111,15 @@ def extract_events_db(source_path):
             os.remove(tmp_path)
 
 
+CUSTOM_QUERIES = {}  # slug -> hand-written list of searches (set via --custom-queries)
+
+
 def build_query_chain(event):
     """Builds the specific -> broad fallback list of search queries for one
     event, deduplicating consecutive identical entries (e.g. if the location
     has no separate city part)."""
+    if event.get("slug") in CUSTOM_QUERIES:
+        return CUSTOM_QUERIES[event["slug"]]
     name = event.get("name", "").strip()
     loc = event.get("loc", "").strip()
     tag = event.get("tag", "").strip()
@@ -121,6 +129,8 @@ def build_query_chain(event):
     # broader queries, since "Lucerne" beats "Lucerne, Switzerland" for
     # finding a generic photo of the place.
     city = loc.split(",")[0].strip() if loc else ""
+    if city.lower() in GENERIC_LOCS or any(g in city.lower() for g in ("nationwide", "across ")):
+        city = ""  # "Nationwide" is not a place -- searching it returns random junk
 
     chain = []
     if name:
@@ -190,7 +200,7 @@ def significant_words(query):
     words and generic event-type words (since a generic word like "festival"
     matching a generic word in a photo's title tells us nothing about
     whether the photo is actually about the right festival)."""
-    words = re.findall(r"[a-zA-Z]+", query.lower())
+    words = re.findall(r"[^\W\d_]+", query.lower())  # unicode-aware: keeps accents, Þ, ö, etc.
     return [w for w in words if w not in STOPWORDS and len(w) > 2]
 
 
@@ -210,36 +220,49 @@ def is_relevant(query, title):
     flavors"). No keyword-only check can fully solve that; events whose name
     reads as a generic phrase rather than a distinctive proper noun are
     worth a closer look in the review CSV for exactly this reason."""
+    if any(b in (title or "").lower() for b in TITLE_BLOCKLIST):
+        return False
     sig = significant_words(query)
     if not sig:
         return True  # nothing left to check against, don't block on it
     title_lower = (title or "").lower()
-    matches = [w for w in sig if w in title_lower]
+    # whole-word match, allowing a plural ending: "banana" must not match
+    # inside "Bananarama", but "pumpkin" should still match "pumpkins"
+    matches = [w for w in sig if re.search(r"\b" + re.escape(w) + r"(?:s|es)?\b", title_lower)]
     required = min(2, len(sig))
     return len(matches) >= required
 
 
 def search_pexels(query, api_key):
+    """Pexels always returns *something*, however unrelated, so each result's
+    own description (alt text) must pass the same relevance check Openverse
+    results do, and must not already be used on another event."""
     if not api_key:
         return None
     url = "https://api.pexels.com/v1/search?" + urllib.parse.urlencode({
-        "query": query, "per_page": 1, "orientation": "landscape"
+        "query": query, "per_page": 8, "orientation": "landscape"
     })
     data = http_get_json(url, headers={"Authorization": api_key})
     if not data or not data.get("photos"):
         return None
-    photo = data["photos"][0]
-    return {
-        "source": "pexels",
-        "image_url": photo["src"]["large"],
-        "width": photo.get("width"),
-        "height": photo.get("height"),
-        "photographer_name": photo.get("photographer"),
-        "photographer_url": photo.get("photographer_url"),
-        "license": "Pexels License (free use, attribution appreciated not required)",
-        "license_url": "https://www.pexels.com/license/",
-        "source_page_url": photo.get("url"),
-    }
+    for photo in data["photos"]:
+        if photo["src"]["large"] in USED_IMAGE_URLS:
+            continue
+        if not is_relevant(query, photo.get("alt") or ""):
+            continue
+        return {
+            "source": "pexels",
+            "image_url": photo["src"]["large"],
+            "width": photo.get("width"),
+            "height": photo.get("height"),
+            "photographer_name": photo.get("photographer"),
+            "photographer_url": photo.get("photographer_url"),
+            "license": "Pexels License (free use, attribution appreciated not required)",
+            "license_url": "https://www.pexels.com/license/",
+            "source_page_url": photo.get("url"),
+            "matched_title": photo.get("alt"),
+        }
+    return None
 
 
 def search_openverse(query):
@@ -290,17 +313,30 @@ def find_image_for_event(event, pexels_key):
         # guess even when nothing genuinely matches.
         result = search_openverse(query)
         time.sleep(REQUEST_DELAY_SECONDS)
-        if result:
+        if result and result["image_url"] not in USED_IMAGE_URLS:
             result["query_used"] = query
             result["query_level"] = level
+            USED_IMAGE_URLS.add(result["image_url"])
             return result
         result = search_pexels(query, pexels_key)
         time.sleep(REQUEST_DELAY_SECONDS)
-        if result:
+        if result and result["image_url"] not in USED_IMAGE_URLS:
             result["query_used"] = query
             result["query_level"] = level
+            USED_IMAGE_URLS.add(result["image_url"])
             return result
     return None
+
+
+def backup_if_exists(path):
+    """Never silently overwrite an earlier results file -- rename it with a
+    timestamp first so previous runs are always kept."""
+    if os.path.exists(path):
+        stamp = time.strftime("%Y%m%d-%H%M%S")
+        base, ext = os.path.splitext(path)
+        backup = f"{base}.backup-{stamp}{ext}"
+        os.rename(path, backup)
+        print(f"(kept your previous {path} as {backup})")
 
 
 def main():
@@ -310,6 +346,8 @@ def main():
                          help="Pexels API key (or set PEXELS_API_KEY env var)")
     parser.add_argument("--limit", type=int, default=None,
                          help="Only process the first N events (useful for a quick test run)")
+    parser.add_argument("--custom-queries", default=None,
+                         help="JSON file mapping event slug -> list of hand-written search terms, used instead of the automatic chain. If given without --only-slugs, only those events are processed.")
     parser.add_argument("--only-slugs", default=None,
                          help="Path to a JSON file containing a list of event slugs to reprocess "
                               "(e.g. [\"lucerne-cheese-festival\", ...]). If given, only these "
@@ -329,9 +367,15 @@ def main():
     events = extract_events_db(args.source)
     print(f"Total events: {len(events)}")
 
+    if args.custom_queries:
+        with open(args.custom_queries, "r", encoding="utf-8") as f:
+            CUSTOM_QUERIES.update(json.load(f))
+        if not args.only_slugs:
+            args.only_slugs = args.custom_queries
     if args.only_slugs:
         with open(args.only_slugs, "r", encoding="utf-8") as f:
-            wanted_slugs = set(json.load(f))
+            _loaded = json.load(f)
+            wanted_slugs = set(_loaded.keys() if isinstance(_loaded, dict) else _loaded)
         todo = [(slug, ev) for slug, ev in events.items() if slug in wanted_slugs]
         missing = wanted_slugs - {slug for slug, _ in todo}
         print(f"Reprocessing only the {len(todo)} events listed in {args.only_slugs}")
@@ -342,6 +386,13 @@ def main():
                 if DEFAULT_IMAGE_MARKER in (ev.get("image") or "")]
         print(f"Events still on the default image: {len(todo)}")
 
+    redo_slugs = {slug for slug, _ in todo}
+    for slug, ev in events.items():
+        img = ev.get("image") or ""
+        if DEFAULT_IMAGE_MARKER not in img:
+            USED_IMAGE_URLS.add(img)
+    print(f"{len(USED_IMAGE_URLS)} images already in use on other events will be skipped, so no photo gets reused.")
+
     if args.limit:
         todo = todo[:args.limit]
         print(f"(--limit set: only processing first {len(todo)})")
@@ -351,6 +402,7 @@ def main():
 
     for idx, (slug, event) in enumerate(todo, start=1):
         print(f"\n[{idx}/{len(todo)}] {event.get('name')} ({event.get('country')})")
+        event = {**event, "slug": slug}
         found = find_image_for_event(event, args.pexels_key)
         if found:
             row = {
@@ -368,9 +420,10 @@ def main():
 
     # Write CSV for human review
     csv_path = "event_image_results.csv"
+    backup_if_exists(csv_path)
     fieldnames = ["slug", "name", "country", "loc", "query_used", "query_level", "source",
                   "image_url", "width", "height", "photographer_name", "photographer_url",
-                  "license", "license_url", "source_page_url", "openverse_page_url"]
+                  "license", "license_url", "source_page_url", "openverse_page_url", "matched_title"]
     with open(csv_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
         writer.writeheader()
@@ -379,6 +432,7 @@ def main():
 
     # Write JSON for re-processing
     json_path = "event_image_results.json"
+    backup_if_exists(json_path)
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump({"found": results, "not_found": not_found}, f, indent=2, ensure_ascii=False)
 
