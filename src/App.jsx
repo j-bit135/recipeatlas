@@ -2788,6 +2788,36 @@ function hasAdConsent() {
   });
 }
 
+// Looks at the ad ExoClick actually delivered and makes the slot fit it, rather than
+// assuming it matches the zone's nominal size. Handles: a fixed-height box inside
+// ExoClick's own markup trimming the bottom of the ad; a wider creative (e.g. 970)
+// arriving in a narrower slot; and anything taller than a banner in a top-of-page slot.
+function fitExoClickAd(el, ins, collapse) {
+  const media = ins.querySelector('iframe, img, canvas, video, object, embed');
+  if (!media) return 'waiting';
+  const mr = media.getBoundingClientRect();
+  if (mr.width < 20 || mr.height < 20) return 'waiting';           // not drawn yet
+  const room = el.parentElement ? el.parentElement.clientWidth : window.innerWidth;
+  // Top-of-page slots never take anything taller than a banner, whatever ExoClick sends.
+  if (el.className.indexOf('pa-ad-slot-banner') > -1 && mr.height > 100) { ins.remove(); collapse(); return 'collapsed'; }
+  // Wider than the space available: hide it rather than clip or overflow the page.
+  if (mr.width > room + 1) { ins.remove(); collapse(); return 'collapsed'; }
+  // Grow the slot to the ad that really arrived (stays centred by its parent).
+  if (mr.width > el.clientWidth + 1) el.style.width = Math.ceil(mr.width) + 'px';
+  // Lift anything between the ad and the slot that could cut it off.
+  for (let n = media.parentElement; n && n !== el.parentElement; n = n.parentElement) {
+    const cs = getComputedStyle(n);
+    const r = n.getBoundingClientRect();
+    if (cs.overflowX !== 'visible' || cs.overflowY !== 'visible') n.style.setProperty('overflow', 'visible', 'important');
+    if (r.height < mr.height - 1) {
+      n.style.setProperty('max-height', 'none', 'important');
+      n.style.setProperty('height', Math.ceil(mr.height) + 'px', 'important');
+    }
+    if (r.width < mr.width - 1 && n !== el) n.style.setProperty('width', Math.ceil(mr.width) + 'px', 'important');
+  }
+  return 'ok';
+}
+
 function showExoClick(el, z, collapse) {
   // Never place an ad wider than the space it's going into.
   const room = el.parentElement ? el.parentElement.clientWidth : window.innerWidth;
@@ -2819,6 +2849,12 @@ function showExoClick(el, z, collapse) {
     document.body.appendChild(sc);
   }
   (window.AdProvider = window.AdProvider || []).push({ serve: {} });
+  // Once the ad has drawn, check it fits and isn't being clipped (re-checks briefly in
+  // case the creative resizes after loading).
+  const fitTimer = setInterval(() => {
+    try { if (fitExoClickAd(el, ins, collapse) === 'collapsed') clearInterval(fitTimer); } catch (e) { clearInterval(fitTimer); }
+  }, 300);
+  setTimeout(() => clearInterval(fitTimer), 10000);
   // If nothing rendered (blocked script, no ad), don't leave an empty box.
   setTimeout(() => {
     try {
