@@ -2841,9 +2841,15 @@ function fitExoClickAd(el, ins, collapse) {
   } catch (e) { /* cross-origin frame: can't look inside, skip */ }
   const room = el.parentElement ? el.parentElement.clientWidth : window.innerWidth;
   // Top-of-page slots never take anything taller than a banner, whatever ExoClick sends.
-  if (el.className.indexOf('pa-ad-slot-banner') > -1 && mr.height > 110) { ins.remove(); collapse(); return 'collapsed'; }
+  if (el.className.indexOf('pa-ad-slot-banner') > -1 && mr.height > 110) {
+    exoLog('zone ' + ins.getAttribute('data-zoneid') + ' delivered a ' + Math.round(mr.width) + 'x' + Math.round(mr.height) + ' ad, which is taller than the top-of-page slot allows -> hidden');
+    ins.remove(); collapse(); return 'collapsed';
+  }
   // Wider than the space available: hide it rather than clip or overflow the page.
-  if (mr.width > room + 1) { ins.remove(); collapse(); return 'collapsed'; }
+  if (mr.width > room + 1) {
+    exoLog('zone ' + ins.getAttribute('data-zoneid') + ' delivered a ' + Math.round(mr.width) + 'x' + Math.round(mr.height) + ' ad, wider than the ' + Math.round(room) + 'px available -> hidden');
+    ins.remove(); collapse(); return 'collapsed';
+  }
   // Grow the slot to the ad that really arrived (stays centred by its parent).
   if (mr.width > el.clientWidth + 1) el.style.width = Math.ceil(mr.width) + 'px';
   // Lift anything between the ad and the slot that could cut it off.
@@ -2857,7 +2863,7 @@ function fitExoClickAd(el, ins, collapse) {
     }
     if (r.width < mr.width - 1 && n !== el) n.style.setProperty('width', Math.ceil(mr.width) + 'px', 'important');
   }
-  if (!ins.__exoLogged) { ins.__exoLogged = true; exoLog('zone ' + ins.getAttribute('data-zoneid') + ': ad rendered at ' + Math.round(mr.width) + 'x' + Math.round(mr.height)); }
+  if (!ins.__exoLogged) { ins.__exoLogged = true; exoLog('zone ' + ins.getAttribute('data-zoneid') + ': ad rendered at ' + Math.round(mr.width) + 'x' + Math.round(mr.height) + ' (' + media.tagName.toLowerCase() + ' inside a zone box of ' + Math.round(ins.getBoundingClientRect().width) + 'x' + Math.round(ins.getBoundingClientRect().height) + ')'); }
   return 'ok';
 }
 
