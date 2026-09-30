@@ -2982,6 +2982,29 @@ function ensurePurpleUnfilledHandler() {
   } catch (e) {}
 }
 
+// Which provider to use for ad slots. 'exoclick' skips PurpleAds' own request
+// entirely (their own docs say it can take up to 8 seconds to decide it has no
+// ad before our fallback even starts) and goes straight to ExoClick, which
+// answers in well under a second. Switch back to 'purpleads' to restore the
+// normal PurpleAds-first waterfall (PurpleAds tried first, ExoClick as its
+// fallback) once PurpleAds' own fill improves.
+const AD_PROVIDER = 'exoclick';
+
+function loadAds(el, setCollapsed) {
+  if (AD_PROVIDER === 'exoclick') {
+    const collapse = () => setCollapsed(true);
+    if (!EXOCLICK_ENABLED) return collapse();
+    const zones = exoClickCandidates(el);
+    if (!zones.length) return collapse();
+    hasAdConsent().then((ok) => {
+      if (!ok) { exoLog('skipped: visitor has not consented (or the cookie banner has not answered)'); return collapse(); }
+      try { tryExoClickZones(el, zones, collapse); } catch (e) { collapse(); }
+    });
+    return;
+  }
+  loadPurpleAd(el, setCollapsed);
+}
+
 function loadPurpleAd(el, setCollapsed) {
   // The ad script itself is always appended first and unconditionally --
   // nothing above this can prevent it from loading.
@@ -3018,7 +3041,7 @@ function PurpleAdSlot({ variant, lazy }) {
   useEffect(() => {
     if (!shouldLoad || !containerRef.current) return;
     const el = containerRef.current;
-    loadPurpleAd(el, setCollapsed);
+    loadAds(el, setCollapsed);
     return () => {
       purpleAdRegistry.delete(el);
     };
@@ -4136,7 +4159,7 @@ function SearchBox({ navigate, mobile, onOpenChange }) {
       <div ref={boxRef} style={{ position: "relative", display: "flex", alignItems: "center" }}>
         <span onClick={() => setOpen(o => !o)}
           style={{ cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: 8,
-            color: open ? "#fff" : "#5a5248", background: open ? "#c2622a" : "transparent" }}
+            color: open ? "#fff" : "#1a1714", background: open ? "#c2622a" : "transparent" }}
           aria-label="Search recipes">
           {searchIcon(2.6)}
         </span>
@@ -4969,7 +4992,7 @@ function App() {
             <SearchBox navigate={navigate} mobile onOpenChange={(isOpen) => { if (isOpen) setMobileMenuOpen(false); }} />
             <span ref={mobileMenuBtnRef} onClick={() => setMobileMenuOpen(o => !o)}
               style={{ cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", width:34, height:34, borderRadius:8,
-                color: mobileMenuOpen ? "#fff" : "#5a5248", background: mobileMenuOpen ? "#c2622a" : "transparent" }}
+                color: mobileMenuOpen ? "#fff" : "#1a1714", background: mobileMenuOpen ? "#c2622a" : "transparent" }}
               aria-label="Menu">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
                 <line x1="4" y1="7" x2="20" y2="7" />
