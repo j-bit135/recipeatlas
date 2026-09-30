@@ -1880,27 +1880,6 @@ const styles = `
   }
   .shopping-list-item span:first-child { font-weight: 700; color: #c2622a; min-width: 62px; flex-shrink: 0; }
 
-  .pa-ad-wrap { display: flex; justify-content: center; align-items: center; margin: 24px 0; }
-  .pa-ad-slot { width: 100%; max-width: 320px; }
-  @media (min-width: 500px) { .pa-ad-slot { max-width: 728px; } }
-  @media (min-width: 992px) { .pa-ad-slot { max-width: 970px; } }
-  /* First-ad-on-page restriction: PurpleAds' own documented mechanism for
-     limiting creative size is the container's own width/height -- so unlike
-     the general slot above (any size, used for the second ad on a page),
-     this one fixes an explicit height matching a real banner size at each
-     breakpoint (300x50/320x50 -> 468x60 -> 728x90 -> 970x90), with
-     overflow hidden as a backstop, so nothing large/vertical can ever
-     render at the top of a page. */
-  .pa-ad-slot-banner { width: 100%; max-width: 320px; max-height: 100px; overflow: hidden; }
-  @media (min-width: 500px) { .pa-ad-slot-banner { max-width: 468px; max-height: 60px; } }
-  @media (min-width: 760px) { .pa-ad-slot-banner { max-width: 728px; max-height: 90px; } }
-  @media (min-width: 992px) { .pa-ad-slot-banner { max-width: 970px; max-height: 90px; } }
-  /* Fallback zones (ExoClick): the slot itself is sized to the ad in JS (see showExoClick),
-     so the zone element just fills it. Scoped to zone elements only -- PurpleAds is untouched. */
-  .pa-ad-wrap ins[data-zoneid] { display: block !important; width: 100% !important; margin: 0 auto !important; text-align: center !important; text-decoration: none; }
-  .pa-ad-wrap ins[data-zoneid] iframe { display: block !important; margin: 0 auto !important; }
-  .pa-ad-wrap ins[data-zoneid] > * { margin-left: auto !important; margin-right: auto !important; }
-
   @media (max-height: 700px) {
     .shopping-list-modal { top: 70px; bottom: 10px; padding: 18px; }
     .shopping-list-item { font-size: 12.5px; padding: 6px 0; }
@@ -2672,7 +2651,6 @@ function RegionMap({ onSelectRegion }) {
 
       {/* Interactive world map */}
       <div id="ra-world-map" className="ra-home-map" style={{ width:"100%", maxWidth:mapMaxWidth, marginLeft:"auto", marginRight:"auto", borderRadius:12, overflow:"hidden", background:"transparent", marginBottom:mapMarginBottom }}></div>
-      <PurpleAdSlot variant="banner" />
       <div id="ra-map-tip" style={{ position:"fixed", background:"rgba(26,23,20,.9)", color:"#fff", padding:"6px 14px", borderRadius:8, fontSize:13, fontWeight:600, pointerEvents:"none", display:"none", zIndex:999, whiteSpace:"nowrap" }}></div>
 
 
@@ -2707,7 +2685,6 @@ function RegionMap({ onSelectRegion }) {
           </div>
         ))}
       </div>
-      <PurpleAdSlot lazy />
 
 
       {/* Recipe inspiration */}
@@ -2716,7 +2693,6 @@ function RegionMap({ onSelectRegion }) {
 
       {/* What's on this month */}
       <EventsThisMonthCarousel spacing={93} />
-      <PurpleAdSlot lazy />
 
 
       {/* Sandwiches carousel */}
@@ -2734,335 +2710,12 @@ function RegionMap({ onSelectRegion }) {
   );
 }
 
-// A single global registry mapping each ad slot's DOM element to its React
-// collapse-setter. PurpleAds' own API (window.purpleDisplay.onUnfilled) is
-// one shared function for the whole page, called directly by their script
-// the moment a specific banner is confirmed unfilled (no demand, or their
-// request timed out) -- not a guess based on rendered size or DOM content,
-// but the real, documented signal from PurpleAds itself. Since multiple
-// PurpleAdSlot instances can exist on one page, each instance registers
-// itself here on mount so the single shared callback can find and collapse
-// the right one using the `element` PurpleAds hands back.
-const purpleAdRegistry = new Map();
-
-// ── EXOCLICK BANNER FALLBACK ─────────────────────────────────────────────
-// When PurpleAds has no ad for a banner, its onUnfilled callback (below) hands us the
-// slot. We fill it with a fixed-size ExoClick zone chosen from the slot's real limits:
-// the width it has, and the maximum height its CSS allows (the same caps the top-of-page
-// slot has always had). We use the slot's own geometry rather than PurpleAds' size list
-// because PurpleAds doesn't list every size we hold zones for (e.g. 300x50).
-// Leave PurpleAds' dashboard "Banner Fallback" box empty: when this function exists
-// PurpleAds calls it instead of the saved code.
-//   Top-of-page slot : only ever 728x90, 300x100 or 300x50 (biggest that fits).
-//   Every other slot : any zone that fits, picked at random so each gets traffic and the
-//                      per-zone stats in ExoClick show which sizes actually earn.
-//   Wide screens use the desktop zones, narrow screens the mobile ones.
-const EXOCLICK_ENABLED = true;        // set to false to switch this fallback off completely
-const EXOCLICK_ROTATE_LOWER = true;   // false = always use the biggest zone that fits instead
-const EXOCLICK_ATTEMPT_MS = 3000;      // how long the first zone gets to show an ad (includes loading ExoClick's script)
-const EXOCLICK_RETRY_MS = 1200;        // how long each later zone in the same slot gets. Not an auction window: ExoClick decides
-                                       // server-side and answers in about 0.1s (measured), so this is only our give-up point
-const EXOCLICK_DEBUG = true;         // logs what the fallback does to the browser console; set false once you're happy
-function exoLog(...a) { if (EXOCLICK_DEBUG) { try { console.info('[ExoClick]', ...a); } catch (e) {} } }
-const EXOCLICK_ZONES = [
-  { zone: '6042588', cls: 'eas6a97888e2',  w: 728, h: 90,  device: 'desktop', top: true,  first: true }, // tried first in lower slots; falls through if it doesn't fill
-  { zone: '6042552', cls: 'eas6a97888e2',  w: 300, h: 500, device: 'desktop', top: false },
-  { zone: '6042592', cls: 'eas6a97888e2',  w: 300, h: 250, device: 'desktop', top: false },
-  { zone: '6042554', cls: 'eas6a97888e10', w: 300, h: 250, device: 'mobile',  top: false },
-  { zone: '6042594', cls: 'eas6a97888e10', w: 300, h: 100, device: 'mobile',  top: true  },
-  { zone: '6042598', cls: 'eas6a97888e10', w: 300, h: 50,  device: 'mobile',  top: true  },
-];
-
-// Returns the zones to try for this slot, in order. Must run BEFORE showExoClick changes the
-// slot's styles, so it reads the slot's real limits. Lower slots get a random order so every
-// zone gets a first chance; the top slot goes biggest-first.
-function exoClickCandidates(el) {
-  const cs = getComputedStyle(el);
-  const isTop = el.className.indexOf('pa-ad-slot-banner') > -1;
-  const room = el.clientWidth || (el.parentElement ? el.parentElement.clientWidth : 0);
-  const mh = parseFloat(cs.maxHeight);
-  const maxH = isNaN(mh) ? Infinity : mh;                       // "none" = no height limit
-  const device = window.innerWidth >= 768 ? 'desktop' : 'mobile';
-  const fitsFor = (dev) => EXOCLICK_ZONES.filter((z) =>
-    z.device === dev && z.w <= room && z.h <= maxH && (!isTop || z.top));
-  let fits = fitsFor(device);
-  if (!fits.length) fits = fitsFor(device === 'desktop' ? 'mobile' : 'desktop'); // e.g. iPad portrait
-  if (!fits.length) {
-    exoLog('no zone fits this ' + (isTop ? 'top' : 'lower') + ' slot (width ' + room + 'px, max height ' + maxH + ', ' + device + ') -> hidden');
-    return [];
-  }
-  let order = fits.slice().sort((x, y) => y.w * y.h - x.w * x.h);   // biggest first
-  if (!isTop && EXOCLICK_ROTATE_LOWER) {
-    for (let i = order.length - 1; i > 0; i--) {                    // shuffle
-      const j = Math.floor(Math.random() * (i + 1));
-      [order[i], order[j]] = [order[j], order[i]];
-    }
-  }
-  order = order.map((z, i) => ({ z, i })).sort((a, b) => ((b.z.first ? 1 : 0) - (a.z.first ? 1 : 0)) || (a.i - b.i)).map((o) => o.z);
-  exoLog('zones to try for the ' + (isTop ? 'top' : 'lower') + ' slot, in order: ' + order.map((z) => z.zone + ' (' + z.w + 'x' + z.h + ')').join(', '));
-  return order;
-}
-
-// Kept so a single choice can still be asked for (first in the order).
-function pickExoClickZone(el) {
-  const list = exoClickCandidates(el);
-  return list.length ? list[0] : null;
-}
-
-// Fails closed: ExoClick loads outside PurpleAds' own consent handling, so only
-// load it when GDPR doesn't apply, or the visitor has consented to storing /
-// accessing information on their device (TCF purpose 1) via the site's CMP.
-function hasAdConsent() {
-  return new Promise((resolve) => {
-    let done = false;
-    const finish = (v) => { if (!done) { done = true; resolve(v); } };
-    setTimeout(() => finish(false), 3000);
-    try {
-      if (typeof window.__tcfapi !== 'function') return finish(false);
-      window.__tcfapi('getTCData', 2, (tc, ok) => {
-        if (!ok || !tc) return finish(false);
-        if (tc.gdprApplies === false) return finish(true);
-        finish(!!(tc.purpose && tc.purpose.consents && tc.purpose.consents[1]));
-      });
-    } catch (e) { finish(false); }
-  });
-}
-
-// Looks at the ad ExoClick actually delivered and makes the slot fit it, rather than
-// assuming it matches the zone's nominal size. Handles: a fixed-height box inside
-// ExoClick's own markup trimming the bottom of the ad; a wider creative (e.g. 970)
-// arriving in a narrower slot; and anything taller than a banner in a top-of-page slot.
-function fitExoClickAd(el, ins, collapse) {
-  // Pick the biggest thing inside the zone, not the first: networks often put a tiny
-  // invisible tracking pixel or frame ahead of the real ad.
-  let media = null, best = 0;
-  ins.querySelectorAll('iframe, img, canvas, video, object, embed').forEach((m) => {
-    const b = m.getBoundingClientRect(); const area = b.width * b.height;
-    if (area > best) { best = area; media = m; }
-  });
-  if (!media) return 'waiting';
-  let mr = media.getBoundingClientRect();
-  if (mr.width < 20 || mr.height < 20) return 'waiting';           // not drawn yet
-  // If the ad's own frame is a few pixels shorter than what's inside it (readable only when
-  // the frame is same-origin), grow the frame so the bottom of the creative isn't cut off.
-  try {
-    const d = media.contentDocument;
-    if (d && d.documentElement) {
-      const need = Math.max(d.documentElement.scrollHeight, d.body ? d.body.scrollHeight : 0);
-      if (need > mr.height + 1 && need < mr.height + 60) {
-        media.style.setProperty('height', need + 'px', 'important');
-        media.setAttribute('height', String(need));
-        mr = media.getBoundingClientRect();
-      }
-    }
-  } catch (e) { /* cross-origin frame: can't look inside, skip */ }
-  const room = el.parentElement ? el.parentElement.clientWidth : window.innerWidth;
-  // Top-of-page slots never take anything taller than a banner, whatever ExoClick sends.
-  if (el.className.indexOf('pa-ad-slot-banner') > -1 && mr.height > 110) {
-    exoLog('zone ' + ins.getAttribute('data-zoneid') + ' delivered a ' + Math.round(mr.width) + 'x' + Math.round(mr.height) + ' ad, which is taller than the top-of-page slot allows -> skipping this zone');
-    ins.remove(); collapse(); return 'collapsed';
-  }
-  // Wider than the space available: hide it rather than clip or overflow the page.
-  if (mr.width > room + 1) {
-    exoLog('zone ' + ins.getAttribute('data-zoneid') + ' delivered a ' + Math.round(mr.width) + 'x' + Math.round(mr.height) + ' ad, wider than the ' + Math.round(room) + 'px available -> skipping this zone');
-    ins.remove(); collapse(); return 'collapsed';
-  }
-  // Grow the slot to the ad that really arrived (stays centred by its parent).
-  if (mr.width > el.clientWidth + 1) el.style.width = Math.ceil(mr.width) + 'px';
-  // Lift anything between the ad and the slot that could cut it off.
-  for (let n = media.parentElement; n && n !== el.parentElement; n = n.parentElement) {
-    const cs = getComputedStyle(n);
-    const r = n.getBoundingClientRect();
-    if (cs.overflowX !== 'visible' || cs.overflowY !== 'visible') n.style.setProperty('overflow', 'visible', 'important');
-    if (r.height < mr.height - 1) {
-      n.style.setProperty('max-height', 'none', 'important');
-      n.style.setProperty('height', Math.ceil(mr.height) + 'px', 'important');
-    }
-    if (r.width < mr.width - 1 && n !== el) n.style.setProperty('width', Math.ceil(mr.width) + 'px', 'important');
-  }
-  if (!ins.__exoLogged) { ins.__exoLogged = true; exoLog('zone ' + ins.getAttribute('data-zoneid') + ': ad rendered at ' + Math.round(mr.width) + 'x' + Math.round(mr.height) + ' after ' + (Date.now() - (ins.__exoStart || Date.now())) + 'ms (' + media.tagName.toLowerCase() + ' inside a zone box of ' + Math.round(ins.getBoundingClientRect().width) + 'x' + Math.round(ins.getBoundingClientRect().height) + ')'); }
-  return 'ok';
-}
-
-function showExoClick(el, z, fail, attemptMs) {
-  const startedAt = Date.now();
-  // Never place an ad wider than the space it's going into.
-  const room = el.parentElement ? el.parentElement.clientWidth : window.innerWidth;
-  if (room && room < z.w) { exoLog('zone ' + z.zone + ' is wider than the space available'); return fail(); }
-  // Size the slot to exactly this ad. Zones set to "responsive" pick their size from the
-  // box they sit in, so a full-width slot lets them draw wider than the ad and leaves it
-  // off-centre. An exact-size slot is centred by its parent, and the top slot's height cap
-  // and clipping are lifted so nothing is trimmed.
-  el.style.width = z.w + 'px';
-  el.style.maxWidth = '100%';
-  el.style.maxHeight = 'none';
-  el.style.overflow = 'visible';
-  const ins = document.createElement('ins');
-  ins.className = z.cls;
-  ins.setAttribute('data-zoneid', z.zone);
-  // ExoClick's documented way to serve safe-for-work ads only: BOTH parameters
-  // together (their docs stress using both). Not a guarantee -- worth watching.
-  ins.setAttribute('data-ex_av', '2');
-  ins.setAttribute('data-block-ad-types', '101');
-  ins.__exoStart = startedAt;
-  el.appendChild(ins);
-  // The ExoClick script is loaded once per page; each "serve" call fills any
-  // zones on the page that haven't been served yet.
-  if (!document.querySelector('script[data-exoclick-provider]')) {
-    const sc = document.createElement('script');
-    sc.async = true;
-    sc.type = 'application/javascript';
-    sc.src = 'https://a.magsrv.com/ad-provider.js';
-    sc.setAttribute('data-exoclick-provider', '1');
-    document.body.appendChild(sc);
-  }
-  exoLog('requesting zone ' + z.zone + ' (' + z.w + 'x' + z.h + ')');
-  (window.AdProvider = window.AdProvider || []).push({ serve: {} });
-
-  // This attempt ends exactly once: either an ad renders and stays, or it is abandoned
-  // (no ad, oversized, too wide) and the next zone in line gets its turn.
-  let over = false, fitTimer = null, noFillTimer = null;
-  const abandon = () => {
-    if (over) return;
-    over = true;
-    clearInterval(fitTimer); clearTimeout(noFillTimer);
-    try { ins.remove(); } catch (e) {}
-    fail();
-  };
-  // Once the ad has drawn, check it fits and isn't being clipped (re-checks briefly in
-  // case the creative resizes after loading).
-  fitTimer = setInterval(() => {
-    try { if (fitExoClickAd(el, ins, abandon) === 'collapsed') clearInterval(fitTimer); } catch (e) { clearInterval(fitTimer); }
-  }, 300);
-  setTimeout(() => clearInterval(fitTimer), 10000);
-  // Nothing rendered (blocked script, no ad for this zone): move on to the next zone.
-  noFillTimer = setTimeout(() => {
-    try {
-      if (!over && !ins.querySelector('iframe, img, a') && ins.offsetHeight < 10) {
-        exoLog('zone ' + z.zone + ' (' + z.w + 'x' + z.h + '): NO AD came back within ' + ((attemptMs || EXOCLICK_ATTEMPT_MS) / 1000) + 's');
-        abandon();
-      }
-    } catch (e) {}
-  }, attemptMs || EXOCLICK_ATTEMPT_MS);
-}
-
-// Tries each zone in turn until one shows an ad; the slot is hidden only if none do.
-function tryExoClickZones(el, zones, collapse) {
-  let i = 0;
-  const next = () => {
-    if (i >= zones.length) { exoLog('no zone filled this slot -> hidden'); return collapse(); }
-    const z = zones[i++];
-    try { showExoClick(el, z, next, i === 1 ? EXOCLICK_ATTEMPT_MS : EXOCLICK_RETRY_MS); } catch (e) { next(); }
-  };
-  next();
-}
-
-function ensurePurpleUnfilledHandler() {
-  // Best-effort only: this must never be able to stop the ad script itself
-  // from loading. If anything here throws for any reason, the fallback is
-  // simply lost for this page view -- PurpleAds ads still load and serve
-  // normally, which is a far better failure mode than losing ads entirely.
-  try {
-    window.purpleDisplay = window.purpleDisplay || {};
-    if (window.purpleDisplay.onUnfilled) return;
-    window.purpleDisplay.onUnfilled = function(placement) {
-      try {
-        const el = placement.element;
-        const collapse = () => { const c = purpleAdRegistry.get(el); if (c) c(true); };
-        exoLog('PurpleAds had no ad for a slot (' + placement.reason + ')');
-        if (!EXOCLICK_ENABLED) return collapse();
-        const zones = exoClickCandidates(el);
-        if (!zones.length) return collapse();
-        hasAdConsent().then((ok) => {
-          if (!ok) { exoLog('skipped: visitor has not consented (or the cookie banner has not answered)'); return collapse(); }
-          try { tryExoClickZones(el, zones, collapse); } catch (e) { collapse(); }
-        });
-      } catch (e) {}
-    };
-  } catch (e) {}
-}
-
-// Which provider to use for ad slots. 'exoclick' skips PurpleAds' own request
-// entirely (their own docs say it can take up to 8 seconds to decide it has no
-// ad before our fallback even starts) and goes straight to ExoClick, which
-// answers in well under a second. Switch back to 'purpleads' to restore the
-// normal PurpleAds-first waterfall (PurpleAds tried first, ExoClick as its
-// fallback) once PurpleAds' own fill improves.
-const AD_PROVIDER = 'exoclick';
-
-function loadAds(el, setCollapsed) {
-  if (AD_PROVIDER === 'exoclick') {
-    const collapse = () => setCollapsed(true);
-    if (!EXOCLICK_ENABLED) return collapse();
-    const zones = exoClickCandidates(el);
-    if (!zones.length) return collapse();
-    hasAdConsent().then((ok) => {
-      if (!ok) { exoLog('skipped: visitor has not consented (or the cookie banner has not answered)'); return collapse(); }
-      try { tryExoClickZones(el, zones, collapse); } catch (e) { collapse(); }
-    });
-    return;
-  }
-  loadPurpleAd(el, setCollapsed);
-}
-
-function loadPurpleAd(el, setCollapsed) {
-  // The ad script itself is always appended first and unconditionally --
-  // nothing above this can prevent it from loading.
-  const script = document.createElement('script');
-  script.src = "https://cdn.prplads.com/agent.js?publisherId=fa39bc0409f74281489dbfa3a0c72c01:b9db810c103e05c40722e0ed383f723eeaaf6c9bb8e13a5a2956ba57898db08e9ffc1d6d9334aa154c2d7182dac67f9538334833ef17b003beb7026b0bd172fd";
-  script.async = true;
-  script.setAttribute('data-pa-tag', '');
-  el.appendChild(script);
-
-  ensurePurpleUnfilledHandler();
-  purpleAdRegistry.set(el, setCollapsed);
-}
-
-function PurpleAdSlot({ variant, lazy }) {
-  const containerRef = useRef(null);
-  const [collapsed, setCollapsed] = useState(false);
-  const [shouldLoad, setShouldLoad] = useState(!lazy);
-
-  // Lazy variant: don't request the ad at all until the slot is about to
-  // scroll into view. Avoids spending an ad request on visitors who never
-  // scroll that far, and keeps the initial page load lighter.
-  useEffect(() => {
-    if (!lazy || shouldLoad || !containerRef.current) return;
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
-        setShouldLoad(true);
-        observer.disconnect();
-      }
-    }, { rootMargin: '0px' });
-    observer.observe(containerRef.current);
-    return () => observer.disconnect();
-  }, [lazy, shouldLoad]);
-
-  useEffect(() => {
-    if (!shouldLoad || !containerRef.current) return;
-    const el = containerRef.current;
-    loadAds(el, setCollapsed);
-    return () => {
-      purpleAdRegistry.delete(el);
-    };
-  }, [shouldLoad]);
-
-  if (collapsed) return null;
-
-  return (
-    <div className="pa-ad-wrap no-print">
-      <div ref={containerRef} className={variant === 'banner' ? 'pa-ad-slot-banner' : 'pa-ad-slot'} />
-    </div>
-  );
-}
-
 function RegionView({ regionId, onBack, onSelectCountry }) {
   const region = REGIONS.find(r => r.id === regionId);
   if (!region) return null;
   const regionRecipeKeys = Object.keys(RECIPE_DB).filter(k => region.countries.includes(RECIPE_DB[k].country));
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
-      <PurpleAdSlot variant="banner" />
       <button onClick={onBack}
         style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
         ← All Regions
@@ -3087,7 +2740,6 @@ function RegionView({ regionId, onBack, onSelectCountry }) {
           ))}
         </div>
       </div>
-      <PurpleAdSlot lazy />
       <RecipeInspiration recipes={getRandomRecipes(regionRecipeKeys, 3)} pool={regionRecipeKeys} title="Recipe Inspiration" />
     </div>
   );
@@ -3102,7 +2754,6 @@ function CountryView({ country, onBack, onSelectDish }) {
 
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
-      <PurpleAdSlot variant="banner" />
       <button onClick={onBack}
         style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
         ← Back
@@ -3125,7 +2776,6 @@ function CountryView({ country, onBack, onSelectDish }) {
           ))}
         </div>
       </div>
-      <PurpleAdSlot lazy />
       <RecipeInspiration recipes={getRandomRecipes(countryRecipeKeys, 3)} pool={countryRecipeKeys} title="Recipe Inspiration" />
     </div>
   );
@@ -3485,7 +3135,6 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
 
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
-      <PurpleAdSlot variant="banner" />
       <button onClick={onBack}
         style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
         ← Back to {country || recipeCountry}
@@ -3686,7 +3335,6 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
               </button>
             </div>
             </div>
-            <PurpleAdSlot lazy />
 
             <CommentSection dish={dish} />
 
@@ -3742,7 +3390,6 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
               );
             })()}
 
-            <PurpleAdSlot lazy />
 
           </div>
         ) : (
@@ -3870,7 +3517,6 @@ function EventDetailView({ eventSlug, onBack, navigate }) {
   }
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
-      <PurpleAdSlot variant="banner" />
       <button onClick={onBack}
         style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
         ← Back to events
@@ -3945,7 +3591,6 @@ function EventDetailView({ eventSlug, onBack, navigate }) {
         </div>
       )}
       </div>
-      <PurpleAdSlot lazy />
     </div>
   );
 }
@@ -5435,7 +5080,6 @@ function BlogPage({ initialSlug, navigate }) {
     const post = BLOG_POSTS[activePost];
     return (
       <div style={{ maxWidth:1070, margin:"0 auto" }}>
-        <PurpleAdSlot variant="banner" />
         <button onClick={closePost}
           style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", marginBottom:20, padding:0, display:"flex", alignItems:"center", gap:6 }}>
           ← Back to Blog
@@ -5458,7 +5102,6 @@ function BlogPage({ initialSlug, navigate }) {
             ) : null
           ))}
         </div>
-        <PurpleAdSlot lazy />
       </div>
     );
   }
