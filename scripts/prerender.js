@@ -18,9 +18,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST_DIR = path.join(__dirname, '..', 'dist');
 const ROUTES_FILE = path.join(__dirname, 'routes.json');
 const PORT = 4173;
-const CONCURRENCY = 6;
+const CONCURRENCY = 8;
 const PAGE_TIMEOUT_MS = 20000;
-const OVERALL_BUDGET_MS = 25 * 60 * 1000; // safety ceiling so this can never run away and eat the whole build
+const OVERALL_BUDGET_MS = 34 * 60 * 1000; // safety ceiling so this can never run away and eat the whole build
 
 // Hosts the app itself needs in order to draw a page (the map's d3/topojson and world data).
 // EVERYTHING else third-party is blocked while pre-rendering: otherwise each of the ~1,500
@@ -65,28 +65,28 @@ function startStaticServer() {
   });
 }
 
-async function prerenderRoute(browser, route) {
+async function newWorkerPage(browser) {
   const page = await browser.newPage();
+  await page.setRequestInterception(true);
+  page.on('request', (req) => {
+    let u;
+    try { u = new URL(req.url()); } catch (e) { return req.continue(); }
+    if (u.protocol === 'data:' || u.protocol === 'blob:' || u.origin === ORIGIN) return req.continue();
+    if (ALLOWED_HOSTS.has(u.hostname)) return req.continue();
+    if (req.resourceType() === 'image') return req.respond({ status: 200, contentType: 'image/png', body: TINY_PNG });
+    return req.abort();
+  });
+  return page;
+}
+
+async function prerenderRoute(page, route) {
   try {
-    await page.setRequestInterception(true);
-    page.on('request', (req) => {
-      let u;
-      try { u = new URL(req.url()); } catch (e) { return req.continue(); }
-      if (u.protocol === 'data:' || u.protocol === 'blob:' || u.origin === ORIGIN) return req.continue();
-      if (ALLOWED_HOSTS.has(u.hostname)) return req.continue();
-      if (req.resourceType() === 'image') return req.respond({ status: 200, contentType: 'image/png', body: TINY_PNG });
-      return req.abort();
-    });
-    await page.goto(`http://localhost:${PORT}${route}`, {
-      waitUntil: 'networkidle0',
-      timeout: PAGE_TIMEOUT_MS,
-    });
-    // The site's own data (recipes, events, blog) is bundled in the JS and
-    // renders synchronously; a short additional wait covers the dynamic
-    // <title>/meta-description effect. Ratings/comments (Firebase) are
-    // intentionally not waited on -- not needed for SEO content, and would
-    // slow every single page down waiting on a network call.
-    await new Promise(r => setTimeout(r, 400));
+    // DOMContentLoaded (not networkidle0): the page's content is bundled in the JS and renders
+    // straight away, so waiting for the network to go quiet only added ~1s per page.
+    await page.goto(`${ORIGIN}${route}`, { waitUntil: 'domcontentloaded', timeout: PAGE_TIMEOUT_MS });
+    await page.waitForSelector('h1', { timeout: 8000 }).catch(() => {});
+    // Short extra wait so the dynamic <title>/meta-description effect has run.
+    await new Promise(r => setTimeout(r, 250));
     // Remove what the cookie-banner stub injects at runtime. If these were saved into the page,
     // the live stub would find them already there and skip setting up consent handling.
     await page.evaluate(() => {
@@ -104,24 +104,37 @@ async function prerenderRoute(browser, route) {
     return { route, ok: true };
   } catch (err) {
     return { route, ok: false, error: err.message };
-  } finally {
-    await page.close();
   }
 }
 
-async function runWithConcurrency(items, limit, worker) {
+async function runWithConcurrency(browser, items, limit, worker) {
   const results = [];
   let idx = 0;
+  let budgetHit = false;
   const startedAt = Date.now();
   async function next() {
+    let page = await newWorkerPage(browser);
     while (idx < items.length) {
       if (Date.now() - startedAt > OVERALL_BUDGET_MS) {
-        console.warn(`Prerender time budget reached, stopping early at ${idx}/${items.length} routes.`);
-        return;
+        if (!budgetHit) {
+          budgetHit = true;
+          console.warn(`Prerender time budget reached, stopping early at ${idx}/${items.length} routes.`);
+        }
+        break;
       }
       const i = idx++;
-      results.push(await worker(items[i]));
+      const result = await worker(page, items[i]);
+      results.push(result);
+      if (!result.ok) {
+        // A page that errored or timed out may be wedged -- start this worker fresh.
+        try { await page.close(); } catch (e) {}
+        page = await newWorkerPage(browser);
+      }
+      if (results.length % 100 === 0) {
+        console.log(`Prerendered ${results.length}/${items.length} routes... (${Math.round((Date.now() - startedAt) / 1000)}s)`);
+      }
     }
+    try { await page.close(); } catch (e) {}
   }
   await Promise.all(Array.from({ length: limit }, next));
   return results;
@@ -184,7 +197,7 @@ async function main() {
   }
 
   try {
-    const results = await runWithConcurrency(routes, CONCURRENCY, (route) => prerenderRoute(browser, route));
+    const results = await runWithConcurrency(browser, routes, CONCURRENCY, prerenderRoute);
     const failed = results.filter(r => !r.ok);
     console.log(`Prerendered ${results.length - failed.length}/${routes.length} routes successfully.`);
     if (failed.length) {
