@@ -137,11 +137,28 @@ async function main() {
   const routes = JSON.parse(fs.readFileSync(ROUTES_FILE, 'utf-8'));
   console.log(`Prerendering ${routes.length} routes...`);
 
-  let puppeteer;
+  // Vercel/Linux build machines lack Chrome's system libraries, so use the
+  // self-contained @sparticuz/chromium build there. Locally (Windows/Mac),
+  // fall back to full puppeteer if it is installed.
+  let launchBrowser;
   try {
-    puppeteer = (await import('puppeteer')).default;
+    if (process.platform === 'linux') {
+      const puppeteer = (await import('puppeteer-core')).default;
+      const chromium = (await import('@sparticuz/chromium')).default;
+      launchBrowser = async () => puppeteer.launch({
+        args: [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox'],
+        executablePath: await chromium.executablePath(),
+        headless: 'shell',
+      });
+    } else {
+      const puppeteer = (await import('puppeteer')).default;
+      launchBrowser = async () => puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+      });
+    }
   } catch (err) {
-    console.warn('Prerender: puppeteer not available, skipping prerendering. Site will still deploy normally as a plain SPA.');
+    console.warn('Prerender: browser package not available, skipping prerendering. Site will still deploy normally as a plain SPA.');
     console.warn(err.message);
     return;
   }
@@ -155,10 +172,7 @@ async function main() {
   }
 
   try {
-    browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
-    });
+    browser = await launchBrowser();
   } catch (err) {
     console.warn('Prerender: Chrome failed to launch, skipping prerendering. Site will still deploy normally as a plain SPA.');
     console.warn(err.message);
