@@ -1834,6 +1834,7 @@ const styles = `
     .classics-arrow { display: none; }
   }
 
+  a.ra-link { color: inherit; text-decoration: none; -webkit-tap-highlight-color: transparent; }
   .dish-card {
     background: #fff; border: 1.5px solid #ece6db; border-radius: 12px;
     padding: 16px 18px; cursor: pointer; transition: all .2s;
@@ -2034,7 +2035,6 @@ function AdSlot({ unit, style }) {
 }
 
 function DishCarousel({ dishKeys, title, subtitle, idPrefix, marginTop = 0, marginBottom = 93 }) {
-  const { navigate } = useAppNavigate();
   const dishes = dishKeys.filter(k => RECIPE_DB[k]).map(k => ({ key: k, ...RECIPE_DB[k] }));
   const scrollRef = useRef(null);
   const drag = useRef({ dragging:false, startX:0, startScroll:0, moved:false });
@@ -2063,9 +2063,9 @@ function DishCarousel({ dishKeys, title, subtitle, idPrefix, marginTop = 0, marg
     drag.current.dragging = false;
     setDragging(false);
   };
-  const onCardClick = (path) => {
-    if (drag.current.moved) { drag.current.moved = false; return; }
-    navigate(path);
+  const onCardClick = (e) => {
+    // A drag-scroll that happens to end over a card must not count as a click on it.
+    if (drag.current.moved) { drag.current.moved = false; e.preventDefault(); }
   };
   const scrollByAmount = (dir) => {
     const el = scrollRef.current;
@@ -2088,10 +2088,9 @@ function DishCarousel({ dishKeys, title, subtitle, idPrefix, marginTop = 0, marg
           onMouseDown={onMouseDown} onMouseMove={onMouseMove} onMouseUp={endDrag} onMouseLeave={endDrag}
           style={{ display:"flex", gap:0, overflowX:"auto", scrollSnapType: dragging ? "none" : "x mandatory", WebkitOverflowScrolling:"touch", borderRadius:12, boxShadow:"0 2px 12px rgba(0,0,0,.08)", cursor: dragging ? "grabbing" : "grab", userSelect:"none" }}>
           {dishes.map((dish, i) => {
-            const region = REGIONS.find(r => r.countries?.includes(dish.country));
-            const path = `/${region?.id || ""}/${slugify(dish.country)}/${slugify(dish.name || dish.key)}`;
+            const path = recipePath(dish.key);
             return (
-              <div key={`${idPrefix}-${dish.key}`} className="classics-card" onClick={() => onCardClick(path)}
+              <AppLink key={`${idPrefix}-${dish.key}`} className="classics-card" to={path} onClick={onCardClick} draggable={false}
                 style={{ width:220, height:280 }}>
                 <img src={dish.image} alt={`Authentic ${dish.country} ${dish.name} recipe`} draggable={false} style={{ width:"100%", height:"100%", objectFit:"cover", display:"block", pointerEvents:"none" }} />
                 <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(0,0,0,.75) 0%, rgba(0,0,0,.15) 45%, rgba(0,0,0,0) 65%)" }} />
@@ -2102,7 +2101,7 @@ function DishCarousel({ dishKeys, title, subtitle, idPrefix, marginTop = 0, marg
                   </div>
                   <div style={{ fontFamily:"Fraunces", fontSize:17, fontWeight:700, color:"#fff", lineHeight:1.25 }}>{dish.name}</div>
                 </div>
-              </div>
+              </AppLink>
             );
           })}
         </div>
@@ -2116,7 +2115,6 @@ function DishCarousel({ dishKeys, title, subtitle, idPrefix, marginTop = 0, marg
 }
 
 function EventsThisMonthCarousel({ headingSize = "clamp(18px,2.5vw,26px)", randomize = false, spacing = 74 }) {
-  const { navigate } = useAppNavigate();
   const currentMonth = new Date().getMonth();
   const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   const allThisMonth = Object.keys(EVENTS_DB).filter(k => EVENTS_DB[k].month === currentMonth);
@@ -2132,18 +2130,25 @@ function EventsThisMonthCarousel({ headingSize = "clamp(18px,2.5vw,26px)", rando
           <h2 style={{ fontFamily:"Fraunces", fontSize:headingSize, fontWeight:700, color:"#1a1714", margin:0 }}>What's On This Month</h2>
           <p style={{ fontSize:13, color:"#9a9088", margin:"4px 0 0" }}>Festivals and food events happening in {monthNames[currentMonth]}</p>
         </div>
-        <button onClick={() => randomize ? setEventSlugs(pickThree()) : navigate('/events')}
-          style={{ background:"#fdf3ed", border:"1.5px solid #e8c9b0", borderRadius:8, padding:"8px 16px", fontSize:13, fontWeight:600, color:"#c2622a", cursor:"pointer", fontFamily:"Plus Jakarta Sans", display:"flex", alignItems:"center", gap:6 }}>
-          {randomize ? "↻ Randomise" : "See more →"}
-        </button>
+        {randomize ? (
+          <button onClick={() => setEventSlugs(pickThree())}
+            style={{ background:"#fdf3ed", border:"1.5px solid #e8c9b0", borderRadius:8, padding:"8px 16px", fontSize:13, fontWeight:600, color:"#c2622a", cursor:"pointer", fontFamily:"Plus Jakarta Sans", display:"flex", alignItems:"center", gap:6 }}>
+            ↻ Randomise
+          </button>
+        ) : (
+          <AppLink to="/events"
+            style={{ background:"#fdf3ed", border:"1.5px solid #e8c9b0", borderRadius:8, padding:"8px 16px", fontSize:13, fontWeight:600, color:"#c2622a", cursor:"pointer", fontFamily:"Plus Jakarta Sans", display:"flex", alignItems:"center", gap:6 }}>
+            See more →
+          </AppLink>
+        )}
       </div>
       <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(270px, 1fr))", gap:20 }}>
         {eventSlugs.map(slug => {
           const e = EVENTS_DB[slug];
           const path = `/events/${e.region}/${slugify(e.country)}/${e.slug}`;
           return (
-            <div key={slug} style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:14, overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)", cursor:"pointer" }}
-              onClick={() => navigate(path)}>
+            <AppLink key={slug} style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:14, overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)", cursor:"pointer", display:"block" }}
+              to={path}>
               <div style={{ height:130, background:"linear-gradient(135deg, #f0e8e0, #e8dccb)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:34 }}>{e.icon}</div>
               <div style={{ padding:16 }}>
                 <span style={{ display:"inline-block", fontSize:10, fontWeight:700, letterSpacing:".05em", textTransform:"uppercase", color:"#c2622a", background:"#fdf3ed", borderRadius:12, padding:"4px 10px", marginBottom:10 }}>{e.tag}</span>
@@ -2151,7 +2156,7 @@ function EventsThisMonthCarousel({ headingSize = "clamp(18px,2.5vw,26px)", rando
                 <div style={{ fontSize:12.5, color:"#9a9088", marginBottom:10 }}>{e.day} {e.mon} &middot; {e.loc}</div>
                 <p style={{ fontSize:13, color:"#5a5048", lineHeight:1.6, margin:0 }}>{e.desc}</p>
               </div>
-            </div>
+            </AppLink>
           );
         })}
       </div>
@@ -2160,7 +2165,6 @@ function EventsThisMonthCarousel({ headingSize = "clamp(18px,2.5vw,26px)", rando
 }
 
 function BlogHighlightsSection() {
-  const { navigate } = useAppNavigate();
   const posts = BLOG_POSTS.slice(0, 3);
 
   if (posts.length === 0) return null;
@@ -2172,20 +2176,20 @@ function BlogHighlightsSection() {
           <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#1a1714", margin:0 }}>From the Blog</h2>
           <p style={{ fontSize:13, color:"#9a9088", margin:"4px 0 0" }}>Stories, techniques and histories from the world's great food cultures</p>
         </div>
-        <button onClick={() => navigate('/blog')}
+        <AppLink to="/blog"
           style={{ background:"#fdf3ed", border:"1.5px solid #e8c9b0", borderRadius:8, padding:"8px 16px", fontSize:13, fontWeight:600, color:"#c2622a", cursor:"pointer", fontFamily:"Plus Jakarta Sans", display:"flex", alignItems:"center", gap:6 }}>
           See more →
-        </button>
+        </AppLink>
       </div>
       <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(270px, 1fr))", gap:20 }}>
         {posts.map((p, i) => (
-          <div key={p.slug || i} style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:14, padding:16, cursor:"pointer", boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}
-            onClick={() => navigate(`/blog/${p.slug}`)}>
+          <AppLink key={p.slug || i} style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:14, padding:16, cursor:"pointer", boxShadow:"0 1px 3px rgba(0,0,0,.04)", display:"block" }}
+            to={`/blog/${p.slug}`}>
             <span style={{ display:"inline-block", fontSize:10, fontWeight:700, letterSpacing:".05em", textTransform:"uppercase", color:"#c2622a", background:"#fdf3ed", borderRadius:12, padding:"4px 10px", marginBottom:10 }}>{p.tag}</span>
             <h3 style={{ fontFamily:"Fraunces", fontSize:17, fontWeight:600, margin:"0 0 6px", lineHeight:1.3 }}>{p.title}</h3>
             <p style={{ fontSize:13, color:"#5a5048", lineHeight:1.6, margin:"0 0 10px" }}>{p.excerpt}</p>
             <span style={{ fontSize:12, color:"#c2622a", fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>Read article →</span>
-          </div>
+          </AppLink>
         ))}
       </div>
     </div>
@@ -2208,7 +2212,6 @@ function DrinksCarousel() {
 }
 
 function RecipeInspiration({ recipes: initialRecipes, pool, title, spacing = 74 }) {
-  const { navigate } = useAppNavigate();
   const [recipes, setRecipes] = useState(initialRecipes);
 
   const shuffle = () => {
@@ -2235,8 +2238,8 @@ function RecipeInspiration({ recipes: initialRecipes, pool, title, spacing = 74 
         {recipes.filter(Boolean).map((recipe, i) => {
           const region = REGIONS.find(r => r.countries?.includes(recipe.country));
           return (
-            <div key={i} onClick={() => navigate(`/${region?.id || ""}/${slugify(recipe.country)}/${slugify(recipe.key || recipe.name)}`)}
-              style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, overflow:"hidden", cursor:"pointer", transition:"transform .15s, box-shadow .15s" }}
+            <AppLink key={i} to={recipePath(recipe.key || recipe.name)}
+              style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, overflow:"hidden", cursor:"pointer", transition:"transform .15s, box-shadow .15s", display:"block" }}
               onMouseEnter={e => { e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow="0 6px 20px rgba(0,0,0,.08)"; }}
               onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="none"; }}>
               <div style={{ width:"100%", height:160, overflow:"hidden", background:"#f0e8e0" }}>
@@ -2250,12 +2253,50 @@ function RecipeInspiration({ recipes: initialRecipes, pool, title, spacing = 74 
                 <div style={{ fontFamily:"Fraunces", fontSize:16, fontWeight:700, color:"#1a1714", lineHeight:1.3, marginBottom:4 }}>{recipe.name}</div>
                 <div style={{ fontSize:12, color:"#c2622a", fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>View recipe →</div>
               </div>
-            </div>
+            </AppLink>
           );
         })}
       </div>
     </div>
   );
+}
+
+// ── LINKS ──────────────────────────────────────────────────────────────
+// Page addresses are built in ONE place so every link, every navigation and the sitemap agree.
+// Recipes use their unique database key: display names are not unique across countries (two
+// different recipes are both called "Oyster Omelette"), but keys are.
+const regionOf = (country) => REGIONS.find(rg => rg.countries?.includes(country));
+function regionPath(country) { const r = regionOf(country); return r ? `/${r.id}` : "/"; }
+function countryPath(country) { const r = regionOf(country); return `/${r ? r.id : ""}/${slugify(country || "")}`; }
+function countryPathOrHome(country) { return regionOf(country) ? countryPath(country) : "/"; }
+function recipePath(key) {
+  const rec = RECIPE_DB[key];
+  if (!rec) return null;
+  return `${countryPath(rec.country)}/${slugify(key)}`;
+}
+// Resolve a dish name shown on a country page to its recipe, preferring that country's own recipe
+// when several share a display name. Returns null when there is no recipe yet, so no link is made.
+function dishPathFor(dish, country) {
+  const keys = Object.keys(RECIPE_DB);
+  const matches = (k) => k === dish || RECIPE_DB[k].name === dish || slugify(RECIPE_DB[k].name) === slugify(dish);
+  const key = (country && keys.find(k => RECIPE_DB[k].country === country && matches(k))) || keys.find(matches);
+  return key ? recipePath(key) : null;
+}
+
+// A real <a href> that still moves around the app without reloading the page. Crawlers (and
+// "open in new tab", right-click, middle-click and long-press) get a genuine link; an ordinary
+// click is handled in-app exactly as before. With no `to`, it renders a plain box instead.
+function AppLink({ to, onClick, children, className, ...rest }) {
+  if (!to) return <div className={className} {...rest}>{children}</div>;
+  const handle = (e) => {
+    if (onClick) onClick(e);
+    if (e.defaultPrevented) return;
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; // let the browser handle it
+    e.preventDefault();
+    window.history.pushState({}, '', to);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  };
+  return <a href={to} onClick={handle} className={className ? `ra-link ${className}` : 'ra-link'} {...rest}>{children}</a>;
 }
 
 // Hook to access navigate from child components
@@ -2665,10 +2706,10 @@ function RegionMap({ onSelectRegion }) {
       </div>
       <div className="region-grid" style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(260px, 1fr))", gap:12, marginBottom:93 }}>
         {REGIONS.map(region => (
-          <div key={region.id} onClick={() => onSelectRegion(region.id)}
+          <AppLink key={region.id} to={`/${region.id}`}
             onMouseEnter={e => e.currentTarget.style.borderColor=region.color}
             onMouseLeave={e => e.currentTarget.style.borderColor="#ece6db"}
-            style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, padding:"16px 18px", cursor:"pointer", transition:"border-color .2s, box-shadow .2s" }}>
+            style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, padding:"16px 18px", cursor:"pointer", display:"block", transition:"border-color .2s, box-shadow .2s" }}>
             <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
               <span style={{ fontSize:22 }}>{region.emoji}</span>
               <span style={{ fontFamily:"Fraunces", fontSize:17, fontWeight:700, color:"#1a1714" }}>{region.name}</span>
@@ -2682,7 +2723,7 @@ function RegionMap({ onSelectRegion }) {
               ))}
               {region.countries.length > 5 && <span style={{ fontSize:11, color:"#c8bfb0", padding:"2px 4px" }}>+{region.countries.length - 5} more</span>}
             </div>
-          </div>
+          </AppLink>
         ))}
       </div>
 
@@ -2716,10 +2757,10 @@ function RegionView({ regionId, onBack, onSelectCountry }) {
   const regionRecipeKeys = Object.keys(RECIPE_DB).filter(k => region.countries.includes(RECIPE_DB[k].country));
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
-      <button onClick={onBack}
-        style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
+      <AppLink to="/"
+        style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", width:"fit-content", alignItems:"center", gap:6 }}>
         ← All Regions
-      </button>
+      </AppLink>
       <div style={{ marginBottom:8 }}>
         <div style={{ fontSize:44, marginBottom:8 }}>{region.emoji}</div>
         <h1 style={{ fontFamily:"Fraunces", fontSize:32, fontWeight:700, color:"#1a1714", marginBottom:6 }}>{region.name}</h1>
@@ -2730,13 +2771,13 @@ function RegionView({ regionId, onBack, onSelectCountry }) {
         <p style={{ fontSize:11, color:"#b8b0a8", marginBottom:14, letterSpacing:".08em", textTransform:"uppercase", fontWeight:600 }}>Select a country</p>
         <div style={{ display:"flex", flexWrap:"wrap", gap:10 }}>
           {region.countries.map(country => (
-            <button key={country} onClick={() => onSelectCountry(country)}
+            <AppLink key={country} to={countryPath(country)}
               style={{ display:"inline-flex", alignItems:"center", gap:10, background:"#fff", border:`1.5px solid #ece6db`, borderRadius:12, padding:"12px 18px", cursor:"pointer", fontSize:14, color:"#1a1714", fontFamily:"Plus Jakarta Sans", transition:"all .15s", boxShadow:"0 1px 4px rgba(0,0,0,.05)", fontWeight:500 }}
               onMouseEnter={e => { e.currentTarget.style.borderColor=region.color; e.currentTarget.style.background=region.light; e.currentTarget.style.boxShadow=`0 4px 14px ${region.color}20`; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor="#ece6db"; e.currentTarget.style.background="#fff"; e.currentTarget.style.boxShadow="0 1px 4px rgba(0,0,0,.05)"; }}>
               <span style={{ fontSize:24 }}>{COUNTRY_DISHES[country]?.flag || "🌍"}</span>
               <span>{country}</span>
-            </button>
+            </AppLink>
           ))}
         </div>
       </div>
@@ -2754,10 +2795,10 @@ function CountryView({ country, onBack, onSelectDish }) {
 
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
-      <button onClick={onBack}
-        style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
+      <AppLink to={regionPath(country)}
+        style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", width:"fit-content", alignItems:"center", gap:6 }}>
         ← Back
-      </button>
+      </AppLink>
       <div style={{ marginBottom:8 }}>
         <div style={{ fontSize:44, marginBottom:8 }}>{flag}</div>
         <h1 style={{ fontFamily:"Fraunces", fontSize:30, fontWeight:700, color:"#1a1714", marginBottom:6 }}>{country}</h1>
@@ -2766,13 +2807,13 @@ function CountryView({ country, onBack, onSelectDish }) {
       <div style={{ marginBottom:28 }}>
         <div className="dish-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
           {dishes.map((dish,i) => (
-            <div key={i} className="dish-card" onClick={() => onSelectDish(dish)}>
+            <AppLink key={i} className="dish-card" to={dishPathFor(dish, country)}>
               <div>
                 <div style={{ fontSize:14, fontWeight:600, color:"#1a1714", marginBottom:3 }}>{dish}</div>
                 <div style={{ fontSize:11, color:"#b8b0a8", fontWeight:500 }}>View recipe →</div>
               </div>
               <span style={{ fontSize:16, color:"#ddd5c8" }}>→</span>
-            </div>
+            </AppLink>
           ))}
         </div>
       </div>
@@ -3135,10 +3176,10 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
 
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
-      <button onClick={onBack}
-        style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
-        ← Back to {country || recipeCountry}
-      </button>
+      <AppLink to={countryPathOrHome(country)}
+        style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", width:"fit-content", alignItems:"center", gap:6 }}>
+        ← Back to {country}
+      </AppLink>
       <div>
         {loading ? (
           <div style={{ textAlign:"center", padding:"60px 0" }}>
@@ -3366,9 +3407,9 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
                       const rec = RECIPE_DB[key];
                       const reg = REGIONS.find(r => r.countries?.includes(rec.country));
                       return (
-                        <div key={i}
-                          onClick={() => navigate(`/${reg?.id || ""}/${slugify(rec.country)}/${slugify(rec.name)}`)}
-                          style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, overflow:"hidden", cursor:"pointer", transition:"transform .15s, box-shadow .15s" }}
+                        <AppLink key={i}
+                          to={recipePath(key)}
+                          style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, overflow:"hidden", cursor:"pointer", transition:"transform .15s, box-shadow .15s", display:"block" }}
                           onMouseEnter={e => { e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow="0 6px 20px rgba(0,0,0,.08)"; }}
                           onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="none"; }}>
                           <div style={{ width:"100%", height:160, overflow:"hidden", background:"#f0e8e0" }}>
@@ -3382,7 +3423,7 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
                             <div style={{ fontFamily:"Fraunces", fontSize:16, fontWeight:700, color:"#1a1714", lineHeight:1.3, marginBottom:4 }}>{rec.name}</div>
                             <div style={{ fontSize:12, color:"#c2622a", fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>View recipe →</div>
                           </div>
-                        </div>
+                        </AppLink>
                       );
                     })}
                   </div>
@@ -3395,6 +3436,41 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
         ) : (
           <div style={{ textAlign:"center", padding:"40px 0", color:"#b8b0a8" }}>Couldn't load this recipe — please try again.</div>
         )}
+      </div>
+    </div>
+  );
+}
+
+// Every event, grouped by region, as plain links. The region / country / month filters above are
+// click-driven and only reveal event cards after three clicks, so on their own they give search
+// engines no way to find the individual event pages. Collapsed by default so the page looks the same.
+function EventsDirectory() {
+  const groups = REGIONS.map(r => ({
+    region: r,
+    events: Object.values(EVENTS_DB)
+      .filter(e => e.region === r.id)
+      .sort((a, b) => a.country.localeCompare(b.country) || a.name.localeCompare(b.name)),
+  })).filter(g => g.events.length > 0);
+  return (
+    <div style={{ marginTop:64 }}>
+      <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#1a1714", marginBottom:8, lineHeight:1.2 }}>Every event, by region</h2>
+      <p style={{ fontSize:13, color:"#9a9088", marginBottom:20, maxWidth:560 }}>The full list of festivals, markets and tastings in our guide. Open a region to browse them all.</p>
+      <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+        {groups.map(({ region, events }) => (
+          <details key={region.id} style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, padding:"4px 18px" }}>
+            <summary style={{ cursor:"pointer", fontFamily:"Fraunces", fontSize:17, fontWeight:700, color:"#1a1714", padding:"12px 0" }}>
+              {region.emoji} {region.name} <span style={{ fontFamily:"Plus Jakarta Sans", fontSize:12, fontWeight:500, color:"#9a9088" }}>· {events.length} events</span>
+            </summary>
+            <ul style={{ listStyle:"none", margin:0, padding:"0 0 14px" }}>
+              {events.map(e => (
+                <li key={e.slug} style={{ padding:"7px 0", borderTop:"1px solid #f3eee6", fontSize:13.5, color:"#5a5048", lineHeight:1.5 }}>
+                  <AppLink to={`/events/${e.region}/${slugify(e.country)}/${e.slug}`} style={{ color:"#c2622a", fontWeight:600, display:"inline" }}>{e.name}</AppLink>
+                  <span style={{ color:"#9a9088" }}> — {e.loc}, {e.country} · {e.day} {e.mon}</span>
+                </li>
+              ))}
+            </ul>
+          </details>
+        ))}
       </div>
     </div>
   );
@@ -3480,8 +3556,8 @@ function EventsListView({ navigate }) {
               {filtered.map(slug => {
                 const e = EVENTS_DB[slug];
                 return (
-                  <div key={slug} style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:14, overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)", cursor:"pointer" }}
-                    onClick={() => navigate(`/events/${e.region}/${slugify(e.country)}/${e.slug}`)}>
+                  <AppLink key={slug} style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:14, overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)", cursor:"pointer", display:"block" }}
+                    to={`/events/${e.region}/${slugify(e.country)}/${e.slug}`}>
                     <div style={{ height:130, background:"linear-gradient(135deg, #f0e8e0, #e8dccb)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:34 }}>{e.icon}</div>
                     <div style={{ padding:16 }}>
                       <span style={{ display:"inline-block", fontSize:10, fontWeight:700, letterSpacing:".05em", textTransform:"uppercase", color:"#c2622a", background:"#fdf3ed", borderRadius:12, padding:"4px 10px", marginBottom:10 }}>{e.tag}</span>
@@ -3489,13 +3565,15 @@ function EventsListView({ navigate }) {
                       <div style={{ fontSize:12.5, color:"#9a9088", marginBottom:10 }}>{e.day} {e.mon} &middot; {e.loc}</div>
                       <p style={{ fontSize:13, color:"#5a5048", lineHeight:1.6, margin:0 }}>{e.desc}</p>
                     </div>
-                  </div>
+                  </AppLink>
                 );
               })}
             </div>
           )}
         </>
       )}
+
+      <EventsDirectory />
       </div>
     </div>
   );
@@ -3507,20 +3585,20 @@ function EventDetailView({ eventSlug, onBack, navigate }) {
   if (!event) {
     return (
       <div style={{ maxWidth:1070, margin:"0 auto" }}>
-        <button onClick={onBack}
-          style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
+        <AppLink to="/events"
+          style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", width:"fit-content", alignItems:"center", gap:6 }}>
           ← Back to events
-        </button>
+        </AppLink>
         <div style={{ textAlign:"center", padding:"40px 0", color:"#b8b0a8" }}>Couldn't find this event — please try again.</div>
       </div>
     );
   }
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
-      <button onClick={onBack}
-        style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", alignItems:"center", gap:6 }}>
+      <AppLink to="/events"
+        style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", width:"fit-content", alignItems:"center", gap:6 }}>
         ← Back to events
-      </button>
+      </AppLink>
       <div>
       <h1 style={{ fontFamily:"Fraunces", fontSize:32, fontWeight:700, color:"#1a1714", marginBottom:10, lineHeight:1.2 }}>{event.name}</h1>
       <div style={{ display:"block", background:"#fdf3ed", borderRadius:100, padding:"4px 12px", fontSize:11, color:"#c2622a", fontWeight:600, letterSpacing:".06em", textTransform:"uppercase", marginBottom:12, width:"fit-content" }}>
@@ -4249,13 +4327,14 @@ function App() {
     if (parts.length === 1) {
       view = 'events';
     } else if (parts.length === 4) {
-      const region = REGIONS.find(r => r.id === parts[1]);
-      const country = unslugify(parts[2], COUNTRY_DISHES);
+      // Resolved from the event's own record, so events in countries that have no recipes
+      // (Ireland, Iceland, Cyprus...) are real pages too.
       const eventSlug = parts[3];
-      if (region && country && EVENTS_DB[eventSlug] && EVENTS_DB[eventSlug].country === country) {
+      const ev = EVENTS_DB[eventSlug];
+      if (ev && ev.region === parts[1] && slugify(ev.country) === parts[2]) {
         view = 'event';
         selectedRegion = parts[1];
-        selectedCountry = country;
+        selectedCountry = ev.country;
         selectedEventSlug = eventSlug;
       }
     }
@@ -4540,15 +4619,15 @@ function App() {
     <div style={{ display:"flex", alignItems:"center", gap:6, fontSize:12, color:"#b8b0a8", flexWrap:"wrap" }}>
       {view === "recipe" && recipeCountry ? (
         <>
-          <span style={{ cursor:"pointer", color:"#9a9088", fontWeight:500 }} onClick={() => { const r = REGIONS.find(r => r.countries?.includes(recipeCountry)); navigate(`/${r ? r.id : ""}/${slugify(recipeCountry)}`); }}>{recipeCountry}</span>
+          <AppLink to={countryPathOrHome(recipeCountry)} style={{ color:"#9a9088", fontWeight:500, display:"inline" }}>{recipeCountry}</AppLink>
           {selectedDish && <><span>›</span><span style={{ color:"#1a1714", fontWeight:600 }}>{selectedDish}</span></>}
         </>
       ) : (
         <>
-          <span style={{ cursor:"pointer", color:"#9a9088", fontWeight:500 }} onClick={goToRegions}>Regions</span>
-          {selectedRegion && <><span>›</span><span style={{ cursor:"pointer", color: view!=="region"?"#9a9088":"#1a1714", fontWeight:500 }} onClick={goToRegionBack}>{region?.name}</span></>}
-          {!selectedRegion && countryRegion && <><span>›</span><span style={{ cursor:"pointer", color:"#9a9088", fontWeight:500 }} onClick={() => navigate(`/${countryRegion.id}`)}>{countryRegion.name}</span></>}
-          {selectedCountry && <><span>›</span><span style={{ cursor:"pointer", color: view!=="country"?"#9a9088":"#1a1714", fontWeight:500 }} onClick={goToCountryBack}>{selectedCountry}</span></>}
+          <AppLink to="/" style={{ color:"#9a9088", fontWeight:500, display:"inline" }}>Regions</AppLink>
+          {selectedRegion && <><span>›</span><AppLink to={view==="region" ? null : `/${selectedRegion}`} style={{ cursor: view==="region" ? "default" : "pointer", color: view!=="region"?"#9a9088":"#1a1714", fontWeight:500, display:"inline" }}>{region?.name}</AppLink></>}
+          {!selectedRegion && countryRegion && <><span>›</span><AppLink to={`/${countryRegion.id}`} style={{ color:"#9a9088", fontWeight:500, display:"inline" }}>{countryRegion.name}</AppLink></>}
+          {selectedCountry && <><span>›</span><AppLink to={view==="country" ? null : `/${selectedRegion}/${slugify(selectedCountry)}`} style={{ cursor: view==="country" ? "default" : "pointer", color: view!=="country"?"#9a9088":"#1a1714", fontWeight:500, display:"inline" }}>{selectedCountry}</AppLink></>}
           {selectedDish && <><span>›</span><span style={{ color:"#1a1714", fontWeight:600 }}>{selectedDish}</span></>}
         </>
       )}
@@ -4556,51 +4635,51 @@ function App() {
   );
 
   const pantryPillMobile = (
-    <span onClick={() => navigate('/pantry-to-plate')}
+    <AppLink to="/pantry-to-plate"
       style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
         color: view==="pantry-to-plate" ? "#c2622a" : "#1a1714", padding:"6px 0" }}>
       Pantry to Plate
-    </span>
+    </AppLink>
   );
 
   const blogPillMobile = (
-    <span onClick={() => navigate('/blog')}
+    <AppLink to="/blog"
       style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
         color: view==="blog" ? "#c2622a" : "#1a1714", padding:"6px 0" }}>
       Blog
-    </span>
+    </AppLink>
   );
 
   const eventsPillMobile = (
-    <span onClick={() => navigate('/events')}
+    <AppLink to="/events"
       style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
         color: (view==="events"||view==="event") ? "#c2622a" : "#1a1714", padding:"6px 0" }}>
       Events
-    </span>
+    </AppLink>
   );
 
   const pantryPill = (
-    <span onClick={() => navigate('/pantry-to-plate')}
+    <AppLink to="/pantry-to-plate"
       style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
         color: view==="pantry-to-plate" ? "#c2622a" : "#1a1714", padding:0 }}>
       Pantry to Plate
-    </span>
+    </AppLink>
   );
 
   const blogPill = (
-    <span onClick={() => navigate('/blog')}
+    <AppLink to="/blog"
       style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
         color: view==="blog" ? "#c2622a" : "#1a1714", padding:0 }}>
       Blog
-    </span>
+    </AppLink>
   );
 
   const eventsPill = (
-    <span onClick={() => navigate('/events')}
+    <AppLink to="/events"
       style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
         color: (view==="events"||view==="event") ? "#c2622a" : "#1a1714", padding:0 }}>
       Events
-    </span>
+    </AppLink>
   );
 
   return (
@@ -4609,7 +4688,7 @@ function App() {
       <div style={{ minHeight:"100vh", background:"#fdfcf9" }}>
         {/* Header */}
         <div style={{ background:"#fff", borderBottom:"1.5px solid #ece6db", padding:"13px 28px", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12, position:"sticky", top:0, zIndex:50, boxShadow:"0 1px 8px rgba(0,0,0,.05)" }}>
-          <div style={{ cursor:"pointer", display:"flex", alignItems:"center", gap:12 }} onClick={goToRegions}>
+          <AppLink to="/" style={{ cursor:"pointer", display:"flex", alignItems:"center", gap:12 }}>
             <div style={{ width:36, height:36, background:"linear-gradient(135deg,#c2622a,#e8832a)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, boxShadow:"0 2px 8px rgba(194,98,42,.35)" }}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="14" cy="12" r="8" stroke="#fff" strokeWidth="1.8" fill="none"/>
@@ -4625,7 +4704,7 @@ function App() {
             <div>
               <div style={{ fontFamily:"Fraunces", fontSize:19.5, fontWeight:700, color:"#1a1714" }}>Recipe Atlas</div>
             </div>
-          </div>
+          </AppLink>
           <div className="header-nav-desktop" style={{ display:"flex", alignItems:"center", gap:16, flexWrap:"wrap" }}>
             {pantryPill}
             {eventsPill}
@@ -4722,10 +4801,10 @@ function App() {
               </div>
               <div style={{ display:"flex", gap:20, flexWrap:"wrap" }}>
                 {[["pantry-to-plate","Pantry to Plate"],["events","Events"],["blog","Blog"],["about","About"],["contact","Contact"],["privacy","Privacy"],["terms","Terms"]].map(([v,label]) => (
-                  <span key={v} onClick={() => navigate(`/${v}`)}
+                  <AppLink key={v} to={`/${v}`}
                     style={{ fontSize:12, color:"#9a9088", cursor:"pointer", fontWeight:500, fontFamily:"Plus Jakarta Sans" }}>
                     {label}
-                  </span>
+                  </AppLink>
                 ))}
               </div>
             </div>
@@ -5024,9 +5103,8 @@ function BlogRecipeCard({ dish, navigate }) {
   const r = RECIPE_DB[dish];
   if (!r) return null;
   const region = REGIONS.find(rg => rg.countries?.includes(r.country));
-  const goTo = () => navigate(`/${region ? region.id : ""}/${slugify(r.country)}/${slugify(r.name || dish)}`);
   return (
-    <div onClick={goTo} className="dish-card" style={{ marginBottom:24, padding:0, overflow:"hidden", display:"block" }}>
+    <AppLink to={recipePath(dish)} className="dish-card" style={{ marginBottom:24, padding:0, overflow:"hidden", display:"block" }}>
       {r.image && (
         <img src={r.image} alt={`${r.name} recipe`} style={{ width:"100%", height:200, objectFit:"cover", display:"block" }} />
       )}
@@ -5048,13 +5126,15 @@ function BlogRecipeCard({ dish, navigate }) {
         </div>
         <span style={{ fontSize:12, fontWeight:600, color:"#c2622a" }}>View Recipe →</span>
       </div>
-    </div>
+    </AppLink>
   );
 }
 
 function BlogPage({ initialSlug, navigate }) {
   const slugToIndex = slug => BLOG_POSTS.findIndex(p => p.slug === slug);
   const [activePost, setActivePost] = useState(() => initialSlug ? slugToIndex(initialSlug) : null);
+  // Follow the address bar, so links, Back and Forward all open the right post.
+  useEffect(() => { setActivePost(initialSlug ? slugToIndex(initialSlug) : null); }, [initialSlug]);
 
   useEffect(() => {
     if (activePost !== null && activePost >= 0) {
@@ -5067,23 +5147,15 @@ function BlogPage({ initialSlug, navigate }) {
 
   useEffect(() => { window.scrollTo(0, 0); }, [activePost]);
 
-  const openPost = (i) => {
-    setActivePost(i);
-    if (navigate) navigate(`/blog/${BLOG_POSTS[i].slug}`);
-  };
-  const closePost = () => {
-    setActivePost(null);
-    if (navigate) navigate('/blog');
-  };
 
   if (activePost !== null && activePost >= 0) {
     const post = BLOG_POSTS[activePost];
     return (
       <div style={{ maxWidth:1070, margin:"0 auto" }}>
-        <button onClick={closePost}
-          style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", marginBottom:20, padding:0, display:"flex", alignItems:"center", gap:6 }}>
+        <AppLink to="/blog"
+          style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", marginBottom:20, padding:0, display:"flex", width:"fit-content", alignItems:"center", gap:6 }}>
           ← Back to Blog
-        </button>
+        </AppLink>
         <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(22px,3vw,36px)", fontWeight:700, color:"#1a1714", marginBottom:16, lineHeight:1.25 }}>{ post.title}</h1>
         <div style={{ display:"flex", gap:8, marginBottom:16, flexWrap:"wrap" }}>
           <span style={{ fontSize:11, background:"#fdf3ed", color:"#c2622a", padding:"3px 10px", borderRadius:20, fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>{post.tag}</span>
@@ -5112,8 +5184,8 @@ function BlogPage({ initialSlug, navigate }) {
       <p style={{ fontSize:13, color:"#9a9088", marginBottom:24 }}>Stories, techniques and histories from the world's great food cultures.</p>
       <div className="blog-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20, marginTop:24 }}>
         {BLOG_POSTS.map((p,i) => (
-          <div key={i} onClick={() => openPost(i)}
-            style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, overflow:"hidden", cursor:"pointer", transition:"border-color .2s, box-shadow .2s" }}
+          <AppLink key={i} to={`/blog/${p.slug}`}
+            style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, overflow:"hidden", cursor:"pointer", display:"block", transition:"border-color .2s, box-shadow .2s" }}
             onMouseEnter={e => { e.currentTarget.style.borderColor="#c2622a"; e.currentTarget.style.boxShadow="0 2px 12px rgba(194,98,42,.08)"; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor="#ece6db"; e.currentTarget.style.boxShadow="none"; }}>
             {p.image && (
@@ -5129,7 +5201,7 @@ function BlogPage({ initialSlug, navigate }) {
               <p style={{ fontSize:14, color:"#6a6058", lineHeight:1.75, margin:"0 0 12px" }}>{p.excerpt}</p>
               <span style={{ fontSize:12, color:"#c2622a", fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>Read article →</span>
             </div>
-          </div>
+          </AppLink>
         ))}
       </div>
       <div style={{ maxWidth:1070, margin:"24px auto 0" }}>
