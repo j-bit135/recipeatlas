@@ -29,6 +29,7 @@ const OVERALL_BUDGET_MS = 25 * 60 * 1000; // safety ceiling so this can never ru
 // live one when a real visitor loads it.
 const ALLOWED_HOSTS = new Set(['cdnjs.cloudflare.com', 'cdn.jsdelivr.net']);
 const ORIGIN = `http://localhost:${PORT}`;
+const SITE_URL = 'https://recipeatlas.co.uk';
 // 1x1 transparent PNG. Images are answered instantly with this (the <img> tags and their real
 // src URLs stay in the saved HTML) rather than downloading thousands of photos during a build.
 const TINY_PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
@@ -93,7 +94,9 @@ async function prerenderRoute(browser, route) {
       document.querySelectorAll('script[src*="cmp.inmobi.com"]').forEach((n) => n.remove());
       document.querySelectorAll('[id^="qc-cmp"], [class*="qc-cmp"]').forEach((n) => n.remove());
     });
-    const html = await page.content();
+    // The page was rendered from the local build server, so any URL the app built from
+    // window.location (og:url etc.) says localhost. Point those at the real site.
+    const html = (await page.content()).split(ORIGIN).join(SITE_URL);
 
     const outDir = route === '/' ? DIST_DIR : path.join(DIST_DIR, route);
     fs.mkdirSync(outDir, { recursive: true });
