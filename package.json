@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node scripts/generate-routes.js && node scripts/prerender.js",
-    "prerender": "node scripts/generate-routes.js && node scripts/prerender.js",
+    "build": "vite build && node scripts/generate-routes.js && node scripts/prerender.js && node scripts/finalize.js",
+    "prerender": "node scripts/generate-routes.js && node scripts/prerender.js && node scripts/finalize.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },

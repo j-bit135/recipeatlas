@@ -197,7 +197,19 @@ async function main() {
   }
 
   try {
-    const results = await runWithConcurrency(browser, routes, CONCURRENCY, prerenderRoute);
+    let results = await runWithConcurrency(browser, routes, CONCURRENCY, prerenderRoute);
+    // Second chance for anything that errored or timed out (they are usually one-off hiccups).
+    const firstPassFailed = results.filter(r => !r.ok);
+    if (firstPassFailed.length) {
+      console.log(`Retrying ${firstPassFailed.length} failed routes once...`);
+      const retryPage = await newWorkerPage(browser);
+      const retried = new Map();
+      for (const f of firstPassFailed) {
+        retried.set(f.route, await prerenderRoute(retryPage, f.route));
+      }
+      try { await retryPage.close(); } catch (e) {}
+      results = results.map(r => (retried.has(r.route) ? retried.get(r.route) : r));
+    }
     const failed = results.filter(r => !r.ok);
     console.log(`Prerendered ${results.length - failed.length}/${routes.length} routes successfully.`);
     if (failed.length) {

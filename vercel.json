@@ -1,3 +1,889 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "redirects": [
+    {
+      "source": "/recipe/cuba/congr",
+      "destination": "/north_america/cuba/congri",
+      "permanent": true
+    },
+    {
+      "source": "/country/egypt",
+      "destination": "/africa/egypt",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/egypt/:dish",
+      "destination": "/africa/egypt/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/ethiopia",
+      "destination": "/africa/ethiopia",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/ethiopia/:dish",
+      "destination": "/africa/ethiopia/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/ghana",
+      "destination": "/africa/ghana",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/ghana/:dish",
+      "destination": "/africa/ghana/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/ivory-coast",
+      "destination": "/africa/ivory-coast",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/ivory-coast/:dish",
+      "destination": "/africa/ivory-coast/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/kenya",
+      "destination": "/africa/kenya",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/kenya/:dish",
+      "destination": "/africa/kenya/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/morocco",
+      "destination": "/africa/morocco",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/morocco/:dish",
+      "destination": "/africa/morocco/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/nigeria",
+      "destination": "/africa/nigeria",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/nigeria/:dish",
+      "destination": "/africa/nigeria/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/senegal",
+      "destination": "/africa/senegal",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/senegal/:dish",
+      "destination": "/africa/senegal/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/south-africa",
+      "destination": "/africa/south-africa",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/south-africa/:dish",
+      "destination": "/africa/south-africa/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/tanzania",
+      "destination": "/africa/tanzania",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/tanzania/:dish",
+      "destination": "/africa/tanzania/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/tunisia",
+      "destination": "/africa/tunisia",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/tunisia/:dish",
+      "destination": "/africa/tunisia/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/armenia",
+      "destination": "/asia/armenia",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/armenia/:dish",
+      "destination": "/asia/armenia/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/azerbaijan",
+      "destination": "/asia/azerbaijan",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/azerbaijan/:dish",
+      "destination": "/asia/azerbaijan/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/bangladesh",
+      "destination": "/asia/bangladesh",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/bangladesh/:dish",
+      "destination": "/asia/bangladesh/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/cambodia",
+      "destination": "/asia/cambodia",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/cambodia/:dish",
+      "destination": "/asia/cambodia/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/china",
+      "destination": "/asia/china",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/china/:dish",
+      "destination": "/asia/china/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/india",
+      "destination": "/asia/india",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/india/:dish",
+      "destination": "/asia/india/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/indonesia",
+      "destination": "/asia/indonesia",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/indonesia/:dish",
+      "destination": "/asia/indonesia/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/japan",
+      "destination": "/asia/japan",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/japan/:dish",
+      "destination": "/asia/japan/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/kazakhstan",
+      "destination": "/asia/kazakhstan",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/kazakhstan/:dish",
+      "destination": "/asia/kazakhstan/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/malaysia",
+      "destination": "/asia/malaysia",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/malaysia/:dish",
+      "destination": "/asia/malaysia/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/mongolia",
+      "destination": "/asia/mongolia",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/mongolia/:dish",
+      "destination": "/asia/mongolia/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/myanmar",
+      "destination": "/asia/myanmar",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/myanmar/:dish",
+      "destination": "/asia/myanmar/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/nepal",
+      "destination": "/asia/nepal",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/nepal/:dish",
+      "destination": "/asia/nepal/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/pakistan",
+      "destination": "/asia/pakistan",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/pakistan/:dish",
+      "destination": "/asia/pakistan/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/philippines",
+      "destination": "/asia/philippines",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/philippines/:dish",
+      "destination": "/asia/philippines/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/singapore",
+      "destination": "/asia/singapore",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/singapore/:dish",
+      "destination": "/asia/singapore/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/south-korea",
+      "destination": "/asia/south-korea",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/south-korea/:dish",
+      "destination": "/asia/south-korea/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/sri-lanka",
+      "destination": "/asia/sri-lanka",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/sri-lanka/:dish",
+      "destination": "/asia/sri-lanka/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/taiwan",
+      "destination": "/asia/taiwan",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/taiwan/:dish",
+      "destination": "/asia/taiwan/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/thailand",
+      "destination": "/asia/thailand",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/thailand/:dish",
+      "destination": "/asia/thailand/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/uzbekistan",
+      "destination": "/asia/uzbekistan",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/uzbekistan/:dish",
+      "destination": "/asia/uzbekistan/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/vietnam",
+      "destination": "/asia/vietnam",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/vietnam/:dish",
+      "destination": "/asia/vietnam/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/austria",
+      "destination": "/europe/austria",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/austria/:dish",
+      "destination": "/europe/austria/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/belgium",
+      "destination": "/europe/belgium",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/belgium/:dish",
+      "destination": "/europe/belgium/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/croatia",
+      "destination": "/europe/croatia",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/croatia/:dish",
+      "destination": "/europe/croatia/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/czech-republic",
+      "destination": "/europe/czech-republic",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/czech-republic/:dish",
+      "destination": "/europe/czech-republic/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/denmark",
+      "destination": "/europe/denmark",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/denmark/:dish",
+      "destination": "/europe/denmark/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/finland",
+      "destination": "/europe/finland",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/finland/:dish",
+      "destination": "/europe/finland/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/france",
+      "destination": "/europe/france",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/france/:dish",
+      "destination": "/europe/france/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/georgia",
+      "destination": "/europe/georgia",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/georgia/:dish",
+      "destination": "/europe/georgia/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/germany",
+      "destination": "/europe/germany",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/germany/:dish",
+      "destination": "/europe/germany/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/greece",
+      "destination": "/europe/greece",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/greece/:dish",
+      "destination": "/europe/greece/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/hungary",
+      "destination": "/europe/hungary",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/hungary/:dish",
+      "destination": "/europe/hungary/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/italy",
+      "destination": "/europe/italy",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/italy/:dish",
+      "destination": "/europe/italy/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/netherlands",
+      "destination": "/europe/netherlands",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/netherlands/:dish",
+      "destination": "/europe/netherlands/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/norway",
+      "destination": "/europe/norway",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/norway/:dish",
+      "destination": "/europe/norway/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/poland",
+      "destination": "/europe/poland",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/poland/:dish",
+      "destination": "/europe/poland/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/portugal",
+      "destination": "/europe/portugal",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/portugal/:dish",
+      "destination": "/europe/portugal/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/romania",
+      "destination": "/europe/romania",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/romania/:dish",
+      "destination": "/europe/romania/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/russia",
+      "destination": "/europe/russia",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/russia/:dish",
+      "destination": "/europe/russia/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/spain",
+      "destination": "/europe/spain",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/spain/:dish",
+      "destination": "/europe/spain/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/sweden",
+      "destination": "/europe/sweden",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/sweden/:dish",
+      "destination": "/europe/sweden/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/switzerland",
+      "destination": "/europe/switzerland",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/switzerland/:dish",
+      "destination": "/europe/switzerland/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/ukraine",
+      "destination": "/europe/ukraine",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/ukraine/:dish",
+      "destination": "/europe/ukraine/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/united-kingdom",
+      "destination": "/europe/united-kingdom",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/united-kingdom/:dish",
+      "destination": "/europe/united-kingdom/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/iran",
+      "destination": "/middle_east/iran",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/iran/:dish",
+      "destination": "/middle_east/iran/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/iraq",
+      "destination": "/middle_east/iraq",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/iraq/:dish",
+      "destination": "/middle_east/iraq/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/israel",
+      "destination": "/middle_east/israel",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/israel/:dish",
+      "destination": "/middle_east/israel/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/jordan",
+      "destination": "/middle_east/jordan",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/jordan/:dish",
+      "destination": "/middle_east/jordan/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/lebanon",
+      "destination": "/middle_east/lebanon",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/lebanon/:dish",
+      "destination": "/middle_east/lebanon/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/saudi-arabia",
+      "destination": "/middle_east/saudi-arabia",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/saudi-arabia/:dish",
+      "destination": "/middle_east/saudi-arabia/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/syria",
+      "destination": "/middle_east/syria",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/syria/:dish",
+      "destination": "/middle_east/syria/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/turkey",
+      "destination": "/middle_east/turkey",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/turkey/:dish",
+      "destination": "/middle_east/turkey/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/yemen",
+      "destination": "/middle_east/yemen",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/yemen/:dish",
+      "destination": "/middle_east/yemen/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/canada",
+      "destination": "/north_america/canada",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/canada/:dish",
+      "destination": "/north_america/canada/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/costa-rica",
+      "destination": "/north_america/costa-rica",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/costa-rica/:dish",
+      "destination": "/north_america/costa-rica/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/cuba",
+      "destination": "/north_america/cuba",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/cuba/:dish",
+      "destination": "/north_america/cuba/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/el-salvador",
+      "destination": "/north_america/el-salvador",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/el-salvador/:dish",
+      "destination": "/north_america/el-salvador/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/haiti",
+      "destination": "/north_america/haiti",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/haiti/:dish",
+      "destination": "/north_america/haiti/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/jamaica",
+      "destination": "/north_america/jamaica",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/jamaica/:dish",
+      "destination": "/north_america/jamaica/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/mexico",
+      "destination": "/north_america/mexico",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/mexico/:dish",
+      "destination": "/north_america/mexico/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/puerto-rico",
+      "destination": "/north_america/puerto-rico",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/puerto-rico/:dish",
+      "destination": "/north_america/puerto-rico/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/trinidad-and-tobago",
+      "destination": "/north_america/trinidad-and-tobago",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/trinidad-and-tobago/:dish",
+      "destination": "/north_america/trinidad-and-tobago/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/united-states",
+      "destination": "/north_america/united-states",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/united-states/:dish",
+      "destination": "/north_america/united-states/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/australia",
+      "destination": "/oceania/australia",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/australia/:dish",
+      "destination": "/oceania/australia/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/fiji",
+      "destination": "/oceania/fiji",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/fiji/:dish",
+      "destination": "/oceania/fiji/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/new-zealand",
+      "destination": "/oceania/new-zealand",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/new-zealand/:dish",
+      "destination": "/oceania/new-zealand/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/argentina",
+      "destination": "/south_america/argentina",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/argentina/:dish",
+      "destination": "/south_america/argentina/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/bolivia",
+      "destination": "/south_america/bolivia",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/bolivia/:dish",
+      "destination": "/south_america/bolivia/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/brazil",
+      "destination": "/south_america/brazil",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/brazil/:dish",
+      "destination": "/south_america/brazil/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/chile",
+      "destination": "/south_america/chile",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/chile/:dish",
+      "destination": "/south_america/chile/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/colombia",
+      "destination": "/south_america/colombia",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/colombia/:dish",
+      "destination": "/south_america/colombia/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/ecuador",
+      "destination": "/south_america/ecuador",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/ecuador/:dish",
+      "destination": "/south_america/ecuador/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/paraguay",
+      "destination": "/south_america/paraguay",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/paraguay/:dish",
+      "destination": "/south_america/paraguay/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/peru",
+      "destination": "/south_america/peru",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/peru/:dish",
+      "destination": "/south_america/peru/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country/venezuela",
+      "destination": "/south_america/venezuela",
+      "permanent": true
+    },
+    {
+      "source": "/recipe/venezuela/:dish",
+      "destination": "/south_america/venezuela/:dish",
+      "permanent": true
+    },
+    {
+      "source": "/country",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/recipe",
+      "destination": "/",
+      "permanent": true
+    }
+  ]
 }
