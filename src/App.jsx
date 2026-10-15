@@ -4404,7 +4404,7 @@ function App() {
         description = activePost.excerpt;
         imageUrl = activePost.image || null;
       } else {
-        title = 'Blog';
+        title = 'Food Blog | Recipe Atlas';
         description = 'In-depth articles on cooking science, world food history, ingredients and techniques. Stories from the world\'s great food cultures.';
       }
     } else if (view === 'about') {
