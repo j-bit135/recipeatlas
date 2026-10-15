@@ -4404,7 +4404,7 @@ function App() {
         description = activePost.excerpt;
         imageUrl = activePost.image || null;
       } else {
-        title = 'The Recipe Atlas Blog — Food Stories, Techniques & History';
+        title = 'Blog';
         description = 'In-depth articles on cooking science, world food history, ingredients and techniques. Stories from the world\'s great food cultures.';
       }
     } else if (view === 'about') {
@@ -5180,7 +5180,7 @@ function BlogPage({ initialSlug, navigate }) {
 
   return (
     <div>
-      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(30px,4vw,48px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>The Recipe Atlas Blog</h1>
+      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(30px,4vw,48px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>Blog</h1>
       <p style={{ fontSize:13, color:"#9a9088", marginBottom:24 }}>Stories, techniques and histories from the world's great food cultures.</p>
       <div className="blog-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20, marginTop:24 }}>
         {BLOG_POSTS.map((p,i) => (
