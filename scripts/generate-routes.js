@@ -109,7 +109,7 @@ function main() {
   }
 
   // Static info pages
-  for (const p of ['about', 'contact', 'privacy', 'terms', 'pantry-to-plate']) {
+  for (const p of ['about', 'contact', 'privacy', 'terms', 'pantry-to-plate', 'sauces-and-sides']) {
     routes.add(`/${p}`);
   }
 

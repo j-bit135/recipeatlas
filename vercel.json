@@ -1,6 +1,11 @@
 {
   "redirects": [
     {
+      "source": "/asia/thailand/nam-jim-jaeo",
+      "destination": "/asia/thailand/nam-jim-jaew",
+      "permanent": true
+    },
+    {
       "source": "/recipe/cuba/congr",
       "destination": "/north_america/cuba/congri",
       "permanent": true
