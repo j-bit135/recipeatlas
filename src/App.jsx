@@ -3785,7 +3785,7 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
               </div>
             )}
             <div className="no-print" style={{ display:"flex", gap:10, marginBottom:12, flexWrap:"wrap" }}>
-              <button onClick={() => printSection('printing-recipe')}
+              <button onClick={() => printRecipeCard({ recipe, country, ingredients: scaledIngredients, servings: scaleServings })}
                 style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:8, padding:"9px 16px", fontSize:13, fontWeight:600, color:"#6a6058", cursor:"pointer", fontFamily:"Plus Jakarta Sans", display:"flex", alignItems:"center", gap:6, flex:"1 1 140px", justifyContent:"center" }}>
                 🖨️ Print
               </button>
@@ -4151,6 +4151,69 @@ function slugify(s) {
   return s.toLowerCase().split('').map(c => map[c] || c).join('').replace(/[^a-z0-9\s-]/g,'').replace(/[\s_]+/g,'-').trim();
 }
 
+function printRecipeCard({ recipe, country, ingredients, servings }) {
+  // Builds a clean, self-contained recipe page in a hidden iframe and prints it.
+  // Called synchronously from the click so mobile browsers allow the print dialog.
+  const esc = (v) => String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const stats = [
+    ['Prep', recipe.prepTime], ['Cook', recipe.cookTime],
+    ['Serves', servings != null ? servings : recipe.serves],
+    ['Difficulty', recipe.difficulty],
+    ['Calories', recipe.calories ? recipe.calories + ' kcal' : null],
+  ].filter(x => x[1] != null && x[1] !== '');
+  const html = '<!doctype html><html><head><meta charset="utf-8"><title>' + esc(recipe.name) + ' | Recipe Atlas</title>'
+    + '<meta name="viewport" content="width=device-width, initial-scale=1">'
+    + '<style>'
+    + '@page{margin:16mm}'
+    + 'body{font-family:Georgia,"Times New Roman",serif;color:#1a1714;margin:0;padding:0;line-height:1.5;-webkit-print-color-adjust:exact;print-color-adjust:exact}'
+    + 'h1{font-size:28px;margin:0 0 6px}'
+    + '.country{display:inline-block;font:600 11px Arial,sans-serif;letter-spacing:.07em;text-transform:uppercase;color:#c2622a;margin-bottom:10px}'
+    + 'p{font-size:14px;margin:0 0 12px;color:#3a342e}'
+    + '.stats{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 18px}'
+    + '.stat{border:1px solid #d9d0c2;border-radius:8px;padding:6px 12px;font:12px Arial,sans-serif}'
+    + '.stat b{display:block;font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:#8a8076;margin-bottom:2px}'
+    + 'h2{font-size:18px;margin:20px 0 10px;padding-bottom:4px;border-bottom:2px solid #c2622a}'
+    + 'ul{list-style:none;padding:0;margin:0;columns:2;column-gap:28px}'
+    + 'li{break-inside:avoid;font:13px Arial,sans-serif;padding:4px 0;border-bottom:1px solid #eee7da}'
+    + 'li b{color:#c2622a;margin-right:8px}'
+    + 'ol{padding-left:22px;margin:0}'
+    + 'ol li{columns:auto;font:14px/1.6 Georgia,serif;border:0;padding:0 0 9px;break-inside:avoid}'
+    + '.tip{margin-top:18px;border-left:4px solid #c2622a;background:#fdf8f3;padding:10px 14px;font-size:13px}'
+    + '.foot{margin-top:24px;font:11px Arial,sans-serif;color:#8a8076;border-top:1px solid #d9d0c2;padding-top:8px}'
+    + '@media (max-width:480px){ul{columns:1}}'
+    + '</style></head><body>'
+    + '<h1>' + esc(recipe.name) + '</h1>'
+    + (country ? '<div class="country">' + esc(country) + '</div>' : '')
+    + (recipe.description ? '<p>' + esc(recipe.description) + '</p>' : '')
+    + (stats.length ? '<div class="stats">' + stats.map(x => '<div class="stat"><b>' + esc(x[0]) + '</b>' + esc(x[1]) + '</div>').join('') + '</div>' : '')
+    + '<h2>Ingredients</h2><ul>'
+    + (ingredients || []).map(i => '<li><b>' + esc(i.amount) + '</b>' + esc(i.item) + '</li>').join('')
+    + '</ul>'
+    + '<h2>Method</h2><ol>'
+    + (recipe.steps || []).map(st => '<li>' + esc(st) + '</li>').join('')
+    + '</ol>'
+    + (recipe.tip ? '<div class="tip"><b>Chef\'s tip:</b> ' + esc(recipe.tip) + '</div>' : '')
+    + '<div class="foot">Recipe Atlas · ' + esc(window.location.href) + '</div>'
+    + '</body></html>';
+  try {
+    const old = document.getElementById('ra-print-frame');
+    if (old) old.remove();
+    const frame = document.createElement('iframe');
+    frame.id = 'ra-print-frame';
+    frame.setAttribute('aria-hidden', 'true');
+    frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;opacity:0;pointer-events:none';
+    document.body.appendChild(frame);
+    const doc = frame.contentWindow.document;
+    doc.open(); doc.write(html); doc.close();
+    frame.contentWindow.focus();
+    frame.contentWindow.print();
+    setTimeout(() => { try { frame.remove(); } catch (e) {} }, 120000);
+  } catch (e) {
+    // Fallback: print the page itself
+    printSection('printing-recipe');
+  }
+}
+
 function printSection(className) {
   document.body.classList.add(className);
   const cleanup = () => {
@@ -4161,10 +4224,9 @@ function printSection(className) {
   // so wait a couple of seconds before removing the print layout.
   const onAfter = () => setTimeout(cleanup, 2000);
   window.addEventListener('afterprint', onAfter);
-  // Give the browser a moment to apply the print layout before opening the dialog.
-  setTimeout(() => {
-    try { window.print(); } catch (e) { cleanup(); }
-  }, 150);
+  // Print straight away (mobile browsers only allow it directly from the tap).
+  void document.body.offsetHeight; // force layout so the print styles are applied
+  try { window.print(); } catch (e) { cleanup(); }
   setTimeout(cleanup, 60000);
 }
 
