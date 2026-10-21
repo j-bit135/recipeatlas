@@ -555,6 +555,7 @@
   <url><loc>https://recipeatlas.co.uk/europe/france/bearnaise-sauce</loc></url>
   <url><loc>https://recipeatlas.co.uk/europe/france/bechamel-sauce</loc></url>
   <url><loc>https://recipeatlas.co.uk/europe/france/boeuf-bourguignon</loc></url>
+  <url><loc>https://recipeatlas.co.uk/europe/france/celeriac-remoulade</loc></url>
   <url><loc>https://recipeatlas.co.uk/europe/france/bouillabaisse</loc></url>
   <url><loc>https://recipeatlas.co.uk/europe/france/cassoulet</loc></url>
   <url><loc>https://recipeatlas.co.uk/europe/france/confit-de-canard</loc></url>
@@ -596,6 +597,9 @@
   <url><loc>https://recipeatlas.co.uk/europe/germany/braised-red-cabbage</loc></url>
   <url><loc>https://recipeatlas.co.uk/europe/germany/bratwurst</loc></url>
   <url><loc>https://recipeatlas.co.uk/europe/germany/currywurst</loc></url>
+  <url><loc>https://recipeatlas.co.uk/europe/germany/chicken-schnitzel</loc></url>
+  <url><loc>https://recipeatlas.co.uk/europe/germany/jagersauce</loc></url>
+  <url><loc>https://recipeatlas.co.uk/europe/germany/gurkensalat</loc></url>
   <url><loc>https://recipeatlas.co.uk/europe/germany/flammkuchen-german</loc></url>
   <url><loc>https://recipeatlas.co.uk/europe/germany/kartoffelsalat</loc></url>
   <url><loc>https://recipeatlas.co.uk/europe/germany/kartoffelsuppe</loc></url>
@@ -1517,6 +1521,11 @@
   <url><loc>https://recipeatlas.co.uk/oceania/new-zealand/lolly-cake</loc></url>
   <url><loc>https://recipeatlas.co.uk/oceania/new-zealand/rewena-bread</loc></url>
   <url><loc>https://recipeatlas.co.uk/oceania/new-zealand/whitebait-fritters</loc></url>
+  <url><loc>https://recipeatlas.co.uk/meals</loc></url>
+  <url><loc>https://recipeatlas.co.uk/meals/breakfast</loc></url>
+  <url><loc>https://recipeatlas.co.uk/meals/dessert</loc></url>
+  <url><loc>https://recipeatlas.co.uk/meals/dinner</loc></url>
+  <url><loc>https://recipeatlas.co.uk/meals/lunch</loc></url>
   <url><loc>https://recipeatlas.co.uk/pantry-to-plate</loc></url>
   <url><loc>https://recipeatlas.co.uk/privacy</loc></url>
   <url><loc>https://recipeatlas.co.uk/sauces-and-sides</loc></url>

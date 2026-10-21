@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 // ── COUNTRY DATA ───────────────────────────────────────────────────────
 const COUNTRY_DISHES = {
   "Italy": { flag:"🇮🇹", dishes:["Spaghetti Carbonara", "Risotto alla Milanese", "Pizza Margherita", "Osso Buco", "Arancini", "Tiramisu", "Panzanella", "Ribollita", "Saltimbocca", "Lasagne alla Bolognese", "Cacio e Pepe", "Vitello Tonnato", "Panna Cotta", "Bruschetta", "Focaccia", "Minestrone", "Gnocchi", "Cannoli", "Risotto ai Funghi", "Caprese Salad", "Zeppole", "Pesto Genovese", "Gremolata", "Marinara Sauce"] },
-  "France": { flag:"🇫🇷", dishes:["Boeuf Bourguignon", "Ratatouille", "Coq au Vin", "Soupe à l'Oignon", "Croissants", "Bouillabaisse", "Cassoulet", "Tarte Tatin", "Steak Frites", "Crème Brûlée", "Confit de Canard", "Quiche Lorraine", "Croque Monsieur", "Nicoise Salad", "Madeleines", "Profiteroles", "Escargot", "Pain au Chocolat", "Duck a l'Orange", "Béarnaise Sauce", "Peppercorn Sauce", "Hollandaise Sauce", "Béchamel Sauce", "Dauphinoise Potatoes"] },
+  "France": { flag:"🇫🇷", dishes:["Boeuf Bourguignon", "Ratatouille", "Coq au Vin", "Soupe à l'Oignon", "Croissants", "Bouillabaisse", "Cassoulet", "Tarte Tatin", "Steak Frites", "Crème Brûlée", "Confit de Canard", "Quiche Lorraine", "Croque Monsieur", "Nicoise Salad", "Madeleines", "Profiteroles", "Escargot", "Pain au Chocolat", "Duck a l'Orange", "Béarnaise Sauce", "Peppercorn Sauce", "Hollandaise Sauce", "Béchamel Sauce", "Dauphinoise Potatoes", "Celeriac Remoulade"] },
   "Japan": { flag:"🇯🇵", dishes:["Ramen", "Gyoza", "Tonkatsu", "Okonomiyaki", "Yakitori", "Chawanmushi", "Gyudon", "Miso Soup", "Nigiri Sushi", "Katsudon", "Onigiri", "Takoyaki", "Tempura", "Katsu Curry", "Teriyaki Chicken", "Yakisoba", "Katsu Sando", "Tonkatsu Sauce", "Ponzu", "Beni Shoga"] },
   "Mexico": { flag:"🇲🇽", dishes:["Tacos al Pastor", "Guacamole", "Mole Negro", "Chiles en Nogada", "Tamales", "Pozole Rojo", "Enchiladas Verdes", "Churros con Chocolate", "Cochinita Pibil", "Chiles Rellenos", "Sopes", "Elote", "Quesadillas", "Chilaquiles", "Fajitas", "Carnitas", "Birria", "Pico de Gallo", "Pickled Red Onions", "Salsa Verde", "Mexican Rice", "Refried Beans", "Corn Tortillas"] },
   "India": { flag:"🇮🇳", dishes:["Butter Chicken", "Samosas", "Dal Makhani", "Chana Masala", "Rogan Josh", "Dosa", "Palak Paneer", "Pani Puri", "Chole Bhature", "Kheer", "Chicken Biryani", "Vindaloo", "Pav Bhaji", "Vada Pav", "Idli Sambar", "Aloo Paratha", "Rajma", "Kadhi", "Dhokla", "Chicken Tikka", "Paneer Tikka", "Raita", "Mint & Coriander Chutney", "Tamarind Chutney", "Coconut Chutney", "Mango Chutney", "Lime Pickle"] },
@@ -24,7 +24,7 @@ const COUNTRY_DISHES = {
   "Argentina": { flag:"🇦🇷", dishes:["Empanadas", "Chimichurri Steak", "Locro", "Asado", "Milanesa", "Provoleta", "Dulce de Leche", "Alfajores", "Choripán", "Humita", "Vitel Toné", "Matambre", "Chimichurri"] },
   "Nigeria": { flag:"🇳🇬", dishes:["Egusi Soup", "Puff Puff", "Pepper Soup", "Efo Riro", "Suya", "Moi Moi", "Banga Soup", "Chin Chin", "Nigerian Jollof Rice", "Nigerian Akara", "Nigerian Fried Rice", "Ofada Stew"] },
   "Portugal": { flag:"🇵🇹", dishes:["Bacalhau à Brás", "Pastéis de Nata", "Francesinha", "Sardinhas Assadas", "Caldo Verde", "Açorda", "Pastéis de Bacalhau", "Leitão da Bairrada", "Arroz de Pato", "Bolo de Mel", "Alheira", "Arroz Doce", "Caldeirada", "Bifana", "Piri-Piri Sauce"] },
-  "Germany": { flag:"🇩🇪", dishes:["Currywurst", "Bratwurst", "Black Forest Cake", "Sauerbraten", "Flammkuchen German", "Kartoffelsuppe", "Schweinshaxe", "Apfelstrudel German", "Rote Grütze", "Wiener Schnitzel", "Königsberger Klopse", "Rouladen", "Pretzel", "Sauerkraut", "Spätzle", "Braised Red Cabbage", "Kartoffelsalat"] },
+  "Germany": { flag:"🇩🇪", dishes:["Currywurst", "Bratwurst", "Black Forest Cake", "Sauerbraten", "Flammkuchen German", "Kartoffelsuppe", "Schweinshaxe", "Apfelstrudel German", "Rote Grütze", "Wiener Schnitzel", "Königsberger Klopse", "Rouladen", "Pretzel", "Sauerkraut", "Spätzle", "Braised Red Cabbage", "Kartoffelsalat", "Chicken Schnitzel", "Jägersauce", "Gurkensalat"] },
   "Indonesia": { flag:"🇮🇩", dishes:["Nasi Goreng", "Rendang", "Gado-Gado", "Soto Ayam", "Martabak", "Nasi Goreng Kampung", "Es Teler", "Sate Ayam", "Ayam Goreng", "Sayur Lodeh", "Klepon", "Nasi Uduk", "Peanut Sauce", "Acar"] },
   "Australia": { flag:"🇦🇺", dishes:["Meat Pie", "Pavlova", "Lamington", "Tim Tam Slice", "Anzac Biscuits", "Pan-Fried Barramundi", "Vegemite on Toast", "Chicken Parmigiana", "Damper", "Chiko Roll", "Sausage Sizzle", "Bush Tucker Kangaroo Skewers"] },
   "Egypt": { flag:"🇪🇬", dishes:["Hawawshi", "Koshari", "Ful Medames", "Molokhia", "Om Ali", "Mahshi", "Basbousa", "Konafa", "Dukkah"] },
@@ -1394,6 +1394,10 @@ const RECIPE_DB = {
 "Cordon Bleu":{"name": "Cordon Bleu", "image":"https://live.staticflickr.com/4111/4834423674_3b328fb6f2_b.jpg","photoCredit":{"name": "TheCulinaryGeek", "url": "https://openverse.org/image/688f3de4-1f4f-474c-a15a-0fb388dee1f2"}, "country": "Switzerland", "description": "A breaded veal or chicken cutlet wrapped around ham and melted cheese, fried until golden — a rich, indulgent Swiss classic found on menus across the country.", "prepTime": "20 mins", "cookTime": "15 mins", "serves": 4, "difficulty": "Medium","calories":540,"ratingValue":5.0,"ratingCount":1, "ingredients": [{"amount": "4", "item": "veal or chicken cutlets, flattened"}, {"amount": "4", "item": "slices ham"}, {"amount": "4", "item": "slices Gruyère cheese"}, {"amount": "100g", "item": "flour"}, {"amount": "2", "item": "eggs, beaten"}, {"amount": "150g", "item": "breadcrumbs"}], "steps": ["Lay a slice of ham and cheese on half of each cutlet, then fold the other half over to enclose the filling.", "Press the edges firmly to seal, securing with a toothpick if needed.", "Coat in flour, egg, then breadcrumbs.", "Fry in butter or oil until deeply golden on both sides and the cheese has fully melted inside."], "tip": "Press and seal the edges firmly before coating — a poorly sealed cutlet will leak melted cheese during frying.", "story": "Cordon bleu takes its French name meaning 'blue ribbon', historically a term for high honour, and has become one of Switzerland's most widely recognised culinary exports."},"Bifana":{"name":"Bifana","image":"https://upload.wikimedia.org/wikipedia/commons/3/3e/Delicious_Bifana_Sandwich%2C_As_Bifana_do_Afonso_%2849652989992%29.jpg","photoCredit":{"name":"Sonse","url":"https://commons.wikimedia.org/w/index.php?curid=88180156"},"country":"Portugal","description":"Portugal's beloved pork sandwich — wafer-thin pork loin steaks simmered in a garlicky white wine and paprika sauce, piled into a crusty papo-seco roll that soaks up every drop.","prepTime":"20 mins (plus 4 hrs marinating)","cookTime":"15 mins","serves":4,"difficulty":"Easy","calories":390,"ratingValue":5.0,"ratingCount":2,"ingredients":[{"amount":"600g","item":"pork loin, sliced very thin"},{"amount":"6 cloves","item":"garlic, crushed"},{"amount":"150ml","item":"dry white wine"},{"amount":"2 tsp","item":"sweet paprika"},{"amount":"2","item":"bay leaves"},{"amount":"1 tsp","item":"piri-piri or chilli paste"},{"amount":"2 tbsp","item":"olive oil"},{"amount":"4","item":"crusty bread rolls (papo secos or similar)"},{"amount":"to serve","item":"yellow mustard"}],"steps":["Pound the pork slices thin between sheets of cling film if not already thin.","Combine pork with garlic, wine, paprika, bay leaves and piri-piri in a bowl or bag. Marinate at least 4 hours, ideally overnight.","Lift pork from the marinade, reserving the liquid. Pat dry.","Heat olive oil in a large pan over high heat. Fry pork in batches, 1-2 minutes per side, until just cooked. Set aside.","Pour the reserved marinade into the same pan. Boil hard for 3-4 minutes until reduced and no longer tastes of raw wine.","Return pork to the pan and toss through the reduced sauce for 1 minute.","Split the rolls, spread with mustard, and pile in the pork with a spoonful of sauce."],"tip":"Slice the pork as thin as you possibly can — this is what separates a proper bifana from an ordinary pork sandwich. Ask a butcher to slice it for you if you can.","story":"The bifana is widely credited to the Alentejo town of Vendas Novas, where taverns once served it to travellers as a quick, hearty roadside snack. It's now a fixture of Portuguese match days — fans queue for bifanas outside Benfica's Estádio da Luz before kick-off, cold beer in hand."},"Katsu Sando":{"name":"Katsu Sando","image":"https://live.staticflickr.com/137/324728916_30f8f1c04a.jpg","photoCredit":{"name":"jetalone","url":"https://www.flickr.com/photos/92203585@N00/324728916"},"country":"Japan","description":"A golden, panko-crusted pork cutlet pressed between soft, crustless white bread with sweet-savoury tonkatsu sauce — Japan's most elegant convenience-store sandwich.","prepTime":"20 mins","cookTime":"10 mins","serves":2,"difficulty":"Medium","calories":520,"ratingValue":5.0,"ratingCount":2,"ingredients":[{"amount":"2","item":"pork loin cutlets, about 2cm thick"},{"amount":"3 tbsp","item":"plain flour"},{"amount":"1","item":"egg, beaten"},{"amount":"100g","item":"panko breadcrumbs"},{"amount":"for frying","item":"neutral oil"},{"amount":"4 slices","item":"soft white sandwich bread, crusts removed"},{"amount":"2 tbsp","item":"softened butter"},{"amount":"4 tbsp","item":"tonkatsu sauce"},{"amount":"1 tsp","item":"Japanese mustard (karashi), optional"}],"steps":["Season pork cutlets with salt and pepper. Pound gently to an even thickness if needed.","Coat each cutlet in flour, then beaten egg, then press firmly into panko until fully covered.","Heat 2cm of oil in a pan to 170°C. Fry cutlets 3-4 minutes per side until deep golden and cooked through.","Drain on a rack for a few minutes — this keeps the crust crisp rather than soggy.","Butter each slice of bread. Spread mustard on two slices if using.","Spoon tonkatsu sauce generously over the cutlets on both sides.","Sandwich each cutlet between two slices of bread, pressing down firmly.","Rest for 2 minutes, then slice cleanly in half or thirds with a sharp serrated knife."],"tip":"Rest the assembled sandwich for a couple of minutes before slicing — this lets the crust settle slightly so it doesn't shatter and fall apart under the knife.","story":"Katsu sando was invented in 1935 by Isen, a tonkatsu restaurant in Tokyo's Ueno district, just five years after it first opened. It later found a second life in Japan's convenience stores and train station bento counters, and more recently became a genuine international trend, popping up on menus from London to New York."},
 "Béarnaise Sauce":{"name": "Béarnaise Sauce", "image": "https://upload.wikimedia.org/wikipedia/commons/5/57/B%C3%A9arnaise_sauce_with_Tarragon_garnish.jpeg", "photoCredit": {"name": "Alexander Guy", "url": "https://openverse.org/image/f309c73d-1989-4620-b70d-a0470d393dab"}, "country": "France", "description": "The classic French steak sauce — a glossy, buttery emulsion of egg yolks and butter, sharpened with a tarragon, shallot and vinegar reduction.", "prepTime": "15 mins", "cookTime": "15 mins", "serves": 4, "difficulty": "Hard", "calories": 310, "ratingValue":5.0,"ratingCount":1, "category": "Sauce", "ingredients": [{"amount": "2", "item": "shallots, very finely chopped"}, {"amount": "100ml", "item": "white wine vinegar"}, {"amount": "60ml", "item": "dry white wine"}, {"amount": "1 small bunch", "item": "fresh tarragon, stems and leaves separated"}, {"amount": "6", "item": "black peppercorns, lightly crushed"}, {"amount": "3", "item": "large egg yolks"}, {"amount": "200g", "item": "unsalted butter, melted and kept warm"}, {"amount": "1 tsp", "item": "lemon juice"}, {"amount": "1/4 tsp", "item": "fine salt"}], "steps": ["Simmer the shallots, vinegar, wine, tarragon stems and peppercorns in a small pan until reduced to about 2 tablespoons. Strain and let it cool for a few minutes.", "Put the egg yolks and the reduction in a heatproof bowl over a pan of barely simmering water. Whisk constantly until the mixture thickens and leaves a ribbon trail.", "Take the bowl off the heat. Whisk in the warm melted butter a few drops at a time, then in a thin steady stream, leaving the milky solids behind in the pan.", "Finely chop the tarragon leaves and stir them in. Season with salt and lemon juice.", "Serve straight away, or keep warm in a bowl set over hot (not boiling) water for up to 30 minutes."], "tip": "Keep the heat gentle — scrambled yolks cannot be rescued. If the sauce splits, whisk a teaspoon of warm water into a clean bowl and slowly whisk the split sauce back in.", "story": "Béarnaise is traditionally said to have been created in 1836 at the Pavillon Henri IV restaurant near Paris and named for Béarn, the birthplace of King Henri IV. It is closely related to hollandaise, with the vinegar and tarragon reduction as the difference."},
 "Peppercorn Sauce":{"name": "Peppercorn Sauce", "image": "https://upload.wikimedia.org/wikipedia/commons/c/c7/Peppercorn_sauce_dips.jpg", "photoCredit": {"name": "CNEcija12345", "url": "https://openverse.org/image/63065a09-8dbe-4f0b-8807-5a8758b32283"}, "country": "France", "description": "A rich, creamy pan sauce of crushed black peppercorns, brandy and cream — the bistro partner for a seared steak, known in France as sauce au poivre.", "prepTime": "10 mins", "cookTime": "15 mins", "serves": 4, "difficulty": "Easy", "calories": 260, "category": "Sauce", "ingredients": [{"amount": "1 tbsp", "item": "black peppercorns, coarsely crushed"}, {"amount": "25g", "item": "butter"}, {"amount": "1", "item": "shallot, very finely chopped"}, {"amount": "50ml", "item": "brandy or cognac"}, {"amount": "150ml", "item": "beef stock"}, {"amount": "150ml", "item": "double cream"}, {"amount": "1 tsp", "item": "Dijon mustard"}, {"amount": "pinch", "item": "salt"}], "steps": ["Toast the crushed peppercorns in a dry pan over a medium heat for about 30 seconds until fragrant.", "Add the butter and shallot and cook gently for 3 minutes until soft but not coloured.", "Take the pan off the heat, add the brandy and return to the heat. Let it bubble until almost gone (stand back — it may flare).", "Add the stock and simmer until reduced by half, about 5 minutes. Stir in the cream and mustard and simmer for 3-4 minutes until thick enough to coat a spoon.", "Season with salt and serve hot with steak. For the best flavour, make it in the pan the steak was cooked in."], "tip": "Crush the peppercorns coarsely with the base of a heavy pan or a mortar — pre-ground pepper turns the sauce muddy and harsh.", "story": "Steak au poivre is a bistro staple in France, where the steak itself is pressed into crushed peppercorns before searing. The peppercorn sauce version, finished with cream, is the easy home cook's route to the same flavour."},
+"Chicken Schnitzel":{"name": "Chicken Schnitzel", "image": "https://recipeatlas.co.uk/recipe-placeholder.jpg", "country": "Germany", "description": "A chicken breast pounded thin, coated in fine breadcrumbs and shallow-fried until golden and crackling. It's the quick, everyday cousin of Wiener Schnitzel, delicious with a squeeze of lemon, and even better with a fried egg on top.", "prepTime": "20 mins", "cookTime": "15 mins", "serves": 4, "difficulty": "Easy", "calories": 470, "ingredients": [{"amount": "4", "item": "chicken breasts, about 175g each"}, {"amount": "60g", "item": "plain flour"}, {"amount": "1 tsp", "item": "sweet paprika"}, {"amount": "2", "item": "eggs, beaten"}, {"amount": "120g", "item": "fine dry breadcrumbs"}, {"amount": "1 tsp", "item": "salt"}, {"amount": "0.5 tsp", "item": "black pepper"}, {"amount": "3 tbsp", "item": "butter"}, {"amount": "100ml", "item": "sunflower or vegetable oil, for shallow frying"}, {"amount": "1", "item": "lemon, cut into wedges, to serve"}, {"amount": "4", "item": "eggs, fried, to serve on top (optional)"}], "steps": ["Slice each chicken breast in half horizontally to make two thin cutlets. Place between sheets of baking paper and pound to an even 5-6mm thickness. Season both sides with salt and pepper.", "Set up three shallow dishes: flour mixed with the paprika, beaten eggs, and breadcrumbs. Dip each cutlet in flour and shake off the excess, then into the egg, then press firmly into the breadcrumbs until fully coated.", "Heat the butter and oil in a large frying pan over medium-high heat until the butter foams. Fry the schnitzels in batches for 2-3 minutes per side until deep golden and cooked through, gently shaking the pan so the hot fat washes over the crumbs.", "Drain on a wire rack or kitchen paper and keep warm while you cook the rest. Don't stack them, or the crumbs will go soft.", "If you want the optional egg, fry the eggs in a little butter in the same pan until the whites are set and the yolks still runny. Serve each schnitzel straight away with a lemon wedge, topped with a fried egg if you like."], "tip": "Shaking the pan as the schnitzel fries makes the crumb coating puff up and loosen slightly from the meat, which gives the classic crisp, wavy crust. Keep the fat hot but not smoking, and don't crowd the pan.", "story": "Chicken schnitzel follows the tradition of Wiener Schnitzel, which is made from veal, in a cheaper, quicker form. With a fried egg on top (and often capers and anchovies), the same dish is called Schnitzel Holstein, said to be named after the Prussian diplomat Friedrich von Holstein."},
+"Celeriac Remoulade":{"name": "Celeriac Remoulade", "image": "https://recipeatlas.co.uk/recipe-placeholder.jpg", "country": "France", "description": "Raw celeriac cut into fine matchsticks and tossed in a creamy, mustardy, lemony dressing. A staple of French bistros and delis (céleri rémoulade), it's crisp, tangy and cool, and a perfect partner for anything fried or smoked.", "prepTime": "20 mins", "cookTime": "0 mins", "serves": 4, "difficulty": "Easy", "calories": 170, "category": "Salad", "ingredients": [{"amount": "500g", "item": "celeriac, peeled and cut into fine matchsticks"}, {"amount": "2 tbsp", "item": "lemon juice"}, {"amount": "4 tbsp", "item": "mayonnaise"}, {"amount": "1 tbsp", "item": "whole grain mustard"}, {"amount": "1 tsp", "item": "sugar"}, {"amount": "0.5 tsp", "item": "salt"}, {"amount": "0.5 tsp", "item": "black pepper"}, {"amount": "2 tbsp", "item": "flat-leaf parsley, finely chopped"}, {"amount": "1", "item": "crisp apple, cut into matchsticks (optional)"}, {"amount": "40g", "item": "walnuts, roughly chopped (optional)"}], "steps": ["Peel the celeriac, cutting away all the knobbly skin, then cut it into thin slices and then fine matchsticks, or use the coarse side of a box grater. Toss at once with half the lemon juice to stop it browning.", "In a large bowl, mix the mayonnaise, whole grain mustard, the rest of the lemon juice, the sugar, salt and pepper.", "Add the celeriac and parsley and fold until every strand is coated. If you're using them, fold in the apple matchsticks and chopped walnuts now.", "Cover and chill for at least 30 minutes so the celeriac softens slightly and the flavours come together. Taste and adjust the lemon, salt and sugar before serving."], "tip": "Salt the matchsticks and leave them for 10 minutes before dressing for a softer, more traditional texture. If the dressing gets too thick, loosen it with a spoonful of cold water or crème fraîche.", "story": "Céleri rémoulade is a fixture of French charcuteries and bistros, often sold by weight from the deli counter. The word 'rémoulade' here means a mustardy mayonnaise dressing, not to be confused with the Danish sauce of the same name. In France it's classically served with ham, smoked fish and cold meats."},
+"Jägersauce":{"name": "Jägersauce", "image": "https://recipeatlas.co.uk/recipe-placeholder.jpg", "country": "Germany", "description": "Germany's 'hunter's sauce': sliced mushrooms browned in butter, then simmered with onion, white wine and stock and finished with a little cream. Earthy, savoury and rich, it's made for pouring over schnitzel, sausages and spätzle.", "prepTime": "10 mins", "cookTime": "25 mins", "serves": 4, "difficulty": "Easy", "calories": 190, "category": "Sauce", "ingredients": [{"amount": "2 tbsp", "item": "butter"}, {"amount": "1", "item": "onion, finely chopped"}, {"amount": "50g", "item": "streaky bacon, finely diced (optional)"}, {"amount": "300g", "item": "chestnut mushrooms, sliced"}, {"amount": "1 tbsp", "item": "tomato purée"}, {"amount": "100ml", "item": "dry white wine"}, {"amount": "250ml", "item": "beef or chicken stock"}, {"amount": "100ml", "item": "double cream"}, {"amount": "1 tsp", "item": "fresh thyme leaves"}, {"amount": "1 tbsp", "item": "flat-leaf parsley, chopped"}, {"amount": "pinch", "item": "salt and black pepper"}], "steps": ["Melt the butter in a wide pan over medium heat. Cook the onion, and the bacon if using, for 5 minutes until soft and lightly golden.", "Turn the heat up, add the mushrooms and cook for 8-10 minutes, stirring only now and then, until they have given off their liquid and turned deep golden brown.", "Stir in the tomato purée and thyme and cook for 1 minute. Pour in the wine and let it bubble until reduced by half.", "Add the stock and simmer gently for 10 minutes until the sauce has thickened slightly. Stir in the cream and simmer for a few more minutes until it coats the back of a spoon.", "Season with salt and pepper, stir through the parsley and serve hot over schnitzel, sausages or spätzle."], "tip": "Be patient with the mushrooms. Letting them brown properly, and not crowding the pan, is what gives the sauce its deep, savoury flavour. If your pan is small, cook them in two batches.", "story": "Jägersauce means 'hunter's sauce' in German, a nod to the game and foraged mushrooms of the hunter's kitchen. It's a close relative of French sauce chasseur and is most often poured over schnitzel, sausages and spätzle."},
+"Gurkensalat":{"name": "Gurkensalat", "image": "https://recipeatlas.co.uk/recipe-placeholder.jpg", "country": "Germany", "description": "Paper-thin cucumber slices dressed with a sweet-sharp vinegar and oil dressing, finely sliced onion and plenty of fresh dill. A cool, refreshing side that cuts through anything fried.", "prepTime": "15 mins", "cookTime": "0 mins", "serves": 4, "difficulty": "Easy", "calories": 100, "category": "Salad", "ingredients": [{"amount": "1", "item": "large cucumber, about 500g"}, {"amount": "1 tsp", "item": "salt"}, {"amount": "0.5", "item": "small onion, very thinly sliced"}, {"amount": "3 tbsp", "item": "white wine vinegar"}, {"amount": "3 tbsp", "item": "sunflower oil"}, {"amount": "1 tsp", "item": "sugar"}, {"amount": "1 tbsp", "item": "cold water"}, {"amount": "2 tbsp", "item": "fresh dill, chopped"}, {"amount": "pinch", "item": "black pepper"}], "steps": ["Slice the cucumber as thinly as you can with a sharp knife or a mandoline. Toss in a bowl with the salt and leave for 10 minutes.", "Meanwhile, whisk the vinegar, oil, sugar and water together until the sugar has dissolved.", "Drain the cucumber and press it gently to remove the excess liquid. Return it to the bowl with the sliced onion and dill.", "Pour over the dressing, add a pinch of pepper and toss. Leave for 15 minutes so the flavours come together, then serve cold."], "tip": "Salting and draining the cucumber stops the salad turning watery. For a creamy version, replace the oil and water with 3 tbsp of sour cream.", "story": "Gurkensalat is a staple side dish across Germany and Austria, served beside schnitzel, sausages and grilled meats. This oil-and-vinegar version with dill is the classic Bavarian style, and the creamy version with sour cream is called Rahmgurkensalat."},
 "Eggs Benedict":{"name": "Eggs Benedict", "image": "https://images.pexels.com/photos/34127585/pexels-photo-34127585.jpeg?auto=compress&cs=tinysrgb&h=650&w=940", "country": "United States", "description": "Toasted English muffin halves topped with ham, a soft poached egg and a blanket of warm hollandaise. The great American brunch classic, and worth the small amount of fuss.", "prepTime": "15 mins", "cookTime": "15 mins", "serves": 4, "difficulty": "Medium", "calories": 520, "ratingValue":5.0,"ratingCount":1, "ingredients": [{"amount": "4", "item": "English muffins, split"}, {"amount": "8", "item": "slices of ham or back bacon"}, {"amount": "8", "item": "very fresh large eggs"}, {"amount": "1 tbsp", "item": "white wine vinegar, for the poaching water"}, {"amount": "1 batch", "item": "hollandaise sauce, warm"}, {"amount": "1 tbsp", "item": "butter, for the muffins"}, {"amount": "to garnish", "item": "chives or paprika"}], "steps": ["Make the hollandaise first and keep it warm in a bowl set over a pan of hot water, off the heat.", "Bring a wide pan of water to a gentle simmer and add the vinegar. Warm the ham in a frying pan if you like.", "Toast the muffin halves until golden and spread them with butter. Lay a slice of ham on each half.", "Stir the simmering water to make a gentle whirlpool, crack in an egg and poach for 3 minutes until the white is set and the yolk is still soft. Lift out with a slotted spoon and drain on kitchen paper. Poach the eggs in batches of two or three.", "Set a poached egg on each muffin half, spoon over the hollandaise and finish with chives or a pinch of paprika. Serve straight away."], "tip": "Crack each egg into a cup first and slide it into the water. Use the freshest eggs you can find, as their whites hold together far better.", "story": "Eggs Benedict is usually traced to New York in the late 1800s, with Delmonico's and the Waldorf Hotel both claiming the dish. Variations include Eggs Florentine with spinach and Eggs Royale with smoked salmon."},
 "Hollandaise Sauce":{"name": "Hollandaise Sauce", "image": "https://live.staticflickr.com/2629/4224630466_e288e4266d_b.jpg", "photoCredit": {"name": "Stacy Spensley", "url": "https://openverse.org/image/1947a040-574a-4b59-842c-4d4014821a80"}, "country": "France", "description": "A lemony, velvety butter sauce made by whisking warm butter into egg yolks. The classic finish for asparagus, poached eggs and fish.", "prepTime": "10 mins", "cookTime": "10 mins", "serves": 4, "difficulty": "Hard", "calories": 290, "category": "Sauce", "ingredients": [{"amount": "3", "item": "large egg yolks"}, {"amount": "1 tbsp", "item": "lemon juice, plus more to taste"}, {"amount": "1 tbsp", "item": "water"}, {"amount": "175g", "item": "unsalted butter, melted and warm"}, {"amount": "pinch", "item": "cayenne pepper"}, {"amount": "pinch", "item": "salt"}], "steps": ["Put the egg yolks, lemon juice and water in a heatproof bowl set over a pan of barely simmering water (the bowl must not touch the water).", "Whisk constantly for 3-4 minutes until the mixture thickens and doubles in volume.", "Take the bowl off the heat. Slowly whisk in the warm melted butter, a little at a time, until the sauce is thick and glossy.", "Season with salt, cayenne and a little more lemon juice if you like it sharper.", "Serve immediately, or keep warm over a bowl of hot water, whisking now and then."], "tip": "Never let the bowl get too hot. If the sauce looks like it is about to split, lift the bowl off the heat and whisk in a splash of cold water.", "story": "Hollandaise is counted among the five 'mother sauces' of French cuisine in Escoffier's classification. The name is often explained by the quality of butter once imported from Holland."},
 "Béchamel Sauce":{"name": "Béchamel Sauce", "image": "https://live.staticflickr.com/3182/3362734995_a056285c93_b.jpg", "photoCredit": {"name": "missy & the universe", "url": "https://openverse.org/image/512a816c-888a-41fc-93e7-4b14977f90a7"}, "country": "France", "description": "The classic white sauce — butter, flour and milk cooked into a smooth, creamy base for lasagne, moussaka, croque monsieur and countless gratins.", "prepTime": "5 mins", "cookTime": "15 mins", "serves": 6, "difficulty": "Easy", "calories": 130, "category": "Sauce", "ingredients": [{"amount": "50g", "item": "butter"}, {"amount": "50g", "item": "plain flour"}, {"amount": "600ml", "item": "whole milk, warmed"}, {"amount": "1/4 tsp", "item": "freshly grated nutmeg"}, {"amount": "1/2 tsp", "item": "salt"}, {"amount": "pinch", "item": "white pepper"}], "steps": ["Melt the butter in a saucepan over a medium-low heat. Stir in the flour and cook for 2 minutes, stirring, without letting it colour.", "Take the pan off the heat and add the warm milk a little at a time, whisking well after each addition to keep the sauce smooth.", "Return to a gentle heat and cook, stirring constantly, for 8-10 minutes until the sauce is thick enough to coat the back of a spoon.", "Season with nutmeg, salt and white pepper. Cover the surface with a piece of baking paper to prevent a skin until ready to use."], "tip": "Warm milk and a patient, slow addition are the secret to lump-free sauce. If lumps do appear, a quick whisk or a pass through a sieve fixes them.", "story": "Béchamel is one of the French 'mother sauces' and is traditionally named after Louis de Béchameil, a steward to Louis XIV — though similar white sauces are older than he was. It is the base of Italian lasagne, Greek moussaka and French gratins."},
@@ -1498,6 +1502,10 @@ const RECIPE_DB = {
 // ── PAIRINGS ─────────────────────────────────────────────────────────
 // Main dish -> sauces, condiments and sides that go with it (shown as "Serve with").
 const DISH_PAIRINGS = {
+  "Chicken Schnitzel": ["Celeriac Remoulade", "Kartoffelsalat", "Gurkensalat", "Jägersauce", "Braised Red Cabbage", "Lingonberry Sauce", "Spätzle"],
+  "Bratwurst": ["Jägersauce", "Gurkensalat"],
+  "Spätzle": ["Jägersauce"],
+  "Leberkäse": ["Gurkensalat"],
   "Eggs Benedict": ["Hollandaise Sauce"],
   "Ackee and Saltfish": ["Fried Plantains"],
   "Adobo": ["Atchara"],
@@ -1563,7 +1571,7 @@ const DISH_PAIRINGS = {
   "Gnocchi": ["Pesto Genovese", "Marinara Sauce"],
   "Goi Cuon": ["Nuoc Cham", "Do Chua"],
   "Gołąbki": ["Mizeria"],
-  "Gravlax": ["Hovmästarsås", "Pressgurka"],
+  "Gravlax": ["Hovmästarsås", "Pressgurka", "Celeriac Remoulade"],
   "Gyoza": ["Ponzu"],
   "Gyudon": ["Beni Shoga"],
   "Hainanese Chicken Rice": ["Ginger-Scallion Sauce", "Chicken Rice Chilli Sauce"],
@@ -1671,7 +1679,7 @@ const DISH_PAIRINGS = {
   "Vaca Frita": ["Mojo Criollo"],
   "Waakye": ["Shito"],
   "Welsh Rarebit": ["Piccalilli"],
-  "Wiener Schnitzel": ["Kartoffelsalat"],
+  "Wiener Schnitzel": ["Kartoffelsalat", "Gurkensalat", "Celeriac Remoulade", "Lingonberry Sauce"],
   "Yakisoba": ["Beni Shoga"],
   "Yakitori": ["Ponzu"],
   "Yorkshire Pudding": ["Onion Gravy", "Horseradish Sauce", "Roast Potatoes"],
@@ -1681,6 +1689,9 @@ const DISH_PAIRINGS = {
 
 // Sauce / side -> main dishes it is served with (the reverse of DISH_PAIRINGS).
 const SAUCE_PAIRINGS = {
+  "Jägersauce": ["Chicken Schnitzel", "Bratwurst", "Spätzle"],
+  "Gurkensalat": ["Chicken Schnitzel", "Wiener Schnitzel", "Bratwurst", "Leberkäse"],
+  "Celeriac Remoulade": ["Chicken Schnitzel", "Wiener Schnitzel", "Gravlax"],
   "Hollandaise Sauce": ["Eggs Benedict"],
   "Béarnaise Sauce": ["Steak Frites", "Beef Wellington"],
   "Peppercorn Sauce": ["Steak Frites", "Beef Wellington"],
@@ -1694,7 +1705,7 @@ const SAUCE_PAIRINGS = {
   "Apple Sauce": ["Schweinshaxe", "Frikadeller"],
   "Roast Potatoes": ["Lamb Roast NZ", "Yorkshire Pudding"],
   "Dauphinoise Potatoes": ["Boeuf Bourguignon", "Coq au Vin", "Steak Frites"],
-  "Braised Red Cabbage": ["Sauerbraten", "Schweinshaxe", "Rouladen", "Knödel"],
+  "Braised Red Cabbage": ["Sauerbraten", "Schweinshaxe", "Rouladen", "Knödel", "Chicken Schnitzel"],
   "Ketchup": ["Hamburger", "Hot Dog"],
   "Burger Sauce": ["Hamburger"],
   "American BBQ Sauce": ["BBQ Ribs", "BBQ Brisket"],
@@ -1711,7 +1722,7 @@ const SAUCE_PAIRINGS = {
   "Skordalia": ["Souvlaki"],
   "Remoulade": ["Smørrebrød", "Frikadeller"],
   "Hovmästarsås": ["Gravlax"],
-  "Lingonberry Sauce": ["Swedish Meatballs", "Kroppkakor"],
+  "Lingonberry Sauce": ["Swedish Meatballs", "Kroppkakor", "Chicken Schnitzel", "Wiener Schnitzel"],
   "Tkemali": ["Shashlik"],
   "Hummus": ["Falafel", "Sabich", "Shawarma"],
   "Tahini Sauce": ["Falafel", "Shawarma", "Kibbeh"],
@@ -1776,7 +1787,7 @@ const SAUCE_PAIRINGS = {
   "Pressgurka": ["Swedish Meatballs", "Gravlax", "Raggmunk"],
   "Agurkesalat": ["Frikadeller", "Stegt Flæsk", "Smørrebrød"],
   "Mizeria": ["Pierogi Ruskie", "Placki Ziemniaczane", "Gołąbki", "Kluski Śląskie"],
-  "Kartoffelsalat": ["Wiener Schnitzel", "Schweinshaxe", "Königsberger Klopse"],
+  "Kartoffelsalat": ["Wiener Schnitzel", "Schweinshaxe", "Königsberger Klopse", "Chicken Schnitzel"],
   "Marinara Sauce": ["Arancini", "Gnocchi", "Pizza Margherita"],
   "Romesco": ["Tortilla Española", "Albóndigas"],
   "Collard Greens": ["Fried Chicken", "BBQ Ribs", "BBQ Brisket"],
@@ -2212,6 +2223,17 @@ const styles = `
   ::-webkit-scrollbar-track { background: #f5f0e8; }
   ::-webkit-scrollbar-thumb { background: #d4c9b8; border-radius: 2px; }
 
+
+  .meal-scroll { scrollbar-width: none; -ms-overflow-style: none; }
+  .meal-scroll::-webkit-scrollbar { display: none; height: 0; }
+  .meal-card { position: relative; flex: 0 0 232px; height: 318px; border-radius: 22px; padding: 20px 20px 18px; scroll-snap-align: start; display: flex; flex-direction: column; text-decoration: none; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,.10); transition: transform .2s, box-shadow .2s; box-sizing: border-box; }
+  .meal-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.16); }
+  .meal-dot { width: 7px; height: 7px; border-radius: 50%; background: #d9d0c4; border: none; padding: 0; transition: all .2s; }
+  .meal-dot.active { background: #c2622a; width: 20px; border-radius: 4px; }
+  .meal-hub-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  @media (min-width: 900px) { .meal-hub-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; } .meal-hub-grid .meal-card { flex: none; width: auto; } }
+  .meal-hub-grid .meal-card { flex: none; width: auto; }
+  @media (max-width: 1100px) { .meal-arrow { display: none !important; } }
   .classics-scroll { scrollbar-width: none; -ms-overflow-style: none; }
   .classics-scroll::-webkit-scrollbar { display: none; height: 0; }
   .classics-card { flex: 0 0 auto; scroll-snap-align: start; cursor: pointer; position: relative; overflow: hidden; }
@@ -2457,6 +2479,35 @@ function AdSlot({ unit, style }) {
       />
     </div>
   );
+}
+
+// ── MEALS ──────────────────────────────────────────────────────────────
+// Meal tags live here (not on each recipe). Add new recipes to the right list(s) when you create them.
+// Sauces, dips, pickles, sides, breads and drinks are deliberately left out.
+const MEALS = [
+  { id:"breakfast", label:"Breakfast", time:"Morning", icon:"☀️", bg:"linear-gradient(160deg,#ffe3b8,#ffb36b)", ink:"#4a2a08", tag:"Eggs, pancakes, porridges and street-stall starts",
+    feature:["Full English Breakfast","Shakshuka","Pancakes","Chilaquiles"] },
+  { id:"lunch", label:"Lunch", time:"Midday", icon:"🌤️", bg:"linear-gradient(160deg,#fff3b0,#ffd24d)", ink:"#4a3a05", tag:"Sandwiches, noodles, soups, pastries and light plates",
+    feature:["Katsu Sando","Pad Thai","Gua Bao","Pho Bo"] },
+  { id:"dinner", label:"Dinner", time:"Evening", icon:"🌙", bg:"linear-gradient(160deg,#4a3a72,#8a4f86)", ink:"#ffffff", tag:"Stews, roasts, curries and the big family plates",
+    feature:["Butter Chicken","Spaghetti Carbonara","Beef Wellington","Ropa Vieja"] },
+  { id:"dessert", label:"Dessert", time:"Anytime", icon:"🍰", bg:"linear-gradient(160deg,#ffc9d9,#ff9bb8)", ink:"#4a1530", tag:"Cakes, puddings, pastries and sweet treats",
+    feature:["Tiramisu","Pavlova","Baklava","Crème Brûlée"] },
+];
+const MEAL_DISH_KEYS = {
+  breakfast: ["Akara","Aloo Paratha","Arepas","Arepas de Choclo","Asida","Açaí Bowl","Bai Sach Chrouk","Balaleet","Bara","Beignets","Belgian Waffles","Bibingka","Bircher Muesli","Blini","Bolón de Verde","Cachapa","Changua","Chilaquiles","Chole Bhature","Churros","Churros con Chocolate","Cinnamon Buns","Coconut Bake","Congee","Cretons","Cơm Tấm","Danish Pastry","Deruny","Dosa","Doubles","Eggs Benedict","Fatteh","Fattet Hummus","Firfir","Ful Medames","Full English Breakfast","Gallo Pinto","Hoppers","Idli Sambar","Jachnun","Kaiserschmarrn","Karjalanpiirakka","Kaya Toast","Koko","Korvapuusti","Latkes","Malawach","Manakish Za'atar","Mandazi","Mbejú","Menemen","Mont Di","Msemen","Nasi Lemak","Nigerian Akara","Pain au Chocolat","Pancakes","Pap","Pittu","Placki Ziemniaczane","Ployes","Poffertjes","Raggmunk","Roti Canai","Roti Prata","Rømmegrøt","Sel Roti","Shakshuka","Shakshuka Israeli","Sheer Khurma","String Hoppers","Syrniki","Tocino","Tortilla Española","Vegemite on Toast","Vitumbua","Waakye","Welsh Rarebit","Æbleskiver"],
+  lunch: ["Ackee and Saltfish","Adjaruli Khachapuri","Adobo","Ajiaco","Ají de Gallina","Akara","Akra","Alheira","Alloco","Aloko","Aloo Paratha","Aloo Tama","Amok","Amok Trey","Anticuchos","Arancini","Arepas","Arroz con Pollo","Arroz de Pato","Asado","Asado Chileno","Asado Paraguayo","Ash Reshteh","Attiéké","Ayam Goreng","Ayib","Açorda","BBQ Brisket","BBQ Ribs","Bacalhau à Brás","Bacon and Egg Pie","Badrijani Nigvzit","Baghali Polo","Bai Sach Chrouk","Bak Kut Teh","Balut","Bandeja Paisa","Banga Soup","Bangers and Mash","Banh Chao","Banh Xeo","Banku","Banosh","Bansh","Bantan","Bara","Barszcz","Bastilla","Bastirma","Basturma","Bazlama","Beef Loc Lac","Beef Noodle Soup","Beef Stroganoff","Begun Bhaja","Bhorta","Bhuna Khichuri","Bibimbap","Bifana","Bigos","Biksemad","Biriyani ya Pwani","Biriyani ya Zanzibar","Birria","Biryani","Bitterballen","Bobó de Camarão","Boerewors","Boerewors Rolls","Boil Up","Bok L'Hong","Bolón de Verde","Boodog","Borscht","Bouillabaisse","Bourekas","Braai","Bramboráky","Bratwurst","Bruschetta","Buffalo Wings","Bunny Chow","Bush Tucker Kangaroo Skewers","Butter Chicken","Buuz","Buñuelos","Bánh Mì","Börek","Bún Bò Huế","Bún Chả","Bún Riêu","Cacio e Pepe","Caldeirada","Caldo Verde","Caldo de Bola","Caldou","Callaloo","Cao Lau","Caprese Salad","Carnitas","Carrot Cake","Casado","Cassoulet","Causa Limeña","Causa Rellena","Cazuela","Cazuela de Mariscos","Ceviche Chileno","Ceviche Peruano","Cha Kroeung","Chairo","Chakchouka","Chakhokhbili","Chana Masala","Chapli Kebab","Char Kway Teow","Charquicán","Chatamari","Chawanmushi","Cheese Rolls","Chermoula Fish","Chicken Biryani","Chicken Kiev","Chicken Paprikash","Chicken Parmigiana","Chicken Schnitzel","Chicken Shawarma","Chicken Tikka Masala","Chicons au Gratin","Chifrijo","Chikhirtma","Chiko Roll","Chilaquiles","Chiles Rellenos","Chiles en Nogada","Chin Chin","Chipa Guasu","Chlebíčky","Chole Bhature","Cholent","Chorba","Choripán","Chow Fun","Chow Mein","Chuchvara","Chupín","Churrasco","Ciorbă de Burtă","Ciorbă de Perișoare","Clam Bake","Clam Chowder","Cochinita Pibil","Cocido Madrileño","Coconut Fish","Completo","Confit de Canard","Congee","Congrí","Cordon Bleu","Cornish Pasty","Couscous Royal","Couscous Tunisien","Coxinha","Crni Rižot","Croissants","Croque Monsieur","Croquetas de Jamón","Cubano","Curanto","Curry Crab","Curry Goat","Currywurst","Cuy Chactado","Cơm Tấm","Dal Bhat","Dal Makhani","Dan Dan Noodles","Deruny","Dhido","Dhokla","Dim Sum","Dimlama","Dinuguan","Diri Kole","Dolma","Dolma Iraqi","Dolmades","Domoda","Doro Wat","Dosa","Dovga","Drob de Miel","Duck a l'Orange","Duruka","Dushbara","Efo Riro","Egg Fried Rice","Egusi Soup","Elote","Empanadas","Empanadas Colombianas","Empanadas de Pino","Empanadas de Viento","Encebollado","Enchiladas Verdes","Erwtensoep","Escargot","Escovitch Fish","Fabada Asturiana","Fajitas","Falafel","Fatayer","Fatteh","Fattet Hummus","Fattoush","Feijoada","Fideuà","Fijian Curry","Fijian Dal","Firfir","Fish and Chips","Fiskesuppe","Flaki","Flammkuchen","Flammkuchen German","Flæskesteg","Foutou","Francesinha","Freekeh Soup","Fricassée Tunisienne","Fricasé","Fried Chicken","Frikadeller","Fritada","Fuchka","Ful Medames","Fuži","Fårikål","Gado-Gado","Galayet Bandora","Galbi","Gallo Pinto","Gazpacho","Gerstensuppe","Ghormeh Sabzi","Gimbap","Githeri","Gnocchi","Goi Cuon","Gomen","Gondi","Goulash","Gołąbki","Gravlax","Green Curry","Griot","Gua Bao","Guacamole","Gulasch","Guláš","Gumbo","Gundruk","Gungo Peas and Rice","Guriltai Shul","Gyoza","Gyudon","Haemul Pajeon","Hainanese Chicken Rice","Hallacas","Halászlé","Hamburger","Haring","Harira","Harissa","Hawawshi","Hernekeitto","Hilsa Fish Curry","Hokkien Mee","Holubtsi","Hoppers","Horiatiki Salad","Hortobágyi Palacsinta","Hot Dog","Hot Pot","Hot and Sour Soup","Htamin Jin","Humintas","Humita","Hutspot","Hāngī","Ika Mata","Ika Vakalolo","Jamaican Patties","Jambalaya","Janssons Frestelse","Japchae","Jerk Chicken","Jiaozi","Jjajangmyeon","Jollof Rice","Joojeh Kabab","Kabob","Kabsa","Kabsa Yemeni","Kacchi Biryani","Kachumbari","Kadhi","Kafta bil Sanieh","Kafteji","Kalakukko","Kapusniak","Karahi","Kare-Kare","Karnıyarık","Kartoffelsuppe","Katsu Curry","Katsu Sando","Katsudon","Kebab Koobideh","Kedjenou","Kelewele","Khachapuri","Khao Soi","Kharcho","Kholodets","Khorkhog","Khorovats","Khuushuur","Kibbeh","Kibbeh Nayeh","Kimbap","Kimchi Jjigae","Kiri Bath","Kitfo","Kiwi Meat Pie","Kluski Śląskie","Knish","Knödel","Kofta b'Bandura","Kontomire Stew","Koofteh Tabrizi","Koshari","Kotlet Schabowy","Kottu Roti","Kovbasa","Kroketten","Kroppkakor","Kubba","Kulajda","Kulen","Kumpir","Kwati","Kyay Oh","Königsberger Klopse","Kısır","Lagman","Lahmacun","Lahmajoun","Laksa","Lamb Roast NZ","Lamb Tagine with Preserved Lemon","Lamprais","Landjäger","Larb","Lasagne alla Bolognese","Latkes","Leberkäse","Lechon","Lechona Tolimense","Lecsó","Leitão da Bairrada","Levengi","Liège Salade","Llajwa","Llapingachos","Lobiani","Lobster Roll","Locro","Locro de Papa","Lohikeitto","Lomo Saltado","Lort Cha","Lovo","Lumpia","Lutefisk","Lángos","Mac and Cheese","Machas a la Parmesana","Madfoon","Maharage","Maharagwe","Mahshi","Majadito","Malakoff","Malawach","Manakish Za'atar","Mandi Yemeni","Manti Armenian","Mapo Tofu","Maqluba","Maraq","Martabak","Masgouf","Massaman Curry","Mastava","Matambre","Mchuzi wa Samaki","Meat Pie","Meatloaf","Mechoui","Mechouia","Mee Goreng Mamak","Menemen","Mercimek Çorbası","Merguez","Mici","Migas","Milanesa","Minestrone","Misir Wat","Miso Soup","Mohinga","Moi Moi","Molokhia","Momos","Mondongo Colombiano","Mont Di","Montreal Smoked Meat","Moqueca Baiana","Morasa Polo","Moros y Cristianos","Moules Frites","Mujaddara","Mukimo","Mulligatawny","Murtabak","Musakhan","Mutabbaq","Mămăligă","Nan Gyi Thoke","Naryn","Nasi Goreng","Nasi Goreng Kampung","Nasi Kandar","Nasi Lemak","Nasi Uduk","Ndizi na Nyama","New England Chowder Bread Bowl","Nicoise Salad","Nigerian Akara","Nigerian Fried Rice","Nigerian Jollof Rice","Nigiri Sushi","Nova Scotia Lobster Rolls","Nyama Choma","Ofada Stew","Ohno Khao Swè","Ojakhuri","Okonomiyaki","Olivier Salad","Olla de Carne","Omo Tuo","Onigiri","Ota Ika","Oxtail Stew","Oyster Cake","Oyster Omelette","Oyster Omelette SG","Pad See Ew","Pad Thai","Paella Valenciana","Palak Paneer","Paling in 't Groen","Palm Nut Soup","Palusami","Pan de Jamón","Pan-Fried Barramundi","Panang Curry","Pancit","Pani Puri","Papa a la Huancaína","Pastel de Choclo","Pastelles","Pastilla","Pastitsio","Pastéis de Bacalhau","Patacones","Patatas Bravas","Pav Bhaji","Paya","Payagua Mascada","Pe Byok","Peameal Bacon Sandwich","Pebre","Peka","Pelmeni","Pepper Soup","Pescado Frito","Philly Cheesesteak","Pho Bo","Pholourie","Phở Gà","Pide","Pierogi Ruskie","Pilau","Pinnekjøtt","Pique Macho","Pisto Manchego","Pittu","Pizza Margherita","Pkhali","Placali","Placki Ziemniaczane","Plov","Poke Bowl","Poulet Braisé","Poutine","Pozole Rojo","Prawn Toast","Provoleta","Puchero","Pulpo a la Gallega","Pupusas","Pão de Queijo","Qeema","Qidreh","Quesadillas","Quiche Lorraine","Qutab","Quzi","Raclette","Raggmunk","Rajma","Rakfisk","Ramen","Raspeball","Ratatouille","Red Red","Rendang","Rendang Daging Malaysia","Reuben Sandwich","Rfissa","Ribollita","Rice and Peas","Risotto ai Funghi","Risotto alla Milanese","Riz et Pois","Rocoto Relleno","Rogan Josh","Rojak","Rondón","Ropa Vieja","Roti Canai","Roti John","Roti Prata","Rouladen","Run Down","Rösti","Sabich","Sajji","Saleeg","Salo","Saltah","Salteñas","Samak Mofa","Sambosa","Samgyeopsal","Samlor Korko","Samosas","Sancocho","Sardinhas Assadas","Sarmale","Satay","Sate Ayam","Satsivi","Sauce Graine","Sauerkraut","Sausage Sizzle","Sautéed Reindeer","Sayadieh","Sayur Lodeh","Scallion Pancake","Schweinshaxe","Scotch Egg","Seekh Kebab","Shah Pilaf","Shakshuka","Shakshuka Israeli","Shan Noodles","Shashlik","Shawarma","Shchi","Shepherd's Pie","Shiro","Shkmeruli","Shorshe Ilish","Silpancho","Sinigang","Sisig","Smažený Sýr","Smörgåsbord","Smørrebrød","Solyanka","Som Tam","Somsa","Sopa Negra","Sopa Paraguaya","Sopa de Maní","Sopaipillas","Soparnik","Sopes","Sorpa","Soto Ayam","Soup Joumou","Soupe Kandia","Soupe à l'Oignon","Souse","Souvlaki","Spaghetti Carbonara","Spanakopita","Split Pea Soup","Spring Rolls","Spätzle","Sri Lankan Fish Curry","Stamppot","Steak Frites","Stegt Flæsk","Stinky Tofu","Stoemp","Stoofvlees","String Hoppers","Sujuk","Sukuma Wiki","Sukuti","Sundubu Jjigae","Sup Kambing","Surströmming","Suya","Svíčková na Smetaně","Swedish Meatballs","Syrian Fattoush","Tabbouleh","Tacos al Pastor","Tacu Tacu","Tafelspitz","Tahchin","Tahdig","Tajine Malsouka","Takoyaki","Tamales","Tamales Colombianos","Tamales Cubanos","Tempura","Tepsi Baytinijan","Tequeños","Thiebou Dieun","Thiéboudienne","Thukpa","Tian Bu La","Tibs","Tinola","Tom Kha Gai","Tom Yum Soup","Tonkatsu","Torsk","Tortilla Española","Tourtière","Tsuivan","Tteokbokki","Tucumanas","Tunta","Tuo Zaafi","Töltött Káposzta","Ugali","Ukrainian Borscht","Urojo","Vaca Frita","Vada Pav","Vareniki","Varenyky","Vatapá","Vepřo Knedlo Zelo","Vetkoek","Vindaloo","Vitel Toné","Vitello Tonnato","Vol-au-Vent","Vori Vori","Vorschmack","Waakye","Warak Enab","Waraq Dawali","Waterzooi","Whitebait Fritters","Wiener Backhendl","Wiener Schnitzel","Wonton Mee","Xiaolongbao","Yakisoba","Yakitori","Yalanji","Yassa Poisson","Yassa Poulet","Zaalouk","Zanzibar Pizza","Zarb","Zhingyalov Hats","Zhug","Zongzi","Zurbian","Zwiebelrostbraten","Älplermagronen","Ärtsoppa","Çiğ Köfte","Čevapi","İskender Kebab","Żurek"],
+  dinner: ["Ackee and Saltfish","Adjaruli Khachapuri","Adobo","Ajiaco","Ají de Gallina","Akara","Akra","Albóndigas","Alheira","Alloco","Aloko","Aloo Paratha","Aloo Tama","Amok","Amok Trey","Anticuchos","Arancini","Arepas","Arroz con Pollo","Arroz de Pato","Asado","Asado Chileno","Asado Negro","Asado Paraguayo","Ash Reshteh","Attiéké","Ayam Goreng","Ayib","Açorda","BBQ Brisket","BBQ Ribs","Bacalhau à Brás","Badrijani Nigvzit","Baghali Polo","Bai Sach Chrouk","Bak Kut Teh","Balut","Bandeja Paisa","Banga Soup","Bangers and Mash","Banh Chao","Banh Xeo","Banku","Banosh","Bansh","Bantan","Bara","Barszcz","Bastilla","Bastirma","Basturma","Bazlama","Beef Loc Lac","Beef Noodle Soup","Beef Stroganoff","Beef Wellington","Begun Bhaja","Bhorta","Bhuna Khichuri","Bibimbap","Bigos","Biksemad","Biriyani ya Pwani","Biriyani ya Zanzibar","Birria","Biryani","Bitterballen","Bobotie","Bobó de Camarão","Boerewors","Boerewors Rolls","Boeuf Bourguignon","Boil Up","Bolón de Verde","Boodog","Borscht","Bouillabaisse","Braai","Bramboráky","Bratwurst","Bruschetta","Buffalo Wings","Bulgogi","Bunny Chow","Bush Tucker Kangaroo Skewers","Butter Chicken","Buuz","Buñuelos","Bánh Mì","Börek","Bún Bò Huế","Bún Chả","Bún Riêu","Cacio e Pepe","Caldeirada","Caldo Verde","Caldo de Bola","Caldou","Callaloo","Cao Lau","Caraotas Negras","Carbonnade Flamande","Carnitas","Carrot Cake","Casado","Cassoulet","Causa Limeña","Causa Rellena","Cazuela","Cazuela de Mariscos","Cha Kroeung","Chairo","Chakchouka","Chakhokhbili","Chana Masala","Chapli Kebab","Char Kway Teow","Char Siu","Charquicán","Chatamari","Chawanmushi","Cheese Rolls","Chermoula Fish","Chicken Biryani","Chicken Kiev","Chicken Marsala","Chicken Paprikash","Chicken Parmigiana","Chicken Schnitzel","Chicken Shawarma","Chicken Tikka","Chicken Tikka Masala","Chicons au Gratin","Chifrijo","Chikhirtma","Chilaquiles","Chiles Rellenos","Chiles en Nogada","Chilli Crab","Chimichurri Steak","Chin Chin","Chipa Guasu","Chlebíčky","Chole Bhature","Cholent","Chorba","Choripán","Chow Fun","Chow Mein","Chuchvara","Chupín","Churrasco","Ciorbă de Burtă","Ciorbă de Perișoare","Clam Bake","Clam Chowder","Cochinita Pibil","Cocido Madrileño","Coconut Fish","Completo","Confit de Canard","Congee","Congrí","Coq au Vin","Cordon Bleu","Couscous Royal","Couscous Tunisien","Coxinha","Crni Rižot","Croissants","Croque Monsieur","Croquetas de Jamón","Cubano","Curanto","Curry Crab","Curry Goat","Currywurst","Cuy Chactado","Cơm Tấm","Dal Bhat","Dal Makhani","Dan Dan Noodles","Deruny","Dhido","Dimlama","Dinuguan","Diri Kole","Dolma","Dolma Iraqi","Dolmades","Domoda","Doro Wat","Dosa","Dovga","Drob de Miel","Duck a l'Orange","Duruka","Dushbara","Efo Riro","Egg Fried Rice","Egusi Soup","Elote","Empanadas Colombianas","Encebollado","Enchiladas Verdes","Erwtensoep","Escargot","Escovitch Fish","Fabada Asturiana","Fajitas","Falafel","Fattah","Fatteh","Fattet Hummus","Feijoada","Fesenjan","Fideuà","Fijian Curry","Fijian Dal","Firfir","Fish and Chips","Fiskesuppe","Flaki","Flammkuchen","Flammkuchen German","Flæskesteg","Fondue","Foutou","Freekeh Soup","Fricase de Pollo","Fricassée Tunisienne","Fricasé","Fried Chicken","Frikadeller","Fritada","Fuchka","Ful Medames","Fuži","Fårikål","Galayet Bandora","Galbi","Gallo Pinto","Gerstensuppe","Ghormeh Sabzi","Gimbap","Githeri","Gnocchi","Goi Cuon","Gomen","Gondi","Goulash","Gołąbki","Gravlax","Green Curry","Griot","Guacamole","Gulasch","Guláš","Gumbo","Gundruk","Gungo Peas and Rice","Guriltai Shul","Gyoza","Haemul Pajeon","Hainanese Chicken Rice","Haleem","Hallacas","Halászlé","Haring","Harira","Harissa","Hernekeitto","Hilsa Fish Curry","Hokkien Mee","Holubtsi","Hoppers","Hornado","Hortobágyi Palacsinta","Hot Pot","Hot and Sour Soup","Htamin Jin","Humintas","Humita","Hutspot","Hāngī","Ika Mata","Ika Vakalolo","Jambalaya","Janssons Frestelse","Japchae","Jerk Chicken","Jiaozi","Jjajangmyeon","Jollof Rice","Joojeh Kabab","Kabob","Kabsa","Kabsa Yemeni","Kacchi Biryani","Kachumbari","Kadhi","Kafta bil Sanieh","Kafteji","Kalakukko","Kapusniak","Karahi","Kare-Kare","Karnıyarık","Kartoffelsuppe","Katsu Curry","Kebab Koobideh","Kedjenou","Kelewele","Khachapuri","Khao Soi","Kharcho","Kholodets","Khorkhog","Khorovats","Khuushuur","Kibbeh","Kibbeh Labaniyeh","Kibbeh Nayeh","Kimbap","Kimchi Jjigae","Kiri Bath","Kitfo","Kjøttkaker","Kluski Śląskie","Knödel","Kofta b'Bandura","Kontomire Stew","Koofteh Tabrizi","Korean Fried Chicken","Koshari","Kotlet Schabowy","Kottu Roti","Kovbasa","Kroketten","Kroppkakor","Kubba","Kulajda","Kulen","Kumpir","Kung Pao Chicken","Kwati","Kyay Oh","Königsberger Klopse","Lagman","Lahmacun","Lahmajoun","Lahme bil Karaz","Laksa","Lamb Roast NZ","Lamb Tagine with Preserved Lemon","Lamprais","Landjäger","Lasagne alla Bolognese","Latkes","Leberkäse","Lechon","Lechona Tolimense","Lecsó","Leitão da Bairrada","Levengi","Llajwa","Llapingachos","Lobiani","Lobster Roll","Locro","Locro de Papa","Lohikeitto","Lomo Saltado","Lort Cha","Lovo","Lumpia","Lutefisk","Lángos","Mac and Cheese","Madfoon","Mafé","Maharage","Maharagwe","Mahshi","Majadito","Malawach","Manakish Za'atar","Mandi Yemeni","Mansaf","Manti Armenian","Mapo Tofu","Maqluba","Maraq","Martabak","Masgouf","Massaman Curry","Mastava","Matambre","Mchuzi wa Samaki","Meatloaf","Mechoui","Mee Goreng Mamak","Menemen","Mercimek Çorbası","Merguez","Mici","Migas","Milanesa","Minestrone","Misir Wat","Miso Soup","Mohinga","Moi Moi","Mole Negro","Molokhia","Momos","Mondongo Colombiano","Mont Di","Montreal Smoked Meat","Moqueca Baiana","Morasa Polo","Moros y Cristianos","Moules Frites","Moussaka","Mujaddara","Mukimo","Mulligatawny","Murtabak","Musakhan","Mutabbaq","Mutton Rezala","Mămăligă","Naryn","Nasi Goreng","Nasi Goreng Kampung","Nasi Kandar","Nasi Lemak","Nasi Uduk","Ndizi na Nyama","New England Chowder Bread Bowl","Nigerian Akara","Nigerian Fried Rice","Nigerian Jollof Rice","Nihari","Nova Scotia Lobster Rolls","Nyama Choma","Ofada Stew","Ohno Khao Swè","Ojakhuri","Okonomiyaki","Olla de Carne","Omo Tuo","Onigiri","Osso Buco","Oxtail Stew","Oyster Cake","Oyster Omelette","Oyster Omelette SG","Pabellón Criollo","Pad See Ew","Pad Thai","Paella Valenciana","Palak Paneer","Paling in 't Groen","Palm Nut Soup","Palusami","Pan de Jamón","Pan-Fried Barramundi","Panang Curry","Pancit","Paneer Tikka","Pani Puri","Papa a la Huancaína","Pastel de Choclo","Pastelles","Pastilla","Pastitsio","Pastéis de Bacalhau","Patacones","Patatas Bravas","Pav Bhaji","Paya","Payagua Mascada","Pašticada","Pebre","Peka","Peking Duck","Pelmeni","Pepper Soup","Pescado Frito","Philly Cheesesteak","Pho Bo","Pholourie","Phở Gà","Picadillo","Pide","Pierogi Ruskie","Pilau","Pinnekjøtt","Pique Macho","Pisto Manchego","Pittu","Pizza Margherita","Pkhali","Placali","Placki Ziemniaczane","Plov","Poulet Braisé","Poutine","Pozole Rojo","Prawn Toast","Provoleta","Puchero","Pulpo a la Gallega","Pão de Queijo","Qeema","Qidreh","Quesadillas","Quiche Lorraine","Qutab","Quzi","Raclette","Raggmunk","Rajma","Rakfisk","Ramen","Raspeball","Ratatouille","Red Red","Rendang","Rendang Daging Malaysia","Reuben Sandwich","Rfissa","Ribollita","Rice and Peas","Risotto ai Funghi","Risotto alla Milanese","Riz et Pois","Rocoto Relleno","Rogan Josh","Rondón","Ropa Vieja","Roti Canai","Roti John","Roti Prata","Rouladen","Run Down","Rösti","Sabich","Sajji","Saleeg","Salo","Saltah","Salteñas","Saltimbocca","Samak Mofa","Samgyeopsal","Samlor Korko","Sancocho","Sardinhas Assadas","Sarmale","Satay","Sate Ayam","Satsivi","Sauce Graine","Sauerbraten","Sauerkraut","Sautéed Reindeer","Sayadieh","Sayur Lodeh","Scallion Pancake","Schweinshaxe","Seco de Pollo","Seekh Kebab","Shah Pilaf","Shakshuka","Shakshuka Israeli","Shan Noodles","Shashlik","Shawarma","Shchi","Shepherd's Pie","Shiro","Shkmeruli","Shorshe Ilish","Silpancho","Sinigang","Sisig","Smažený Sýr","Smörgåsbord","Smørrebrød","Solyanka","Somsa","Sopa Negra","Sopa Paraguaya","Sopa de Maní","Sopaipillas","Soparnik","Sorpa","Sosaties","Soto Ayam","Soup Joumou","Soupe Kandia","Soupe à l'Oignon","Souse","Souvlaki","Spaghetti Carbonara","Spanakopita","Split Pea Soup","Spring Rolls","Spätzle","Sri Lankan Fish Curry","Stamppot","Steak Frites","Stegt Flæsk","Stinky Tofu","Stoemp","Stoofvlees","String Hoppers","Sujuk","Sukuma Wiki","Sukuti","Sundubu Jjigae","Sup Kambing","Surströmming","Suya","Svíčková na Smetaně","Swedish Meatballs","Sweet and Sour Pork","Tacos al Pastor","Tacu Tacu","Tafelspitz","Tahchin","Tahdig","Tajine Malsouka","Takoyaki","Tamales","Tamales Colombianos","Tamales Cubanos","Tandoori Chicken","Tempura","Tepsi Baytinijan","Tequeños","Teriyaki Chicken","Thiebou Dieun","Thiéboudienne","Three Cup Chicken","Thukpa","Tian Bu La","Tibs","Tinola","Toad in the Hole","Tocăniță","Tom Kha Gai","Tom Yum Soup","Tonkatsu","Torsk","Tortilla Española","Tourtière","Tsuivan","Tteokbokki","Tucumanas","Tunta","Tuo Zaafi","Töltött Káposzta","Ugali","Ukrainian Borscht","Urojo","Vaca Frita","Vada Pav","Vareniki","Varenyky","Vatapá","Vepřo Knedlo Zelo","Vetkoek","Vindaloo","Vitel Toné","Vitello Tonnato","Vol-au-Vent","Vori Vori","Vorschmack","Waakye","Warak Enab","Waraq Dawali","Waterzooi","Whitebait Fritters","Wiener Backhendl","Wiener Schnitzel","Wonton Mee","Xiaolongbao","Yakisoba","Yakitori","Yalanji","Yassa Poisson","Yassa Poulet","Zanzibar Pizza","Zarb","Zereshk Polo ba Morgh","Zhingyalov Hats","Zhug","Zongzi","Zurbian","Zuurvlees","Zwiebelrostbraten","Zürcher Geschnetzeltes","Älplermagronen","Ärtsoppa","Çiğ Köfte","Čevapi","İskender Kebab","Żurek"],
+  dessert: ["Ais Kacang","Aish el Saraya","Alfajores","Anzac Biscuits","Anzac Slice NZ","Apfelstrudel","Apfelstrudel German","Appeltaart","Apple Pie","Arroz Doce","Arroz con Leche","Asida","Assida","Açaí Bowl","Bakewell Tart","Baklava","Basbousa","Beavertails","Beignets","Bibingka","Bint al Sahn","Black Cake","Black Forest Cake","Bolo de Mel","Boortsog","Boterkoek","Brigadeiro","Bulla Cake","Butter Tarts","Buñuelos Cubanos","Bündner Nusstorte","Cannoli","Cendol","Chak-Chak","Churchkhela","Churros","Churros con Chocolate","Chè","Cinnamon Buns","Cozonac","Crème Brûlée","Danish Pastry","Dobos Torte","Dulce de Leche","Es Teler","Eton Mess","Flan","Fritule","Galaktoboureko","Halawet el Jibn","Halo-Halo","Helado con Queso","Hokey Pokey Ice Cream","Ice Kacang","Iraqi Kleicha","Jachnun","Joulutorttu","Juju Dhau","Kaiserschmarrn","Key Lime Pie","Khao Niao Mamuang","Kheer","Kivevé","Klepon","Knafeh","Koeksisters","Koldskål","Konafa","Korvapuusti","Kransekake","Krolan","Kuchen","Kulfi","Kunafa","Kürtőskalács","Lamington","Leckerli","Linzer Torte","Lolly Cake","Loukoumades","Luqaimat","Maamoul","Madeleines","Makowiec","Malva Pudding","Mango Sticky Rice","Mazamorra","Medivnyk","Medovník","Melktert","Meringues with Cream","Mochi","Mustikkapiirakka","Mämmi","Nanaimo Bars","New York Cheesecake","Oliebollen","Om Ali","Pain au Chocolat","Pakhlava","Pancakes","Panna Cotta","Papanași","Pastéis de Nata","Patishapta","Pavlova","Picarones","Pineapple Cake","Plăcintă cu Brânză","Poffertjes","Prinsesstårta","Profiteroles","Puff Puff","Quesillo","Rasgolla","Riz bi Haleeb","Rote Grütze","Rugelach","Rødgrød med Fløde","Rømmegrøt","Sachertorte","Sel Roti","Sellou","Semla","Sernik","Sfouf","Sheer Khurma","Shekerbura","Sholeh Zard","Sombi","Somlói Galuska","Speculoos","Sticky Toffee Pudding","Stroopwafel","Sufganiyot","Sütlaç","Tangyuan","Tapioca Pudding","Tarte Tatin","Thiakry","Tim Tam Slice","Tiramisu","Trdelník","Tres Leches Cake","Turkish Delight","Ul Boov","Vakalolo","Watalappan","Zeppole","Zhent","Æbleskiver","Štrukli"],
+};
+function mealPhotos(meal, n = 3) {
+  const out = [];
+  for (const k of [...meal.feature, ...(MEAL_DISH_KEYS[meal.id] || [])]) {
+    const r = RECIPE_DB[k];
+    if (r && r.image && !/recipe-placeholder/.test(r.image) && !out.includes(k)) out.push(k);
+    if (out.length >= n) break;
+  }
+  return out;
 }
 
 function DishCarousel({ dishKeys, title, subtitle, idPrefix, marginTop = 0, marginBottom = 93 }) {
@@ -3159,6 +3210,7 @@ function RegionMap({ onSelectRegion }) {
 
       {/* Recipe inspiration */}
       <RecipeInspiration recipes={getRandomRecipes(Object.keys(RECIPE_DB), 3)} pool={Object.keys(RECIPE_DB)} title="Recipe Inspiration" spacing={93} />
+      <ExploreByMeal />
 
 
       {/* What's on this month */}
@@ -4783,6 +4835,133 @@ const ssGroup = (cat) => (cat === "Dip" ? "Sauce" : cat);
 const SS_GROUP_LABELS = { "Sauce":"Sauces & dips", "Side Dish":"Side dishes", "Salad":"Salads", "Pickle":"Pickles & relishes", "Bread":"Breads" };
 const SS_GROUP_ORDER = ["Sauce", "Side Dish", "Salad", "Pickle", "Bread"];
 
+
+function MealCard({ meal, style, onClick }) {
+  const count = (MEAL_DISH_KEYS[meal.id] || []).filter(k => RECIPE_DB[k]).length;
+  const photos = mealPhotos(meal);
+  const dark = meal.ink === "#ffffff";
+  return (
+    <AppLink to={`/meals/${meal.id}`} className="meal-card" onClick={onClick} draggable={false} style={{ background: meal.bg, color: meal.ink, ...style }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
+        <span style={{ fontSize:11, fontWeight:700, letterSpacing:".12em", textTransform:"uppercase", fontFamily:"Plus Jakarta Sans", opacity:.8 }}>{meal.time}</span>
+        <span aria-hidden="true" style={{ fontSize:26, lineHeight:1 }}>{meal.icon}</span>
+      </div>
+      <div style={{ flex:1 }} />
+      <div style={{ display:"flex", marginBottom:14, paddingLeft:6 }}>
+        {photos.map((k, i) => (
+          <img key={k} src={RECIPE_DB[k].image} alt="" loading="lazy" draggable={false}
+            style={{ width:46, height:46, borderRadius:"50%", objectFit:"cover", border:`2.5px solid ${dark ? "#6b4a86" : "#fff"}`, marginLeft: i ? -12 : 0, background:"#f0e8e0", pointerEvents:"none" }} />
+        ))}
+      </div>
+      <div style={{ fontFamily:"Fraunces", fontSize:30, fontWeight:700, lineHeight:1.1 }}>{meal.label}</div>
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:8 }}>
+        <span style={{ fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", opacity:.85 }}>{count} recipes</span>
+        <span aria-hidden="true" style={{ width:36, height:36, borderRadius:"50%", background:"#1a1714", color:"#fff", display:"flex", alignItems:"center", justifyContent:"center" }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+        </span>
+      </div>
+    </AppLink>
+  );
+}
+
+function ExploreByMeal({ marginBottom = 93 }) {
+  const scrollRef = useRef(null);
+  const drag = useRef({ dragging:false, startX:0, startScroll:0, moved:false });
+  const [dragging, setDragging] = useState(false);
+  const [active, setActive] = useState(0);
+  const onScroll = () => {
+    const el = scrollRef.current; if (!el) return;
+    const card = el.firstChild; const w = card ? card.offsetWidth + 14 : 246;
+    setActive(Math.max(0, Math.min(MEALS.length - 1, Math.round(el.scrollLeft / w))));
+  };
+  const onMouseDown = (e) => { const el = scrollRef.current; if (!el) return; drag.current = { dragging:true, startX:e.pageX, startScroll:el.scrollLeft, moved:false }; setDragging(true); };
+  const onMouseMove = (e) => { if (!drag.current.dragging) return; const d = e.pageX - drag.current.startX; if (Math.abs(d) > 4) drag.current.moved = true; scrollRef.current.scrollLeft = drag.current.startScroll - d; };
+  const endDrag = () => { drag.current.dragging = false; setDragging(false); };
+  const onCardClick = (e) => { if (drag.current.moved) { drag.current.moved = false; e.preventDefault(); } };
+  const go = (i) => { const el = scrollRef.current; if (!el) return; const card = el.firstChild; el.scrollTo({ left: i * ((card ? card.offsetWidth : 232) + 14), behavior:"smooth" }); };
+  return (
+    <div style={{ marginTop:0, marginBottom }}>
+      <div style={{ marginBottom:16, display:"flex", alignItems:"flex-end", justifyContent:"space-between", gap:12 }}>
+        <div>
+          <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#1a1714", margin:0 }}>Explore by Meal</h2>
+          <p style={{ fontSize:13, color:"#9a9088", margin:"4px 0 0" }}>What are you cooking? Pick a meal and browse the world.</p>
+        </div>
+        <AppLink to="/meals" style={{ fontSize:13, fontWeight:700, color:"#c2622a", whiteSpace:"nowrap" }}>View all</AppLink>
+      </div>
+      <div style={{ position:"relative" }}>
+        <button className="meal-arrow classics-arrow" onClick={() => go(Math.max(0, active - 1))} aria-label="Previous meal"
+          style={{ position:"absolute", left:-8, top:"50%", transform:"translateY(-50%)", zIndex:10, width:36, height:36, borderRadius:"50%", border:"none", background:"rgba(26,23,20,.7)", color:"#fff", cursor:"pointer", alignItems:"center", justifyContent:"center" }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+        </button>
+        <div ref={scrollRef} className="meal-scroll" onScroll={onScroll}
+          onMouseDown={onMouseDown} onMouseMove={onMouseMove} onMouseUp={endDrag} onMouseLeave={endDrag}
+          style={{ display:"flex", gap:14, overflowX:"auto", scrollSnapType: dragging ? "none" : "x mandatory", WebkitOverflowScrolling:"touch", padding:"4px 2px 14px", cursor: dragging ? "grabbing" : "grab", userSelect:"none" }}>
+          {MEALS.map(meal => <MealCard key={meal.id} meal={meal} onClick={onCardClick} />)}
+        </div>
+        <button className="meal-arrow classics-arrow" onClick={() => go(Math.min(MEALS.length - 1, active + 1))} aria-label="Next meal"
+          style={{ position:"absolute", right:-8, top:"50%", transform:"translateY(-50%)", zIndex:10, width:36, height:36, borderRadius:"50%", border:"none", background:"rgba(26,23,20,.7)", color:"#fff", cursor:"pointer", alignItems:"center", justifyContent:"center" }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+        </button>
+      </div>
+      <div style={{ display:"flex", justifyContent:"center", gap:7, marginTop:2 }}>
+        {MEALS.map((m, i) => <button key={m.id} type="button" className={`meal-dot${active === i ? " active" : ""}`} onClick={() => go(i)} aria-label={m.label} />)}
+      </div>
+    </div>
+  );
+}
+
+function MealsHubPage() {
+  return (
+    <div style={{ maxWidth:1070, margin:"0 auto", padding:"32px 24px 60px" }}>
+      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(30px,4vw,48px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>Recipes by Meal</h1>
+      <p style={{ fontSize:15, color:"#6a6058", lineHeight:1.8, maxWidth:760, margin:"0 0 28px" }}>
+        Know what you are in the mood for? Choose breakfast, lunch, dinner or dessert and browse authentic recipes from every region of the world.
+      </p>
+      <div className="meal-hub-grid">
+        {MEALS.map(meal => <MealCard key={meal.id} meal={meal} />)}
+      </div>
+    </div>
+  );
+}
+
+function MealPage({ mealId }) {
+  const meal = MEALS.find(m => m.id === mealId);
+  const [region, setRegion] = useState("all");
+  useEffect(() => { setRegion("all"); }, [mealId]);
+  if (!meal) return null;
+  const regionOf = (k) => REGIONS.find(r => r.countries?.includes(RECIPE_DB[k].country));
+  const items = (MEAL_DISH_KEYS[meal.id] || []).filter(k => RECIPE_DB[k]).sort((a, b) => RECIPE_DB[a].name.localeCompare(RECIPE_DB[b].name));
+  const regs = REGIONS.map(r => ({ r, n: items.filter(k => regionOf(k)?.id === r.id).length })).filter(x => x.n > 0);
+  const shown = region === "all" ? items : items.filter(k => regionOf(k)?.id === region);
+  const countries = new Set(items.map(k => RECIPE_DB[k].country));
+  return (
+    <div style={{ maxWidth:1070, margin:"0 auto", padding:"28px 24px 60px" }}>
+      <AppLink to="/meals" style={{ fontSize:13, fontWeight:700, color:"#c2622a" }}>&larr; All meals</AppLink>
+      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(30px,4vw,48px)", fontWeight:700, color:"#1a1714", margin:"10px 0 8px" }}>{meal.label} Recipes From Around the World</h1>
+      <p style={{ fontSize:15, color:"#6a6058", lineHeight:1.8, maxWidth:760, margin:"0 0 22px" }}>
+        {items.length} {meal.label.toLowerCase()} recipes from {countries.size} countries: {meal.tag.toLowerCase()}. Each one has a full recipe, method and the story behind the dish.
+      </p>
+      <div style={{ display:"flex", flexWrap:"wrap", gap:8, marginBottom:22 }}>
+        <button type="button" className={`ss-chip${region === "all" ? " active" : ""}`} onClick={() => setRegion("all")}>All ({items.length})</button>
+        {regs.map(({ r, n }) => (
+          <button key={r.id} type="button" className={`ss-chip${region === r.id ? " active" : ""}`} onClick={() => setRegion(r.id)}>{r.name} ({n})</button>
+        ))}
+      </div>
+      <div className="dish-tile-grid">
+        {shown.map(k => {
+          const r = RECIPE_DB[k];
+          return (
+            <AppLink key={k} className="dish-tile" to={recipePath(k)}>
+              <div className="dish-tile-img"><img src={r.image} alt={`${r.country} ${r.name} recipe`} loading="lazy" /></div>
+              <div className="dish-tile-name"><span>{r.name}</span></div>
+            </AppLink>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function SaucesSidesPage() {
   const [cat, setCat] = useState("All");
   const items = Object.keys(RECIPE_DB)
@@ -4973,7 +5152,8 @@ function App() {
   // Derive view from hierarchical URL: /europe, /europe/italy, /europe/italy/tiramisu
   const safePath = typeof path === 'string' ? path : '/';
   const parts = safePath.split('/').filter(Boolean);
-  const infoPages = ['blog','about','contact','privacy','terms','pantry-to-plate','sauces-and-sides'];
+  const infoPages = ['blog','about','contact','privacy','terms','pantry-to-plate','sauces-and-sides','meals'];
+  let selectedMeal = null;
 
   let view = 'regions';
   let selectedRegion = null;
@@ -5005,7 +5185,8 @@ function App() {
   } else if (infoPages.includes(parts[0])) {
     // Info pages are exact. Only /blog/<real-article-slug> has a second segment.
     const knownBlog = parts[0] === 'blog' && parts.length === 2 && BLOG_POSTS.some(p => p.slug === parts[1]);
-    if (parts.length === 1 || knownBlog) view = parts[0];
+    if (parts[0] === 'meals' && parts.length === 2 && MEALS.some(m => m.id === parts[1])) { view = 'meal'; selectedMeal = parts[1]; }
+    else if (parts.length === 1 || knownBlog) view = parts[0];
   } else if (parts.length === 1) {
     const region = REGIONS.find(r => r.id === parts[0]);
     if (region) { view = 'region'; selectedRegion = parts[0]; }
@@ -5077,6 +5258,14 @@ function App() {
         title = 'Food Blog | Recipe Atlas';
         description = 'In-depth articles on cooking science, world food history, ingredients and techniques. Stories from the world\'s great food cultures.';
       }
+    } else if (view === 'meals') {
+      title = 'Recipes by Meal: Breakfast, Lunch, Dinner & Dessert | Recipe Atlas';
+      description = 'Browse authentic world recipes by meal. Find breakfast, lunch, dinner and dessert ideas from every region, each with a full recipe and the story behind the dish.';
+    } else if (view === 'meal' && selectedMeal) {
+      const mm = MEALS.find(x => x.id === selectedMeal);
+      const nn = (MEAL_DISH_KEYS[selectedMeal] || []).length;
+      title = `${mm.label} Recipes From Around the World | Recipe Atlas`;
+      description = `Browse ${nn} authentic ${mm.label.toLowerCase()} recipes from around the world: ${mm.tag.toLowerCase()}. Full ingredients, method and cultural background for every dish.`;
     } else if (view === 'sauces-and-sides') {
       const ssCount = Object.keys(RECIPE_DB).filter(k => RECIPE_DB[k].category).length;
       title = 'Sauces, Dips & Side Dishes From Around the World | Recipe Atlas';
@@ -5341,6 +5530,22 @@ function App() {
     </AppLink>
   );
 
+  const mealsPillMobile = (
+    <AppLink to="/meals"
+      style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
+        color: (view==="meals"||view==="meal") ? "#c2622a" : "#1a1714", padding:"6px 0" }}>
+      <span aria-hidden="true" style={{ marginRight:7, fontSize:14, lineHeight:1 }}>🍳</span>By Meal
+    </AppLink>
+  );
+
+  const mealsPill = (
+    <AppLink to="/meals"
+      style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:13.5, fontWeight:700, fontFamily:"Fraunces",
+        color: (view==="meals"||view==="meal") ? "#c2622a" : "#1a1714", padding:0 }}>
+      <span aria-hidden="true" style={{ marginRight:6, fontSize:14, lineHeight:1 }}>🍳</span>By Meal
+    </AppLink>
+  );
+
   const saucesPillMobile = (
     <AppLink to="/sauces-and-sides"
       style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
@@ -5359,33 +5564,33 @@ function App() {
 
   const pantryPill = (
     <AppLink to="/pantry-to-plate"
-      style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
+      style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:13.5, fontWeight:700, fontFamily:"Fraunces",
         color: view==="pantry-to-plate" ? "#c2622a" : "#1a1714", padding:0 }}>
-      <span aria-hidden="true" style={{ marginRight:7, fontSize:14, lineHeight:1 }}>🥕</span>Pantry to Plate
+      <span aria-hidden="true" style={{ marginRight:6, fontSize:14, lineHeight:1 }}>🥕</span>Pantry to Plate
     </AppLink>
   );
 
   const blogPill = (
     <AppLink to="/blog"
-      style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
+      style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:13.5, fontWeight:700, fontFamily:"Fraunces",
         color: view==="blog" ? "#c2622a" : "#1a1714", padding:0 }}>
-      <span aria-hidden="true" style={{ marginRight:7, fontSize:14, lineHeight:1 }}>📖</span>Blog
+      <span aria-hidden="true" style={{ marginRight:6, fontSize:14, lineHeight:1 }}>📖</span>Blog
     </AppLink>
   );
 
   const saucesPill = (
     <AppLink to="/sauces-and-sides"
-      style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
+      style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:13.5, fontWeight:700, fontFamily:"Fraunces",
         color: view==="sauces-and-sides" ? "#c2622a" : "#1a1714", padding:0 }}>
-      <span aria-hidden="true" style={{ marginRight:7, fontSize:14, lineHeight:1 }}>🫙</span>Sauces &amp; Sides
+      <span aria-hidden="true" style={{ marginRight:6, fontSize:14, lineHeight:1 }}>🫙</span>Sauces &amp; Sides
     </AppLink>
   );
 
   const eventsPill = (
     <AppLink to="/events"
-      style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
+      style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:13.5, fontWeight:700, fontFamily:"Fraunces",
         color: (view==="events"||view==="event") ? "#c2622a" : "#1a1714", padding:0 }}>
-      <span aria-hidden="true" style={{ marginRight:7, fontSize:14, lineHeight:1 }}>🎪</span>Events
+      <span aria-hidden="true" style={{ marginRight:6, fontSize:14, lineHeight:1 }}>🎪</span>Events
     </AppLink>
   );
 
@@ -5412,7 +5617,8 @@ function App() {
               <div style={{ fontFamily:"Fraunces", fontSize:19.5, fontWeight:700, color:"#1a1714" }}>Recipe Atlas</div>
             </div>
           </AppLink>
-          <div className="header-nav-desktop" style={{ display:"flex", alignItems:"center", gap:16, flexWrap:"wrap" }}>
+          <div className="header-nav-desktop" style={{ display:"flex", alignItems:"center", gap:14, flexWrap:"wrap" }}>
+            {mealsPill}
             {pantryPill}
             {saucesPill}
             {eventsPill}
@@ -5439,6 +5645,7 @@ function App() {
           <div ref={mobileMenuRef} className="header-nav-mobile-panel"
             style={{ background:"#fff", borderBottom:"1.5px solid #ece6db", padding:"14px 20px 18px", display:"flex", flexDirection:"column", alignItems:"flex-start", gap:14, position:"sticky", top:62, zIndex:49, boxShadow:"0 6px 20px rgba(0,0,0,.08)" }}
             onClick={() => setMobileMenuOpen(false)}>
+            {mealsPillMobile}
             {pantryPillMobile}
             {saucesPillMobile}
             {eventsPillMobile}
@@ -5450,7 +5657,7 @@ function App() {
         <div style={{ position:"relative", backgroundImage:"url(/background-beans.jpg)", backgroundSize:"auto", backgroundRepeat:"repeat", backgroundPosition:"top left", backgroundAttachment:"fixed" }}>
           <div style={{ position:"absolute", inset:0, background:"rgba(253,252,249,0.90)" }} />
           <div style={{ position:"relative", zIndex:1 }}>
-        {!["blog","about","contact","privacy","terms","pantry-to-plate","search","notfound","sauces-and-sides"].includes(view) && (
+        {!["blog","about","contact","privacy","terms","pantry-to-plate","search","notfound","sauces-and-sides","meals","meal"].includes(view) && (
           <div style={{ padding:"20px 24px 60px", maxWidth:1160, margin:"0 auto" }}>
             {view === "regions"  && <RegionMap onSelectRegion={goToRegion} />}
             {view === "region"   && selectedRegion && <RegionView regionId={selectedRegion} onBack={goToRegions} onSelectCountry={goToCountry} />}
@@ -5466,6 +5673,8 @@ function App() {
 
         {/* Sauces & Sides hub */}
         {view === "sauces-and-sides" && <SaucesSidesPage />}
+        {view === "meals" && <MealsHubPage />}
+        {view === "meal" && selectedMeal && <MealPage mealId={selectedMeal} />}
 
         {/* Not found */}
         {view === "notfound" && <NotFoundPage navigate={navigate} />}
@@ -5515,7 +5724,7 @@ function App() {
                 </div>
               </div>
               <div style={{ display:"flex", gap:20, flexWrap:"wrap" }}>
-                {[["pantry-to-plate","Pantry to Plate"],["sauces-and-sides","Sauces & Sides"],["events","Events"],["blog","Blog"],["about","About"],["contact","Contact"],["privacy","Privacy"],["terms","Terms"]].map(([v,label]) => (
+                {[["meals","By Meal"],["pantry-to-plate","Pantry to Plate"],["sauces-and-sides","Sauces & Sides"],["events","Events"],["blog","Blog"],["about","About"],["contact","Contact"],["privacy","Privacy"],["terms","Terms"]].map(([v,label]) => (
                   <AppLink key={v} to={`/${v}`}
                     style={{ fontSize:12, color:"#9a9088", cursor:"pointer", fontWeight:500, fontFamily:"Plus Jakarta Sans" }}>
                     {label}
@@ -5940,7 +6149,7 @@ function AboutPage() {
       <div style={{ marginTop:16, display:"flex", flexDirection:"column", gap:20 }}>
         {[
           ["Our Mission","Recipe Atlas exists to celebrate the extraordinary diversity of world cuisine — from the intricate spice blends of Ethiopian berbere to the precise techniques of Japanese ramen. We believe that cooking another culture's food is one of the most respectful and joyful ways to understand it."],
-          ["What We Cover","We currently feature 1,109 recipes across 87 countries and 7 regions. Every recipe is written to be genuinely achievable at home, with honest notes on technique, cultural context and the history behind each dish."],
+          ["What We Cover","We currently feature 1,113 recipes across 87 countries and 7 regions. Every recipe is written to be genuinely achievable at home, with honest notes on technique, cultural context and the history behind each dish."],
           ["Our Approach","We research each recipe carefully, consulting multiple sources and traditional methods. Where a dish has strong regional variations we explain the differences and choose the most widely celebrated version as our baseline."],
           ["Get In Touch","We love hearing from readers — whether you've cooked one of our recipes, spotted an error, or want to suggest a dish we're missing. Reach us at contact.jwgroup@proton.me"],
         ].map(([title, text]) => (
