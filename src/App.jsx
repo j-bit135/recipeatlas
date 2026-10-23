@@ -2224,6 +2224,8 @@ const styles = `
   ::-webkit-scrollbar-thumb { background: #d4c9b8; border-radius: 2px; }
 
 
+  .rg-more-m { display: none; }
+  @media (max-width: 768px) { .rg-more-m { display: inline !important; } }
   .meal-scroll { scrollbar-width: none; -ms-overflow-style: none; }
   .meal-scroll::-webkit-scrollbar { display: none; height: 0; }
   .meal-card { position: relative; flex: 0 0 232px; height: 318px; border-radius: 22px; padding: 20px 20px 18px; scroll-snap-align: start; display: flex; flex-direction: column; text-decoration: none; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,.10); transition: transform .2s, box-shadow .2s; box-sizing: border-box; }
@@ -2233,6 +2235,8 @@ const styles = `
   .meal-hub-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
   @media (min-width: 900px) { .meal-hub-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; } .meal-hub-grid .meal-card { flex: none; width: auto; } }
   .meal-hub-grid .meal-card { flex: none; width: auto; }
+  .meal-hub-grid .meal-title { font-size: 22px; }
+  @media (min-width: 1000px) { .meal-hub-grid .meal-title { font-size: 28px; } }
   @media (max-width: 1100px) { .meal-arrow { display: none !important; } }
   .classics-scroll { scrollbar-width: none; -ms-overflow-style: none; }
   .classics-scroll::-webkit-scrollbar { display: none; height: 0; }
@@ -2359,7 +2363,11 @@ const styles = `
 
   @media (max-width: 768px) {
     .dish-grid { grid-template-columns: 1fr !important; }
-    .region-grid { grid-template-columns: 1fr !important; }
+    .region-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; }
+    .region-grid .rg-card { padding: 14px 14px !important; }
+    .rg-hide-m { display: none !important; }
+    .rg-more-d { display: none !important; }
+    .rg-desc { font-size: 12.5px !important; }
     .stat-row { flex-wrap: wrap; }
     .ing-grid { grid-template-columns: 1fr !important; }
     .blog-grid { grid-template-columns: 1fr !important; }
@@ -2508,6 +2516,33 @@ function mealPhotos(meal, n = 3) {
     if (out.length >= n) break;
   }
   return out;
+}
+
+// ── SEASONS ────────────────────────────────────────────────────────────
+// The homepage season carousel switches automatically by the visitor's date (UK-style food seasons):
+// Sep-Oct autumn, Nov-Feb winter, Mar-May spring, Jun-Aug summer. Only the dishes listed here are tagged;
+// new recipes only need adding if they are an obvious seasonal fit.
+const SEASON_BY_MONTH = ["winter","winter","spring","spring","spring","summer","summer","summer","autumn","autumn","winter","winter"];
+const SEASONS = {
+  autumn: { title:"Autumn Cooking", subtitle:"Squash, apples, mushrooms and cosy comfort for the turning of the year" },
+  winter: { title:"Winter Warmers", subtitle:"Hearty stews, soups, roasts and festive bakes for the coldest months" },
+  spring: { title:"Spring Cooking", subtitle:"Fresh, green and lighter dishes as the days lengthen" },
+  summer: { title:"Summer Cooking", subtitle:"Salads, grills, chilled dishes and ice-cold treats for the warm days" },
+};
+const SEASON_DISH_KEYS = {
+  autumn: ["Soup Joumou","Kivevé","Sopaipillas","Locro","Locro de Papa","Chiles en Nogada","Tarte Tatin","Apple Pie","Apfelstrudel","Apfelstrudel German","Appeltaart","Apple Sauce","Risotto ai Funghi","Coq au Vin","Boeuf Bourguignon","Dimlama","Kumara Fries","Braised Red Cabbage","Celeriac Remoulade","Jägersauce","Cumberland Sauce","Lingonberry Sauce","Sauerbraten","Rouladen","Schweinshaxe","Bratwurst","Pretzel","Kartoffelsuppe","Kartoffelsalat","Königsberger Klopse","Gerstensuppe","Älplermagronen","Rösti","Raclette","Fondue","Spätzle","Knödel","Vepřo Knedlo Zelo","Svíčková na Smetaně","Tafelspitz","Zwiebelrostbraten","Wiener Schnitzel","Mămăligă","Sarmale","Gołąbki","Bigos","Kapusniak","Holubtsi","Töltött Káposzta","Pierogi Ruskie","Pkhali","Satsivi","Ojakhuri","Badrijani Nigvzit","Fesenjan","Ghormeh Sabzi","Zereshk Polo ba Morgh","Pastelles","Hāngī","Mukimo","Humita","Humintas","Pastel de Choclo","Elote","Charquicán","Cazuela","Olla de Carne","Puchero","Sancocho","Domoda","Kürtőskalács","Bündner Nusstorte","Linzer Torte","Leckerli","Black Forest Cake","Sachertorte","Kaiserschmarrn","Stoemp","Hutspot","Stamppot","Erwtensoep","Boerewors","Chicken Paprikash","Goulash","Gulasch","Guláš","Lecsó","Ratatouille","Pisto Manchego","Cauliflower Cheese","Dauphinoise Potatoes","Roast Potatoes","Mushy Peas","Soupe à l'Oignon","Onion Gravy","Toad in the Hole","Steak Frites","Wiener Backhendl","Cocido Madrileño","Cassoulet","Sticky Toffee Pudding","Bangers and Mash"],
+  winter: ["Cassoulet","Cocido Madrileño","Fabada Asturiana","Feijoada","Goulash","Gulasch","Guláš","Boeuf Bourguignon","Coq au Vin","Carbonnade Flamande","Stoofvlees","Waterzooi","Hutspot","Stamppot","Erwtensoep","Ärtsoppa","Split Pea Soup","Hernekeitto","Gerstensuppe","Kartoffelsuppe","Borscht","Ukrainian Borscht","Barszcz","Żurek","Bigos","Solyanka","Shchi","Kapusniak","Pelmeni","Vareniki","Varenyky","Chuchvara","Holubtsi","Sarmale","Gołąbki","Töltött Káposzta","Cholent","Hot Pot","Beef Noodle Soup","Ramen","Pho Bo","Phở Gà","Bak Kut Teh","Kimchi Jjigae","Sundubu Jjigae","Sup Kambing","Haleem","Nihari","Paya","Rogan Josh","Dal Makhani","Dal Bhat","Kadhi","Chana Masala","Mulligatawny","Harira","Ash Reshteh","Mastava","Lagman","Sorpa","Khorkhog","Boodog","Guriltai Shul","Tsuivan","Buuz","Khuushuur","Mansaf","Maqluba","Musakhan","Rfissa","Couscous Royal","Couscous Tunisien","Lamb Tagine with Preserved Lemon","Doro Wat","Misir Wat","Shiro","Oxtail Stew","Curry Goat","Ropa Vieja","Ajiaco","Locro","Puchero","Sancocho","Cazuela","Caldo de Bola","Caldo Verde","Ribollita","Minestrone","Osso Buco","Lasagne alla Bolognese","Risotto alla Milanese","Pastitsio","Moussaka","Shepherd's Pie","Cornish Pasty","Meat Pie","Tourtière","Beef Wellington","Yorkshire Pudding","Roast Potatoes","Lamb Roast NZ","Flæskesteg","Stegt Flæsk","Pinnekjøtt","Fårikål","Lutefisk","Kjøttkaker","Swedish Meatballs","Janssons Frestelse","Raclette","Fondue","Rösti","Älplermagronen","Sauerbraten","Schweinshaxe","Rouladen","Tafelspitz","Svíčková na Smetaně","Vepřo Knedlo Zelo","Kroppkakor","Mac and Cheese","Poutine","Clam Chowder","New England Chowder Bread Bowl","Gumbo","Jambalaya","Meatloaf","BBQ Baked Beans","Collard Greens","Sticky Toffee Pudding","Black Cake","Mämmi","Cozonac","Sufganiyot","Latkes","Joulutorttu","Kransekake","Oliebollen","Fritule","Medivnyk","Medovník","Cannoli","Pastéis de Bacalhau","Bolo de Mel","Hallacas","Pan de Jamón","Pastelles","Soup Joumou","Sopa Negra","Mole Negro","Pozole Rojo","Birria","Tamales","Tamales Colombianos","Tamales Cubanos","Congee","Zongzi","Tangyuan","Jiaozi","Gyoza","Xiaolongbao","Dim Sum","Mapo Tofu","Dan Dan Noodles","Hot and Sour Soup","Miso Soup","Chawanmushi","Fesenjan","Ghormeh Sabzi","Tahchin","Sholeh Zard","Dovga","Kharcho","Chikhirtma","Khachapuri","Adjaruli Khachapuri","Lobiani","Satsivi","Mămăligă","Ciorbă de Burtă","Ciorbă de Perișoare","Drob de Miel","Boil Up","Pepper Soup","Egusi Soup","Banga Soup","Palm Nut Soup","Efo Riro","Ofada Stew","Mafé","Bobotie","Bunny Chow","Cumberland Sauce","Onion Gravy","Soupe à l'Oignon","Cauliflower Cheese","Dauphinoise Potatoes","Toad in the Hole","Bangers and Mash","Full English Breakfast","Chicken Paprikash","Lecsó","Kalakukko","Karjalanpiirakka","Lohikeitto","Rømmegrøt","Fiskesuppe","Kulajda","Mutton Rezala","Biryani","Kacchi Biryani"],
+  spring: ["Spring Rolls","Goi Cuon","Lumpia","Mandarin Pancakes","Hollandaise Sauce","Eggs Benedict","Paling in 't Groen","Zhingyalov Hats","Mizeria","Gremolata","Salsa Verde","Pesto Genovese","Chimichurri","Mint Sauce","Lamb Roast NZ","Lamb Tagine with Preserved Lemon","Drob de Miel","Mechoui","Zarb","Chicons au Gratin","Liège Salade","Spinach Namul","Palak Paneer","Spanakopita","Soparnik","Gomen","Sukuma Wiki","Ash Reshteh","Baghali Polo","Mast-o-Khiar","Pkhali","Zhug","Chermoula","Chermoula Fish","Scallion Pancake","Haemul Pajeon","Cozonac","Makowiec","Mämmi","Whitebait Fritters","Bruschetta","Quiche Lorraine","Croissants","Pain au Chocolat","Madeleines","Bakewell Tart","Mushy Peas","Tabbouleh","Mujaddara","Falafel","Hummus","Labneh","Shakshuka","Shakshuka Israeli","Dolmades","Dolma","Warak Enab","Yalanji","Kibbeh Nayeh","Chawanmushi","Gimbap","Kimbap","Bibimbap","Japchae","Papa a la Huancaína","Raita","Gurkensalat","Smashed Cucumber Salad","Tzatziki","Pancakes","Poffertjes","Æbleskiver","Blini","Syrniki","Karjalanpiirakka","Hortobágyi Palacsinta","Lahoh","Sambosa","Samosas"],
+  summer: ["Ceviche Chileno","Ceviche Peruano","Ika Mata","Ota Ika","Poke Bowl","Nigiri Sushi","Gazpacho","Panzanella","Caprese Salad","Nicoise Salad","Horiatiki Salad","Israeli Salad","Tabbouleh","Fattoush","Syrian Fattoush","Kısır","Som Tam","Larb","Gado-Gado","Rojak","Bok L'Hong","Pe Byok","Nan Gyi Thoke","Laphet Thoke","Olivier Salad","Agurkesalat","Mizeria","Gurkensalat","Smashed Cucumber Salad","Coleslaw","Kachumbari","Pico de Gallo","Guacamole","Mechouia","Zaalouk","Kartoffelsalat","Liège Salade","Mast-o-Khiar","Tzatziki","Raita","Labneh","Koldskål","Dovga","Ais Kacang","Ice Kacang","Halo-Halo","Cendol","Es Teler","Chè","Kulfi","Helado con Queso","Hokey Pokey Ice Cream","Eton Mess","Pavlova","Rote Grütze","Rødgrød med Fløde","Meringues with Cream","Mango Sticky Rice","Khao Niao Mamuang","Açaí Bowl","Tapioca Pudding","Panna Cotta","Key Lime Pie","Tiramisu","Lamington","Anzac Slice NZ","Tim Tam Slice","Lolly Cake","Nanaimo Bars","Mojito","Piña Colada","Tereré","Aguapanela","Ayran","Bubble Tea","Tizana","Sorrel","Hamburger","Hot Dog","BBQ Ribs","BBQ Brisket","American BBQ Sauce","Braai","Boerewors","Boerewors Rolls","Sosaties","Sausage Sizzle","Bush Tucker Kangaroo Skewers","Nyama Choma","Suya","Shashlik","Khorovats","Kebab Koobideh","Joojeh Kabab","Seekh Kebab","Chapli Kebab","Souvlaki","Kabob","Satay","Sate Ayam","Yakitori","Churrasco","Asado","Asado Chileno","Asado Paraguayo","Choripán","Chimichurri Steak","Chimichurri","Anticuchos","Sardinhas Assadas","Pulpo a la Gallega","Fish and Chips","Lobster Roll","Nova Scotia Lobster Rolls","Clam Bake","Chilli Crab","Curry Crab","Moules Frites","Pescado Frito","Encebollado","Hainanese Chicken Rice","Bánh Mì","Goi Cuon","Spring Rolls","Bún Chả","Elote","Fajitas","Tacos al Pastor","Quesadillas","Pani Puri","Fuchka","Dhokla","Vada Pav","Patatas Bravas","Tequeños","Humita","Humintas","Ratatouille","Pisto Manchego","Lecsó","Kumpir","Fried Plantains","Patacones","Kelewele","Coconut Fish","Fijian Curry","Ika Vakalolo","Lovo","Palusami","Vakalolo","Run Down","Escovitch Fish","Jerk Chicken","Mango Chutney","Pickled Red Onions","Salsa Criolla","Vinagrete","Pebre","Mojo Criollo","Salsa Brava","Nuoc Cham","Pesto Genovese","Marinara Sauce","Pizza Margherita","Bruschetta","Provoleta","Gyudon","Jjajangmyeon","Galbi","Samgyeopsal","Bulgogi","Korean Fried Chicken","Pad Thai","Pad See Ew","Tom Yum Soup","Green Curry","Massaman Curry","Panang Curry","Beignets","Churros","Zeppole","Loukoumades","Turkish Delight","Mochi","Cannoli","Fried Chicken","Buffalo Wings","Blue Cheese Dip","Ranch Dressing","Sweet Chilli Sauce","Tartare Sauce"],
+};
+function SeasonalCarousel() {
+  const season = SEASON_BY_MONTH[new Date().getMonth()];
+  const [keys] = useState(() => {
+    const pool = (SEASON_DISH_KEYS[season] || []).filter(k => RECIPE_DB[k] && RECIPE_DB[k].image && !/recipe-placeholder/.test(RECIPE_DB[k].image));
+    return [...pool].sort(() => Math.random() - 0.5).slice(0, 12);
+  });
+  return <DishCarousel dishKeys={keys} idPrefix={`season-${season}`}
+    title={SEASONS[season].title} subtitle={SEASONS[season].subtitle} />;
 }
 
 function DishCarousel({ dishKeys, title, subtitle, idPrefix, marginTop = 0, marginBottom = 93 }) {
@@ -3189,19 +3224,20 @@ function RegionMap({ onSelectRegion }) {
           <AppLink key={region.id} to={`/${region.id}`}
             onMouseEnter={e => e.currentTarget.style.borderColor=region.color}
             onMouseLeave={e => e.currentTarget.style.borderColor="#ece6db"}
-            style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, padding:"16px 18px", cursor:"pointer", display:"block", transition:"border-color .2s, box-shadow .2s" }}>
+            className="rg-card" style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, padding:"16px 18px", cursor:"pointer", display:"block", transition:"border-color .2s, box-shadow .2s" }}>
             <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
               <span style={{ fontSize:22 }}>{region.emoji}</span>
               <span style={{ fontFamily:"Fraunces", fontSize:17, fontWeight:700, color:"#1a1714" }}>{region.name}</span>
             </div>
-            <p style={{ fontSize:13, color:"#6a6058", lineHeight:1.6, marginBottom:10 }}>{region.description}</p>
+            <p className="rg-desc" style={{ fontSize:13, color:"#6a6058", lineHeight:1.6, marginBottom:10 }}>{region.description}</p>
             <div style={{ display:"flex", flexWrap:"wrap", gap:4 }}>
-              {region.countries.slice(0,5).map(c => (
-                <span key={c} style={{ fontSize:11, background:"#faf7f3", border:"1px solid #ece6db", borderRadius:6, padding:"2px 8px", color:"#9a9088" }}>
+              {region.countries.slice(0,5).map((c, ci) => (
+                <span key={c} className={ci >= 2 ? "rg-hide-m" : undefined} style={{ fontSize:11, background:"#faf7f3", border:"1px solid #ece6db", borderRadius:6, padding:"2px 8px", color:"#9a9088" }}>
                   {COUNTRY_DISHES[c]?.flag} {c}
                 </span>
               ))}
-              {region.countries.length > 5 && <span style={{ fontSize:11, color:"#c8bfb0", padding:"2px 4px" }}>+{region.countries.length - 5} more</span>}
+              {region.countries.length > 5 && <span className="rg-more-d" style={{ fontSize:11, color:"#c8bfb0", padding:"2px 4px" }}>+{region.countries.length - 5} more</span>}
+              <span className="rg-more-m" style={{ fontSize:11, color:"#c8bfb0", padding:"2px 4px" }}>+{region.countries.length - 2} more</span>
             </div>
           </AppLink>
         ))}
@@ -3211,6 +3247,10 @@ function RegionMap({ onSelectRegion }) {
       {/* Recipe inspiration */}
       <RecipeInspiration recipes={getRandomRecipes(Object.keys(RECIPE_DB), 3)} pool={Object.keys(RECIPE_DB)} title="Recipe Inspiration" spacing={93} />
       <ExploreByMeal />
+
+
+      {/* Seasonal carousel (switches automatically by month) */}
+      <SeasonalCarousel />
 
 
       {/* What's on this month */}
@@ -4853,7 +4893,7 @@ function MealCard({ meal, style, onClick }) {
             style={{ width:46, height:46, borderRadius:"50%", objectFit:"cover", border:`2.5px solid ${dark ? "#6b4a86" : "#fff"}`, marginLeft: i ? -12 : 0, background:"#f0e8e0", pointerEvents:"none" }} />
         ))}
       </div>
-      <div style={{ fontFamily:"Fraunces", fontSize:30, fontWeight:700, lineHeight:1.1 }}>{meal.label}</div>
+      <div className="meal-title" style={{ fontFamily:"Fraunces", fontSize:30, fontWeight:700, lineHeight:1.1 }}>{meal.label}</div>
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:8 }}>
         <span style={{ fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", opacity:.85 }}>{count} recipes</span>
         <span aria-hidden="true" style={{ width:36, height:36, borderRadius:"50%", background:"#1a1714", color:"#fff", display:"flex", alignItems:"center", justifyContent:"center" }}>
