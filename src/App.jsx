@@ -2235,7 +2235,9 @@ const styles = `
   .meal-hub-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
   @media (min-width: 900px) { .meal-hub-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; } .meal-hub-grid .meal-card { flex: none; width: auto; } }
   .meal-hub-grid .meal-card { flex: none; width: auto; }
-  .meal-hub-grid .meal-title { font-size: 22px; }
+  .meal-hub-grid .meal-title { font-size: clamp(15px, 4.4vw, 20px); letter-spacing: -0.01em; }
+  @media (max-width: 599px) { .meal-hub-grid .meal-card { padding: 18px 16px 16px; } }
+  @media (min-width: 600px) { .meal-hub-grid .meal-title { font-size: 24px; } }
   @media (min-width: 1000px) { .meal-hub-grid .meal-title { font-size: 28px; } }
   @media (max-width: 1100px) { .meal-arrow { display: none !important; } }
   .classics-scroll { scrollbar-width: none; -ms-overflow-style: none; }
