@@ -2227,7 +2227,7 @@ const styles = `
 
 
   .nav-pill:hover { color: #c2622a !important; }
-  .social-links a:hover { color: #c2622a !important; }
+  .social-links a:hover, .footer-link:hover { color: #c2622a !important; }
   .rg-more-m { display: none; }
   @media (max-width: 768px) { .rg-more-m { display: inline !important; } }
   .meal-scroll { scrollbar-width: none; -ms-overflow-style: none; }
@@ -5847,7 +5847,7 @@ function App() {
                 ].map((group, gi) => (
                   <div key={gi} style={{ display:"flex", flexWrap:"wrap", columnGap:"clamp(10px, 2.8vw, 20px)", rowGap:20 }}>
                     {group.map(([v,label]) => (
-                      <AppLink key={v} to={`/${v}`}
+                      <AppLink key={v} className="footer-link" to={`/${v}`}
                         style={{ fontSize:12, color:"#1a1714", cursor:"pointer", fontWeight:500, fontFamily:"Plus Jakarta Sans" }}>
                         {label}
                       </AppLink>
