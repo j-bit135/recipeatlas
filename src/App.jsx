@@ -5572,7 +5572,7 @@ function App() {
         'name': 'Recipe Atlas',
         'url': 'https://recipeatlas.co.uk',
         'logo': 'https://recipeatlas.co.uk/favicon.svg',
-        'sameAs': ['https://uk.pinterest.com/recipeatlasuk/', 'https://www.instagram.com/recipeatlasuk', 'https://www.youtube.com/@recipeatlasuk'],
+        'sameAs': ['https://uk.pinterest.com/recipeatlasuk/', 'https://www.instagram.com/recipeatlasuk', 'https://www.youtube.com/@recipeatlasuk', 'https://www.tiktok.com/@recipe.atlas'],
         'contactPoint': { '@type': 'ContactPoint', 'email': 'contact.jwgroup@proton.me', 'contactType': 'customer support' }
       };
       const orgTag = document.createElement('script');
@@ -5872,6 +5872,7 @@ const SOCIAL_LINKS = [
   { name: "Pinterest", url: "https://uk.pinterest.com/recipeatlasuk/", icon: <><circle cx="12" cy="12" r="9.5"/><path d="M10.8 17.8 12.3 10.6"/><path d="M9.6 13.6C8.4 11.2 9.7 7.6 12.9 7.6c2.6 0 3.7 2 3.1 3.9-.6 1.8-2.2 2.4-3.4 1.8"/></> },
   { name: "Instagram", url: "https://www.instagram.com/recipeatlasuk", icon: <><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="0.6" fill="currentColor"/></> },
   { name: "YouTube", url: "https://www.youtube.com/@recipeatlasuk", icon: <><rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="M10 9.4 15.2 12 10 14.6Z" fill="currentColor"/></> },
+  { name: "TikTok", url: "https://www.tiktok.com/@recipe.atlas", icon: <><path d="M14 3v11.2a3.8 3.8 0 1 1-3.8-3.8"/><path d="M14 3c.3 2.6 2 4.3 4.8 4.5"/></> },
 ];
 
 // ── INFO PAGES ────────────────────────────────────────────────────────
