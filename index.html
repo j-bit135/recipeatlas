@@ -356,7 +356,14 @@
     }
     </script>
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E5VXYPSKPJ"></script>
+    <script>
+      // Load Google Analytics after the page has finished loading, so it doesn't compete with first paint.
+      (function(){
+        function loadGA(){ var s=document.createElement('script'); s.async=true; s.src='https://www.googletagmanager.com/gtag/js?id=G-E5VXYPSKPJ'; document.head.appendChild(s); }
+        function later(){ setTimeout(function(){ if (window.requestIdleCallback) requestIdleCallback(loadGA,{timeout:4000}); else loadGA(); }, 1500); }
+        if (document.readyState==='complete') later(); else window.addEventListener('load', later);
+      })();
+    </script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}

@@ -3036,17 +3036,18 @@ function RegionMap({ onSelectRegion }) {
               }
 
               const outCanvas = document.createElement('canvas');
-              outCanvas.width = w; outCanvas.height = h;
+              const S = 2; const cw = Math.ceil(w / S), ch = Math.ceil(h / S);
+              outCanvas.width = cw; outCanvas.height = ch;
               const octx = outCanvas.getContext('2d');
-              const outImg = octx.createImageData(w, h);
+              const outImg = octx.createImageData(cw, ch);
 
               const FLOOR = 0.22;
               const FLOOR_TEXTURE = 0.22;
 
-              for (let py = 0; py < h; py++) {
-                for (let px = 0; px < w; px++) {
-                  const lonlat = projection.invert([px, py]);
-                  const idx = (py * w + px) * 4;
+              for (let py = 0; py < ch; py++) {
+                for (let px = 0; px < cw; px++) {
+                  const lonlat = projection.invert([px * S, py * S]);
+                  const idx = (py * cw + px) * 4;
                   if (!lonlat || isNaN(lonlat[0]) || isNaN(lonlat[1])) { outImg.data[idx+3] = 0; continue; }
                   let [lon, lat] = lonlat;
                   let tx = Math.max(0, Math.min(texW - 1, Math.floor((lon + 180) / 360 * texW)));
@@ -3166,8 +3167,6 @@ function RegionMap({ onSelectRegion }) {
         add(['/map/topojson.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js'], () => window.topojson)
       ]).then(cb);
     };
-    getMapWorld().catch(() => {});
-    getMapTopo();
 
     // Small delay on first render so mobile layout has settled
     let resizeTimer;
@@ -3176,12 +3175,32 @@ function RegionMap({ onSelectRegion }) {
       resizeTimer = setTimeout(loadMap, 100);
     };
 
-    loadScripts(() => {
-      setTimeout(loadMap, 100);
-      window.addEventListener('resize', handleResize);
-    });
+    // Start the map only after the page has loaded and the browser is idle,
+    // so the heavy drawing never competes with first paint / interactivity.
+    let cancelled = false, startTimer;
+    const startMap = () => {
+      if (cancelled) return;
+      getMapWorld().catch(() => {});
+      getMapTopo();
+      loadScripts(() => {
+        if (cancelled) return;
+        setTimeout(loadMap, 100);
+        window.addEventListener('resize', handleResize);
+      });
+    };
+    const whenIdle = () => {
+      startTimer = setTimeout(() => {
+        if (window.requestIdleCallback) window.requestIdleCallback(startMap, { timeout: 3000 });
+        else startMap();
+      }, 1200);
+    };
+    if (document.readyState === 'complete') whenIdle();
+    else window.addEventListener('load', whenIdle, { once: true });
 
     return () => {
+      cancelled = true;
+      clearTimeout(startTimer);
+      window.removeEventListener('load', whenIdle);
       window.removeEventListener('resize', handleResize);
       clearTimeout(resizeTimer);
     };
