@@ -2860,25 +2860,26 @@ function RegionMap({ onSelectRegion }) {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const container = document.getElementById('ra-world-map');
+    const container = document.getElementById('ra-world-map-hit');
     if (!container) return;
-    // The map is drawn ahead of time (public/map/world-map.svg), so the browser
-    // only has to show it -- no map libraries and no drawing work on each visit.
+    // The map picture is a normal image. This adds the invisible clickable layer on top of it
+    // (hover = dark brown + name label, click = open the region). It starts once the page is idle,
+    // so it never competes with the first paint.
     const LABELS = {
       europe:'🏰 Europe', north_america:'🌎 North America', south_america:'🌿 South America',
       africa:'🌍 Africa', middle_east:'🕌 Middle East', asia:'🏯 Asia', oceania:'🦘 Oceania'
     };
     const HOVER_FILL = '#61361d';
     const tip = document.getElementById('ra-map-tip');
-    let cur = null, cancelled = false;
-    const restore = (p) => { p.setAttribute('fill', 'url(#ra-elev-pattern)'); p.removeAttribute('stroke-width'); };
+    let cur = null, cancelled = false, startTimer;
+    const restore = (p) => { p.setAttribute('fill', 'rgba(0,0,0,0)'); p.removeAttribute('stroke'); p.removeAttribute('stroke-width'); p.removeAttribute('vector-effect'); };
     const pathOf = (e) => (e.target && e.target.closest ? e.target.closest('path[data-r]') : null);
     const onOver = (e) => {
       const p = pathOf(e);
       if (!p || p === cur) return;
       if (cur) restore(cur);
       cur = p;
-      p.setAttribute('fill', HOVER_FILL); p.setAttribute('stroke-width', '1.6');
+      p.setAttribute('fill', HOVER_FILL); p.setAttribute('stroke', '#4a4237'); p.setAttribute('stroke-width', '1.6'); p.setAttribute('vector-effect', 'non-scaling-stroke');
       if (tip) { tip.textContent = LABELS[p.dataset.r] || ''; tip.style.display = 'block'; }
     };
     const onMove = (e) => {
@@ -2898,13 +2899,26 @@ function RegionMap({ onSelectRegion }) {
     container.addEventListener('mouseout', onOut);
     container.addEventListener('click', onClick);
 
-    fetch('/map/world-map.svg')
-      .then(r => { if (!r.ok) throw new Error('map ' + r.status); return r.text(); })
-      .then(svg => { if (!cancelled) container.innerHTML = svg; })
-      .catch(() => {});
+    const start = () => {
+      if (cancelled) return;
+      fetch('/map/world-map-hover.svg')
+        .then(r => { if (!r.ok) throw new Error('map ' + r.status); return r.text(); })
+        .then(svg => { if (!cancelled) container.innerHTML = svg; })
+        .catch(() => {});
+    };
+    const whenIdle = () => {
+      startTimer = setTimeout(() => {
+        if (window.requestIdleCallback) window.requestIdleCallback(start, { timeout: 1500 });
+        else start();
+      }, 300);
+    };
+    if (document.readyState === 'complete') whenIdle();
+    else window.addEventListener('load', whenIdle, { once: true });
 
     return () => {
       cancelled = true;
+      clearTimeout(startTimer);
+      window.removeEventListener('load', whenIdle);
       container.removeEventListener('mouseover', onOver);
       container.removeEventListener('mousemove', onMove);
       container.removeEventListener('mouseout', onOut);
@@ -2936,7 +2950,11 @@ function RegionMap({ onSelectRegion }) {
       </div>
 
       {/* Interactive world map */}
-      <div id="ra-world-map" className="ra-home-map" style={{ width:"100%", aspectRatio:"1 / 0.52", maxWidth:mapMaxWidth, marginLeft:"auto", marginRight:"auto", borderRadius:12, overflow:"hidden", background:"transparent", marginBottom:mapMarginBottom }}></div>
+      <div id="ra-world-map" className="ra-home-map" style={{ position:"relative", width:"100%", aspectRatio:"1 / 0.52", maxWidth:mapMaxWidth, marginLeft:"auto", marginRight:"auto", borderRadius:12, overflow:"hidden", background:"transparent", marginBottom:mapMarginBottom }}>
+        {/* The finished map picture shows straight away; the clickable layer is added on top once the page is idle. */}
+        <img src="/map/world-map.webp" width="1000" height="520" alt="World map: choose a region to explore its dishes" fetchPriority="high" decoding="async" style={{ display:"block", width:"100%", height:"100%" }} />
+        <div id="ra-world-map-hit" style={{ position:"absolute", top:0, left:0, right:0, bottom:0 }}></div>
+      </div>
       <div id="ra-map-tip" style={{ position:"fixed", background:"rgba(26,23,20,.9)", color:"#fff", padding:"6px 14px", borderRadius:8, fontSize:13, fontWeight:600, pointerEvents:"none", display:"none", zIndex:999, whiteSpace:"nowrap" }}></div>
 
 
