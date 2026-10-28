@@ -2598,7 +2598,7 @@ function DishCarousel({ dishKeys, title, subtitle, idPrefix, marginTop = 0, marg
       <div style={{ position:"relative" }}>
         <button className="classics-arrow classics-arrow-left" onClick={() => scrollByAmount(-1)} aria-label="Scroll left"
           style={{ position:"absolute", left:8, top:"50%", transform:"translateY(-50%)", zIndex:10, width:36, height:36, borderRadius:"50%", border:"none", background:"rgba(26,23,20,.65)", color:"#fff", cursor:"pointer", alignItems:"center", justifyContent:"center", boxShadow:"0 2px 8px rgba(0,0,0,.25)" }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
         </button>
         <div ref={scrollRef} className="classics-scroll"
           onMouseDown={onMouseDown} onMouseMove={onMouseMove} onMouseUp={endDrag} onMouseLeave={endDrag}
@@ -2623,7 +2623,7 @@ function DishCarousel({ dishKeys, title, subtitle, idPrefix, marginTop = 0, marg
         </div>
         <button className="classics-arrow classics-arrow-right" onClick={() => scrollByAmount(1)} aria-label="Scroll right"
           style={{ position:"absolute", right:8, top:"50%", transform:"translateY(-50%)", zIndex:10, width:36, height:36, borderRadius:"50%", border:"none", background:"rgba(26,23,20,.65)", color:"#fff", cursor:"pointer", alignItems:"center", justifyContent:"center", boxShadow:"0 2px 8px rgba(0,0,0,.25)" }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
         </button>
       </div>
     </div>
@@ -2957,16 +2957,7 @@ function RegionMap({ onSelectRegion }) {
         return null;
       };
 
-      Promise.all([
-        fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(r => r.json()),
-        new Promise((resolve) => {
-          const topoImg = new Image();
-          topoImg.crossOrigin = 'anonymous';
-          topoImg.onload = () => resolve(topoImg);
-          topoImg.onerror = () => resolve(null);
-          topoImg.src = 'https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png';
-        })
-      ])
+      Promise.all([getMapWorld(), getMapTopo()])
         .then(([world, topoImg]) => {
           const countries = topojson.feature(world, world.objects.countries);
           const land = {
@@ -3156,18 +3147,23 @@ function RegionMap({ onSelectRegion }) {
         .catch(() => {});
     };
 
+    // Everything the map needs is requested at the same moment (not one after another),
+    // so it appears as soon as the slowest single file arrives.
     const loadScripts = (cb) => {
       if (window.d3 && window.topojson) { cb(); return; }
-      const s1 = document.createElement('script');
-      s1.src = 'https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js';
-      s1.onload = () => {
-        const s2 = document.createElement('script');
-        s2.src = 'https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js';
-        s2.onload = cb;
-        document.head.appendChild(s2);
-      };
-      document.head.appendChild(s1);
+      const add = (src, ready) => new Promise((resolve) => {
+        if (ready()) { resolve(); return; }
+        const el = document.createElement('script');
+        el.src = src; el.async = true; el.onload = resolve; el.onerror = resolve;
+        document.head.appendChild(el);
+      });
+      Promise.all([
+        add('https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js', () => window.d3),
+        add('https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js', () => window.topojson)
+      ]).then(cb);
     };
+    getMapWorld().catch(() => {});
+    getMapTopo();
 
     // Small delay on first render so mobile layout has settled
     let resizeTimer;
@@ -3191,7 +3187,7 @@ function RegionMap({ onSelectRegion }) {
     <div>
       <div style={{ textAlign:"center", marginBottom:16 }} ref={textBlockRef}>
         <div className="ra-home-badge" style={{ display:"inline-block", background:"#fdf3ed", borderRadius:100, padding:"6px 16px", fontSize:11, fontWeight:700, color:"#c2622a", letterSpacing:".08em", textTransform:"uppercase", fontFamily:"Plus Jakarta Sans", marginBottom:12 }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{display:"inline",verticalAlign:"middle",marginRight:4}}>
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{display:"inline",verticalAlign:"middle",marginRight:4}}>
                 <circle cx="14" cy="12" r="8" stroke="#c2622a" strokeWidth="2" fill="none"/>
                 <path d="M6 12 Q14 8 22 12" stroke="#c2622a" strokeWidth="1.5" fill="none"/>
                 <path d="M6 12 Q14 16 22 12" stroke="#c2622a" strokeWidth="1.5" fill="none"/>
@@ -3211,7 +3207,7 @@ function RegionMap({ onSelectRegion }) {
       </div>
 
       {/* Interactive world map */}
-      <div id="ra-world-map" className="ra-home-map" style={{ width:"100%", maxWidth:mapMaxWidth, marginLeft:"auto", marginRight:"auto", borderRadius:12, overflow:"hidden", background:"transparent", marginBottom:mapMarginBottom }}></div>
+      <div id="ra-world-map" className="ra-home-map" style={{ width:"100%", aspectRatio:"1 / 0.52", maxWidth:mapMaxWidth, marginLeft:"auto", marginRight:"auto", borderRadius:12, overflow:"hidden", background:"transparent", marginBottom:mapMarginBottom }}></div>
       <div id="ra-map-tip" style={{ position:"fixed", background:"rgba(26,23,20,.9)", color:"#fff", padding:"6px 14px", borderRadius:8, fontSize:13, fontWeight:600, pointerEvents:"none", display:"none", zIndex:999, whiteSpace:"nowrap" }}></div>
 
 
@@ -3462,6 +3458,29 @@ function imgFallback(e) {
 function imgProps(url, w) {
   const src = sizedImage(url, w);
   return src === url ? { src } : { src, 'data-orig': url, onError: imgFallback };
+}
+
+// ── WORLD MAP FILES (loaded once, in parallel with the map scripts) ──────
+let mapWorldPromise = null, mapTopoPromise = null;
+function getMapWorld() {
+  if (!mapWorldPromise) {
+    mapWorldPromise = fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+      .then(r => r.json())
+      .catch(err => { mapWorldPromise = null; throw err; });
+  }
+  return mapWorldPromise;
+}
+function getMapTopo() {
+  if (!mapTopoPromise) {
+    mapTopoPromise = new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => resolve(img);
+      img.onerror = () => resolve(null);
+      img.src = 'https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png';
+    });
+  }
+  return mapTopoPromise;
 }
 
 // ── SEO TITLE & META DESCRIPTION HELPERS ──────────────────────────────────
@@ -4548,7 +4567,7 @@ function SearchBox({ navigate, mobile, onOpenChange }) {
   };
 
   const searchIcon = (strokeWidth) => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round">
+    <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round">
       <circle cx="11" cy="11" r="7" />
       <line x1="21" y1="21" x2="16.65" y2="16.65" />
     </svg>
@@ -4599,7 +4618,7 @@ function SearchBox({ navigate, mobile, onOpenChange }) {
         {open && (
           <div style={{ position: "fixed", top: 62, left: 0, right: 0, width: "100%", background: "#fff", borderBottom: "1.5px solid #ece6db", padding: "12px 16px", zIndex: 200, boxShadow: "0 6px 20px rgba(0,0,0,.08)", boxSizing: "border-box" }}>
             <div style={{ display: "flex", alignItems: "center", background: "#fdf3ed", border: "1.5px solid #e8c9b0", borderRadius: 20, padding: "10px 14px", gap: 8 }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c2622a" strokeWidth="2.6" strokeLinecap="round" style={{ flexShrink: 0 }}>
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c2622a" strokeWidth="2.6" strokeLinecap="round" style={{ flexShrink: 0 }}>
                 <circle cx="11" cy="11" r="7" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
@@ -4635,7 +4654,7 @@ function SearchBox({ navigate, mobile, onOpenChange }) {
         </span>
       ) : (
         <div style={{ display: "flex", alignItems: "center", background: "#fdf3ed", border: "1.5px solid #e8c9b0", borderRadius: 20, padding: "6px 12px", gap: 8, width: 220 }}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c2622a" strokeWidth="2.2" strokeLinecap="round" style={{ flexShrink: 0 }}>
+          <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c2622a" strokeWidth="2.2" strokeLinecap="round" style={{ flexShrink: 0 }}>
             <circle cx="11" cy="11" r="7" />
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
@@ -4975,7 +4994,7 @@ function MealCard({ meal, style, onClick }) {
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:8 }}>
         <span style={{ fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", opacity:.85 }}>{count} recipes</span>
         <span aria-hidden="true" style={{ width:36, height:36, borderRadius:"50%", background:"#1a1714", color:"#fff", display:"flex", alignItems:"center", justifyContent:"center" }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
         </span>
       </div>
     </AppLink>
@@ -5009,7 +5028,7 @@ function ExploreByMeal({ marginBottom = 93 }) {
       <div style={{ position:"relative" }}>
         <button className="meal-arrow classics-arrow" onClick={() => go(Math.max(0, active - 1))} aria-label="Previous meal"
           style={{ position:"absolute", left:-8, top:"50%", transform:"translateY(-50%)", zIndex:10, width:36, height:36, borderRadius:"50%", border:"none", background:"rgba(26,23,20,.7)", color:"#fff", cursor:"pointer", alignItems:"center", justifyContent:"center" }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
         </button>
         <div ref={scrollRef} className="meal-scroll" onScroll={onScroll}
           onMouseDown={onMouseDown} onMouseMove={onMouseMove} onMouseUp={endDrag} onMouseLeave={endDrag}
@@ -5018,7 +5037,7 @@ function ExploreByMeal({ marginBottom = 93 }) {
         </div>
         <button className="meal-arrow classics-arrow" onClick={() => go(Math.min(MEALS.length - 1, active + 1))} aria-label="Next meal"
           style={{ position:"absolute", right:-8, top:"50%", transform:"translateY(-50%)", zIndex:10, width:36, height:36, borderRadius:"50%", border:"none", background:"rgba(26,23,20,.7)", color:"#fff", cursor:"pointer", alignItems:"center", justifyContent:"center" }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
         </button>
       </div>
       <div style={{ display:"flex", justifyContent:"center", gap:7, marginTop:2 }}>
@@ -5735,7 +5754,7 @@ function App() {
         <header style={{ background:"#fff", borderBottom:"1.5px solid #ece6db", padding:"13px 28px", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12, position:"sticky", top:0, zIndex:50, boxShadow:"0 1px 8px rgba(0,0,0,.05)" }}>
           <AppLink to="/" style={{ cursor:"pointer", display:"flex", alignItems:"center", gap:12 }}>
             <div style={{ width:36, height:36, background:"linear-gradient(135deg,#c2622a,#e8832a)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, boxShadow:"0 2px 8px rgba(194,98,42,.35)" }}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="14" cy="12" r="8" stroke="#fff" strokeWidth="1.8" fill="none"/>
                 <path d="M6 12 Q14 8 22 12" stroke="#fff" strokeWidth="1.4" fill="none"/>
                 <path d="M6 12 Q14 16 22 12" stroke="#fff" strokeWidth="1.4" fill="none"/>
@@ -5765,7 +5784,7 @@ function App() {
               style={{ cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", width:34, height:34, borderRadius:8, border:"none", padding:0,
                 color: mobileMenuOpen ? "#fff" : "#1a1714", background: mobileMenuOpen ? "#c2622a" : "transparent" }}
               aria-label="Menu" aria-expanded={mobileMenuOpen}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
+              <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
                 <line x1="4" y1="7" x2="20" y2="7" />
                 <line x1="4" y1="12" x2="20" y2="12" />
                 <line x1="4" y1="17" x2="20" y2="17" />
@@ -5843,7 +5862,7 @@ function App() {
             <div style={{ display:"flex", flexDirection:"column", rowGap:20, marginBottom:20 }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", columnGap:16 }}>
                 <div style={{ display:"flex", alignItems:"center", gap:10, minWidth:0 }}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <circle cx="14" cy="12" r="8" stroke="#c2622a" strokeWidth="1.8" fill="none"/>
                   <path d="M6 12 Q14 8 22 12" stroke="#c2622a" strokeWidth="1.4" fill="none"/>
                   <path d="M6 12 Q14 16 22 12" stroke="#c2622a" strokeWidth="1.4" fill="none"/>
