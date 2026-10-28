@@ -2869,7 +2869,8 @@ function RegionMap({ onSelectRegion }) {
       const w = container.offsetWidth;
       if (!w) return;
       container.innerHTML = '';
-      container.style.height = '0px';
+      // Keep the reserved height (same ratio as the final map) so the content below never jumps.
+      container.style.height = Math.round(w * 0.52) + 'px';
 
       const COUNTRY_REGION = {
         8:'europe',20:'europe',40:'europe',56:'europe',70:'europe',100:'europe',
