@@ -2217,7 +2217,6 @@ const ACCENT = "#c2622a";
 
 // ── STYLES ─────────────────────────────────────────────────────────────
 const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
   body, #root { background: #fdfcf9; color: #1a1714; font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; }
@@ -2609,7 +2608,7 @@ function DishCarousel({ dishKeys, title, subtitle, idPrefix, marginTop = 0, marg
             return (
               <AppLink key={`${idPrefix}-${dish.key}`} className="classics-card" to={path} onClick={onCardClick} draggable={false}
                 style={{ width:220, height:280 }}>
-                <img src={dish.image} alt={`Authentic ${dish.country} ${dish.name} recipe`} draggable={false} style={{ width:"100%", height:"100%", objectFit:"cover", display:"block", pointerEvents:"none" }} />
+                <img {...imgProps(dish.image, 440)} alt={`Authentic ${dish.country} ${dish.name} recipe`} width={220} height={280} loading={i < 3 ? "eager" : "lazy"} fetchPriority={i === 0 ? "high" : undefined} decoding="async" draggable={false} style={{ width:"100%", height:"100%", objectFit:"cover", display:"block", pointerEvents:"none" }} />
                 <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(0,0,0,.75) 0%, rgba(0,0,0,.15) 45%, rgba(0,0,0,0) 65%)" }} />
                 <div style={{ position:"absolute", left:0, right:0, bottom:0, padding:"14px 14px 16px" }}>
                   <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:4 }}>
@@ -2760,7 +2759,7 @@ function RecipeInspiration({ recipes: initialRecipes, pool, title, spacing = 74 
               onMouseEnter={e => { e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow="0 6px 20px rgba(0,0,0,.08)"; }}
               onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="none"; }}>
               <div style={{ width:"100%", height:160, overflow:"hidden", background:"#f0e8e0" }}>
-                <img src={recipe.image} alt={`Authentic ${recipe.country} ${recipe.name} recipe`} style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
+                <img {...imgProps(recipe.image, 600)} alt={`Authentic ${recipe.country} ${recipe.name} recipe`} loading="lazy" decoding="async" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
               </div>
               <div style={{ padding:"12px 14px 14px" }}>
                 <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:6 }}>
@@ -3339,7 +3338,7 @@ function CountryView({ country, onBack, onSelectDish }) {
             return (
               <AppLink key={i} className="dish-tile" to={key ? recipePath(key) : null}>
                 <div className="dish-tile-img">
-                  {rec && rec.image ? <img src={rec.image} alt={`${dish} — ${country} recipe`} loading="lazy" /> : null}
+                  {rec && rec.image ? <img {...imgProps(rec.image, 500)} alt={`${dish} — ${country} recipe`} loading="lazy" decoding="async" /> : null}
                 </div>
                 <div className="dish-tile-name"><span>{dish}</span></div>
               </AppLink>
@@ -3436,6 +3435,33 @@ function parseDurationParts(text) {
     mins: minMatch ? parseInt(minMatch[1], 10) : 0,
     days: (!hourMatch && !minMatch && dayMatch) ? parseInt(dayMatch[1], 10) : 0
   };
+}
+
+// ── IMAGE SIZING ──────────────────────────────────────────────────────
+// Recipe photos come from Pexels, Wikimedia and Flickr, often at full size (several MB each).
+// These ask each host for a smaller copy that matches how big the picture is actually shown,
+// and fall back to the original address if the smaller copy is not available.
+const WIKIMEDIA_STEPS = [250, 330, 500, 960, 1280];
+function sizedImage(url, w) {
+  if (!url || typeof url !== 'string') return url;
+  if (url.includes('images.pexels.com') && /[?&]w=\d+/.test(url)) {
+    return url.replace(/&h=\d+/, '').replace(/([?&])w=\d+/, `$1w=${w}`);
+  }
+  const wm = url.match(/^(https:\/\/upload\.wikimedia\.org\/wikipedia\/commons)\/([0-9a-f]\/[0-9a-f]{2})\/([^/]+\.(?:jpe?g|png))$/i);
+  if (wm) {
+    const step = WIKIMEDIA_STEPS.find(x => x >= w) || 1280;
+    return `${wm[1]}/thumb/${wm[2]}/${wm[3]}/${step}px-${wm[3]}`;
+  }
+  if (/^https:\/\/live\.staticflickr\.com\/.*_b\.jpg$/i.test(url) && w <= 640) return url.replace(/_b\.jpg$/i, '_z.jpg');
+  return url;
+}
+function imgFallback(e) {
+  const t = e.currentTarget, o = t.getAttribute('data-orig');
+  if (o) { t.removeAttribute('data-orig'); t.src = o; }
+}
+function imgProps(url, w) {
+  const src = sizedImage(url, w);
+  return src === url ? { src } : { src, 'data-orig': url, onError: imgFallback };
 }
 
 // ── SEO TITLE & META DESCRIPTION HELPERS ──────────────────────────────────
@@ -3774,7 +3800,7 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
               <p style={{ fontSize:15, color:"#6a6058", lineHeight:1.85, marginBottom:16 }}>{recipe.description}</p>
               {recipe.image && (
                 <div style={{ marginBottom: recipe.photoCredit ? 6 : 20, borderRadius:12, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.08)", background:"#f0e8e0" }}>
-                  <img src={recipe.image} alt={`Authentic ${recipe.country} ${recipe.name} recipe`}
+                  <img {...imgProps(recipe.image, 960)} alt={`Authentic ${recipe.country} ${recipe.name} recipe`} fetchPriority="high" decoding="async"
                     style={{ width:"100%", height:312, objectFit:"cover", display:"block" }}
                   />
                 </div>
@@ -3976,7 +4002,7 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
                           onMouseEnter={e => { e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow="0 6px 20px rgba(0,0,0,.08)"; }}
                           onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="none"; }}>
                           <div style={{ width:"100%", height:140, overflow:"hidden", background:"#f0e8e0" }}>
-                            <img src={rec.image} alt={isSide ? `${rec.name} recipe — serve with ${recipe.name}` : `${rec.name} — a ${(rec.category || "side").toLowerCase()} to serve with ${recipe.name}`} style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
+                            <img {...imgProps(rec.image, 500)} loading="lazy" decoding="async" alt={isSide ? `${rec.name} recipe — serve with ${recipe.name}` : `${rec.name} — a ${(rec.category || "side").toLowerCase()} to serve with ${recipe.name}`} style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
                           </div>
                           <div style={{ padding:"12px 14px 14px" }}>
                             <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:6 }}>
@@ -4028,7 +4054,7 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
                           onMouseEnter={e => { e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow="0 6px 20px rgba(0,0,0,.08)"; }}
                           onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="none"; }}>
                           <div style={{ width:"100%", height:160, overflow:"hidden", background:"#f0e8e0" }}>
-                            <img src={rec.image} alt={`Authentic ${rec.country} ${rec.name} recipe`} style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
+                            <img {...imgProps(rec.image, 500)} alt={`Authentic ${rec.country} ${rec.name} recipe`} loading="lazy" decoding="async" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
                           </div>
                           <div style={{ padding:"12px 14px 14px" }}>
                             <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:6 }}>
@@ -4222,7 +4248,7 @@ function EventDetailView({ eventSlug, onBack, navigate }) {
       <p style={{ fontSize:15, color:"#6a6058", lineHeight:1.85, marginBottom:20 }}>{event.desc}</p>
       {event.image && (
         <div style={{ marginBottom:20, borderRadius:12, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.08)", background:"#f0e8e0" }}>
-          <img src={event.image} alt={`${event.name} in ${event.loc}, ${event.country}`}
+          <img {...imgProps(event.image, 960)} alt={`${event.name} in ${event.loc}, ${event.country}`} fetchPriority="high" decoding="async"
             style={{ width:"100%", height:312, objectFit:"cover", display:"block" }} />
         </div>
       )}
@@ -4539,7 +4565,7 @@ function SearchBox({ navigate, mobile, onOpenChange }) {
             onMouseEnter={e => e.currentTarget.style.background = "#faf7f3"}
             onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
             <div style={{ width: 36, height: 36, borderRadius: 8, overflow: "hidden", flexShrink: 0, background: "#f0e8e0" }}>
-              <img src={r.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <img {...imgProps(r.image, 160)} alt="" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </div>
             <div style={{ minWidth: 0 }}>
               <div style={{ fontFamily: "Fraunces", fontSize: 13.5, fontWeight: 700, color: "#1a1714", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.name || r.key}</div>
@@ -4662,7 +4688,7 @@ function SearchResultsPage({ query, navigate }) {
               onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 6px 20px rgba(0,0,0,.08)"; }}
               onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}>
               <div style={{ width: "100%", height: 160, overflow: "hidden", background: "#f0e8e0" }}>
-                <img src={r.image} alt={`Authentic ${r.country} ${r.name} recipe`} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                <img {...imgProps(r.image, 500)} alt={`Authentic ${r.country} ${r.name} recipe`} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
               </div>
               <div style={{ padding: "12px 14px 14px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
@@ -4891,7 +4917,7 @@ function PantryToPlate({ navigate }) {
             {matches.slice(0, PTP_MAX_RESULTS).map((r) => (
               <div key={r.key} className="ptp-recipe-card" onClick={() => goToRecipe(r)}>
                 <div style={{ width: "100%", height: 160, overflow: "hidden", background: "#f0e8e0" }}>
-                  <img src={r.image} alt={`Authentic ${r.country} ${r.name} recipe`} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                  <img {...imgProps(r.image, 500)} alt={`Authentic ${r.country} ${r.name} recipe`} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                 </div>
                 <div style={{ padding: "12px 14px 14px" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
@@ -4941,7 +4967,7 @@ function MealCard({ meal, style, onClick }) {
       <div style={{ flex:1 }} />
       <div style={{ display:"flex", marginBottom:14, paddingLeft:6 }}>
         {photos.map((k, i) => (
-          <img key={k} src={RECIPE_DB[k].image} alt="" loading="lazy" draggable={false}
+          <img key={k} {...imgProps(RECIPE_DB[k].image, 160)} alt="" width={46} height={46} loading="lazy" decoding="async" draggable={false}
             style={{ width:46, height:46, borderRadius:"50%", objectFit:"cover", border:`2.5px solid ${dark ? "#6b4a86" : "#fff"}`, marginLeft: i ? -12 : 0, background:"#f0e8e0", pointerEvents:"none" }} />
         ))}
       </div>
@@ -5044,7 +5070,7 @@ function MealPage({ mealId }) {
           const r = RECIPE_DB[k];
           return (
             <AppLink key={k} className="dish-tile" to={recipePath(k)}>
-              <div className="dish-tile-img"><img src={r.image} alt={`${r.country} ${r.name} recipe`} loading="lazy" /></div>
+              <div className="dish-tile-img"><img {...imgProps(r.image, 500)} alt={`${r.country} ${r.name} recipe`} loading="lazy" decoding="async" /></div>
               <div className="dish-tile-name"><span>{r.name}</span></div>
             </AppLink>
           );
@@ -5088,7 +5114,7 @@ function SaucesSidesPage() {
           return (
             <div key={k} className="ss-card">
               <AppLink to={recipePath(k)} className="ss-card-img">
-                <img src={r.image} alt={`${r.name} recipe`} loading="lazy" />
+                <img {...imgProps(r.image, 500)} alt={`${r.name} recipe`} loading="lazy" decoding="async" />
               </AppLink>
               <div style={{ padding:"12px 14px 14px", display:"flex", flexDirection:"column", gap:6, flex:1 }}>
                 <div style={{ fontSize:11, color:"#9a9088", fontFamily:"Plus Jakarta Sans", fontWeight:500 }}>
@@ -5706,7 +5732,7 @@ function App() {
       <style>{styles}</style>
       <div style={{ minHeight:"100vh", background:"#fdfcf9" }}>
         {/* Header */}
-        <div style={{ background:"#fff", borderBottom:"1.5px solid #ece6db", padding:"13px 28px", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12, position:"sticky", top:0, zIndex:50, boxShadow:"0 1px 8px rgba(0,0,0,.05)" }}>
+        <header style={{ background:"#fff", borderBottom:"1.5px solid #ece6db", padding:"13px 28px", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12, position:"sticky", top:0, zIndex:50, boxShadow:"0 1px 8px rgba(0,0,0,.05)" }}>
           <AppLink to="/" style={{ cursor:"pointer", display:"flex", alignItems:"center", gap:12 }}>
             <div style={{ width:36, height:36, background:"linear-gradient(135deg,#c2622a,#e8832a)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, boxShadow:"0 2px 8px rgba(194,98,42,.35)" }}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -5724,7 +5750,7 @@ function App() {
               <div style={{ fontFamily:"Fraunces", fontSize:19.5, fontWeight:700, color:"#1a1714" }}>Recipe Atlas</div>
             </div>
           </AppLink>
-          <div className="header-nav-desktop" style={{ display:"flex", alignItems:"center", gap:14, flexWrap:"wrap" }}>
+          <nav aria-label="Main menu" className="header-nav-desktop" style={{ display:"flex", alignItems:"center", gap:14, flexWrap:"wrap" }}>
             {mealsPill}
             {saucesPill}
             {pantryPill}
@@ -5732,21 +5758,21 @@ function App() {
             {blogPill}
             <SearchBox navigate={navigate} />
             {(view === "region" || view === "country" || view === "recipe") && breadcrumbContent}
-          </div>
+          </nav>
           <div className="header-nav-mobile" style={{ alignItems:"center", gap:10 }}>
             <SearchBox navigate={navigate} mobile onOpenChange={(isOpen) => { if (isOpen) setMobileMenuOpen(false); }} />
-            <span ref={mobileMenuBtnRef} onClick={() => setMobileMenuOpen(o => !o)}
-              style={{ cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", width:34, height:34, borderRadius:8,
+            <button type="button" ref={mobileMenuBtnRef} onClick={() => setMobileMenuOpen(o => !o)}
+              style={{ cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", width:34, height:34, borderRadius:8, border:"none", padding:0,
                 color: mobileMenuOpen ? "#fff" : "#1a1714", background: mobileMenuOpen ? "#c2622a" : "transparent" }}
-              aria-label="Menu">
+              aria-label="Menu" aria-expanded={mobileMenuOpen}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
                 <line x1="4" y1="7" x2="20" y2="7" />
                 <line x1="4" y1="12" x2="20" y2="12" />
                 <line x1="4" y1="17" x2="20" y2="17" />
               </svg>
-            </span>
+            </button>
           </div>
-        </div>
+        </header>
 
         {mobileMenuOpen && (
           <div ref={mobileMenuRef} className="header-nav-mobile-panel"
@@ -5761,7 +5787,7 @@ function App() {
         )}
 
         {/* Main */}
-        <div style={{ position:"relative", backgroundImage:"url(/background-beans.jpg)", backgroundSize:"auto", backgroundRepeat:"repeat", backgroundPosition:"top left", backgroundAttachment:"fixed" }}>
+        <main id="main" style={{ position:"relative", backgroundImage:"url(/background-beans.jpg)", backgroundSize:"2860px auto", backgroundRepeat:"repeat", backgroundPosition:"top left", backgroundAttachment:"fixed" }}>
           <div style={{ position:"absolute", inset:0, background:"rgba(253,252,249,0.90)" }} />
           <div style={{ position:"relative", zIndex:1 }}>
         {!["blog","about","contact","privacy","terms","pantry-to-plate","search","notfound","sauces-and-sides","meals","meal"].includes(view) && (
@@ -5806,13 +5832,13 @@ function App() {
         {view === "search" && <SearchResultsPage query={searchQuery || ""} navigate={navigate} />}
 
           </div>
-        </div>
+        </main>
         {/* Creative Commons credit strip */}
         <div style={{ padding:"14px 28px", textAlign:"center", borderTop:"1px solid #ece6db" }}>
           <span style={{ fontSize:10, color:"#d8d0c5", fontFamily:"Plus Jakarta Sans" }}>Some recipe photos courtesy of Openverse and Wikimedia Commons contributors, used under Creative Commons licenses.</span>
         </div>
         {/* Footer */}
-        <div style={{ borderTop:"1.5px solid #ece6db", padding:"28px", background:"#fdfcf9" }}>
+        <footer style={{ borderTop:"1.5px solid #ece6db", padding:"28px", background:"#fdfcf9" }}>
           <div style={{ maxWidth:960, margin:"0 auto" }}>
             <div style={{ display:"flex", flexDirection:"column", rowGap:20, marginBottom:20 }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", columnGap:16 }}>
@@ -5861,7 +5887,7 @@ function App() {
               <span style={{ fontSize:11, color:"#c8bfb0", fontFamily:"Plus Jakarta Sans" }}>Celebrating food from every corner of the world.</span>
             </div>
           </div>
-        </div>
+        </footer>
       </div>
     </>
   );
@@ -6170,7 +6196,7 @@ function BlogRecipeCard({ dish, navigate }) {
   return (
     <AppLink to={recipePath(dish)} className="dish-card" style={{ marginBottom:24, padding:0, overflow:"hidden", display:"block" }}>
       {r.image && (
-        <img src={r.image} alt={`${r.name} recipe`} style={{ width:"100%", height:200, objectFit:"cover", display:"block" }} />
+        <img {...imgProps(r.image, 640)} alt={`${r.name} recipe`} loading="lazy" decoding="async" style={{ width:"100%", height:200, objectFit:"cover", display:"block" }} />
       )}
       {r.photoCredit && (
         <div style={{ textAlign:"right", padding:"4px 18px 0" }}>
@@ -6226,7 +6252,7 @@ function BlogPage({ initialSlug, navigate }) {
               </div>
         {post.image && (
           <div style={{ marginBottom:20, borderRadius:12, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.08)", background:"#f0e8e0" }}>
-            <img src={post.image} alt={post.title} style={{ width:"100%", height:320, objectFit:"cover", display:"block" }} />
+            <img {...imgProps(post.image, 960)} alt={post.title} fetchPriority="high" decoding="async" style={{ width:"100%", height:320, objectFit:"cover", display:"block" }} />
           </div>
         )}
         <div style={{ marginTop:24 }}>
@@ -6254,7 +6280,7 @@ function BlogPage({ initialSlug, navigate }) {
             onMouseLeave={e => { e.currentTarget.style.borderColor="#ece6db"; e.currentTarget.style.boxShadow="none"; }}>
             {p.image && (
               <div style={{ background:"#f0e8e0" }}>
-                <img src={p.image} alt={p.title} style={{ width:"100%", height:170, objectFit:"cover", display:"block" }} />
+                <img {...imgProps(p.image, 640)} alt={p.title} loading="lazy" decoding="async" style={{ width:"100%", height:170, objectFit:"cover", display:"block" }} />
               </div>
             )}
             <div style={{ padding:24 }}>
