@@ -94,7 +94,7 @@ async function prerenderRoute(page, route) {
       document.querySelectorAll('script[src*="cmp.inmobi.com"]').forEach((n) => n.remove());
       // The map libraries are added by the app itself when it runs. If they were saved into the page,
       // they would sit in <head> as render-blocking scripts and delay everything on screen.
-      document.querySelectorAll('script[src*="cdnjs.cloudflare.com"]').forEach((n) => n.remove());
+      document.querySelectorAll('script[src*="cdnjs.cloudflare.com"], script[src^="/map/"], script[src*="/map/d3"], script[src*="/map/topojson"]').forEach((n) => n.remove());
       document.querySelectorAll('[id^="qc-cmp"], [class*="qc-cmp"]').forEach((n) => n.remove());
     });
     // The page was rendered from the local build server, so any URL the app built from

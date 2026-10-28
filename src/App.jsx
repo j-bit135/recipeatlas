@@ -2608,7 +2608,7 @@ function DishCarousel({ dishKeys, title, subtitle, idPrefix, marginTop = 0, marg
             return (
               <AppLink key={`${idPrefix}-${dish.key}`} className="classics-card" to={path} onClick={onCardClick} draggable={false}
                 style={{ width:220, height:280 }}>
-                <img {...imgProps(dish.image, 440)} alt={`Authentic ${dish.country} ${dish.name} recipe`} width={220} height={280} loading={i < 3 ? "eager" : "lazy"} fetchPriority={i === 0 ? "high" : undefined} decoding="async" draggable={false} style={{ width:"100%", height:"100%", objectFit:"cover", display:"block", pointerEvents:"none" }} />
+                <img {...imgProps(dish.image, 440)} alt={`Authentic ${dish.country} ${dish.name} recipe`} width={220} height={280} loading="lazy" decoding="async" draggable={false} style={{ width:"100%", height:"100%", objectFit:"cover", display:"block", pointerEvents:"none" }} />
                 <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(0,0,0,.75) 0%, rgba(0,0,0,.15) 45%, rgba(0,0,0,0) 65%)" }} />
                 <div style={{ position:"absolute", left:0, right:0, bottom:0, padding:"14px 14px 16px" }}>
                   <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:4 }}>
@@ -3151,15 +3151,19 @@ function RegionMap({ onSelectRegion }) {
     // so it appears as soon as the slowest single file arrives.
     const loadScripts = (cb) => {
       if (window.d3 && window.topojson) { cb(); return; }
-      const add = (src, ready) => new Promise((resolve) => {
+      const add = (srcs, ready) => new Promise((resolve) => {
         if (ready()) { resolve(); return; }
-        const el = document.createElement('script');
-        el.src = src; el.async = true; el.onload = resolve; el.onerror = resolve;
-        document.head.appendChild(el);
+        const tryNext = (i) => {
+          if (i >= srcs.length) { resolve(); return; }
+          const el = document.createElement('script');
+          el.src = srcs[i]; el.async = true; el.onload = resolve; el.onerror = () => { el.remove(); tryNext(i + 1); };
+          document.head.appendChild(el);
+        };
+        tryNext(0);
       });
       Promise.all([
-        add('https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js', () => window.d3),
-        add('https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js', () => window.topojson)
+        add(['/map/d3.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js'], () => window.d3),
+        add(['/map/topojson.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js'], () => window.topojson)
       ]).then(cb);
     };
     getMapWorld().catch(() => {});
@@ -3445,10 +3449,13 @@ function sizedImage(url, w) {
   }
   const wm = url.match(/^(https:\/\/upload\.wikimedia\.org\/wikipedia\/commons)\/([0-9a-f]\/[0-9a-f]{2})\/([^/]+\.(?:jpe?g|png))$/i);
   if (wm) {
-    const step = WIKIMEDIA_STEPS.find(x => x >= w) || 1280;
+    const step = WIKIMEDIA_STEPS.find(x => x >= w / 1.3) || 1280;
     return `${wm[1]}/thumb/${wm[2]}/${wm[3]}/${step}px-${wm[3]}`;
   }
-  if (/^https:\/\/live\.staticflickr\.com\/.*_b\.jpg$/i.test(url) && w <= 640) return url.replace(/_b\.jpg$/i, '_z.jpg');
+  if (/^https:\/\/live\.staticflickr\.com\/.*_b\.jpg$/i.test(url)) {
+    if (w <= 160) return url.replace(/_b\.jpg$/i, '_q.jpg');
+    if (w <= 640) return url.replace(/_b\.jpg$/i, '_z.jpg');
+  }
   return url;
 }
 function imgFallback(e) {
@@ -3462,23 +3469,27 @@ function imgProps(url, w) {
 
 // ── WORLD MAP FILES (loaded once, in parallel with the map scripts) ──────
 let mapWorldPromise = null, mapTopoPromise = null;
+// The map files are served from this site (/map/...). If one is ever missing, the public copy is used instead.
 function getMapWorld() {
   if (!mapWorldPromise) {
-    mapWorldPromise = fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
-      .then(r => r.json())
+    const get = (url) => fetch(url).then(r => { if (!r.ok) throw new Error('map data ' + r.status); return r.json(); });
+    mapWorldPromise = get('/map/countries-110m.json')
+      .catch(() => get('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json'))
       .catch(err => { mapWorldPromise = null; throw err; });
   }
   return mapWorldPromise;
 }
 function getMapTopo() {
   if (!mapTopoPromise) {
-    mapTopoPromise = new Promise((resolve) => {
+    const load = (url) => new Promise((resolve) => {
       const img = new Image();
       img.crossOrigin = 'anonymous';
       img.onload = () => resolve(img);
       img.onerror = () => resolve(null);
-      img.src = 'https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png';
+      img.src = url;
     });
+    mapTopoPromise = load('/map/earth-topology.png')
+      .then(img => img || load('https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png'));
   }
   return mapTopoPromise;
 }
@@ -4608,12 +4619,12 @@ function SearchBox({ navigate, mobile, onOpenChange }) {
     // it sits on top of the page rather than pushing it down, so nothing reflows.
     return (
       <div ref={boxRef} style={{ position: "relative", display: "flex", alignItems: "center" }}>
-        <span onClick={() => setOpen(o => !o)}
-          style={{ cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: 8,
+        <button type="button" onClick={() => setOpen(o => !o)}
+          style={{ cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: 8, border: "none", padding: 0,
             color: open ? "#fff" : "#1a1714", background: open ? "#c2622a" : "transparent" }}
-          aria-label="Search recipes">
+          aria-label="Search recipes" aria-expanded={open}>
           {searchIcon(2.6)}
-        </span>
+        </button>
 
         {open && (
           <div style={{ position: "fixed", top: 62, left: 0, right: 0, width: "100%", background: "#fff", borderBottom: "1.5px solid #ece6db", padding: "12px 16px", zIndex: 200, boxShadow: "0 6px 20px rgba(0,0,0,.08)", boxSizing: "border-box" }}>
@@ -4645,13 +4656,13 @@ function SearchBox({ navigate, mobile, onOpenChange }) {
   return (
     <div ref={boxRef} style={{ position: "relative", display: "flex", alignItems: "center" }}>
       {!open ? (
-        <span onClick={() => setOpen(true)}
-          style={{ cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: "50%", color: "#1a1714" }}
+        <button type="button" onClick={() => setOpen(true)}
+          style={{ cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: "50%", color: "#1a1714", background: "transparent", border: "none", padding: 0 }}
           onMouseEnter={e => { e.currentTarget.style.background = "#fdf3ed"; e.currentTarget.style.color = "#c2622a"; }}
           onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#1a1714"; }}
-          aria-label="Search recipes">
+          aria-label="Search recipes" aria-expanded={open}>
           {searchIcon(2.6)}
-        </span>
+        </button>
       ) : (
         <div style={{ display: "flex", alignItems: "center", background: "#fdf3ed", border: "1.5px solid #e8c9b0", borderRadius: 20, padding: "6px 12px", gap: 8, width: 220 }}>
           <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c2622a" strokeWidth="2.2" strokeLinecap="round" style={{ flexShrink: 0 }}>

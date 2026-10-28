@@ -10,6 +10,15 @@
       ]
     },
     {
+      "source": "/map/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=2592000, stale-while-revalidate=86400"
+        }
+      ]
+    },
+    {
       "source": "/(.*)\\.(jpg|jpeg|png|webp|svg|ico|woff2)",
       "headers": [
         {
