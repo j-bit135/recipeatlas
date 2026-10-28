@@ -2860,350 +2860,55 @@ function RegionMap({ onSelectRegion }) {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const loadMap = () => {
-      const container = document.getElementById('ra-world-map');
-      if (!container) return;
-      if (!window.d3 || !window.topojson) return;
-      const d3 = window.d3;
-      const topojson = window.topojson;
-      const w = container.offsetWidth;
-      if (!w) return;
-      container.innerHTML = '';
-      // Keep the reserved height (same ratio as the final map) so the content below never jumps.
-      container.style.height = Math.round(w * 0.52) + 'px';
-
-      const COUNTRY_REGION = {
-        8:'europe',20:'europe',40:'europe',56:'europe',70:'europe',100:'europe',
-        112:'europe',191:'europe',203:'europe',208:'europe',233:'europe',246:'europe',
-        250:'europe',276:'europe',292:'europe',300:'europe',336:'europe',348:'europe',
-        352:'europe',372:'europe',380:'europe',428:'europe',438:'europe',440:'europe',
-        442:'europe',470:'europe',492:'europe',498:'europe',499:'europe',528:'europe',
-        578:'europe',616:'europe',620:'europe',642:'europe',674:'europe',688:'europe',
-        703:'europe',705:'europe',724:'europe',752:'europe',756:'europe',804:'europe',
-        807:'europe',826:'europe',831:'europe',832:'europe',833:'europe',
-        268:'europe',643:'europe',51:'europe',383:'europe',
-        28:'north_america',44:'north_america',52:'north_america',84:'north_america',
-        124:'north_america',136:'north_america',188:'north_america',192:'north_america',
-        212:'north_america',214:'north_america',222:'north_america',304:'north_america',
-        308:'north_america',312:'north_america',316:'north_america',320:'north_america',
-        332:'north_america',340:'north_america',388:'north_america',474:'north_america',
-        484:'north_america',500:'north_america',531:'north_america',533:'north_america',
-        534:'north_america',535:'north_america',558:'north_america',570:'north_america',
-        591:'north_america',652:'north_america',659:'north_america',660:'north_america',
-        662:'north_america',663:'north_america',670:'north_america',780:'north_america',
-        796:'north_america',840:'north_america',850:'north_america',
-        32:'south_america',68:'south_america',76:'south_america',152:'south_america',
-        170:'south_america',218:'south_america',238:'south_america',239:'south_america',
-        254:'south_america',328:'south_america',600:'south_america',604:'south_america',
-        740:'south_america',858:'south_america',862:'south_america',
-        12:'africa',24:'africa',72:'africa',86:'africa',108:'africa',120:'africa',
-        132:'africa',140:'africa',148:'africa',174:'africa',175:'africa',178:'africa',
-        180:'africa',204:'africa',231:'africa',232:'africa',262:'africa',266:'africa',
-        270:'africa',288:'africa',324:'africa',384:'africa',404:'africa',426:'africa',
-        430:'africa',434:'africa',450:'africa',454:'africa',466:'africa',478:'africa',
-        480:'africa',504:'africa',508:'africa',516:'africa',562:'africa',566:'africa',
-        624:'africa',638:'africa',646:'africa',654:'africa',686:'africa',694:'africa',
-        706:'africa',710:'africa',716:'africa',720:'africa',728:'africa',729:'africa',
-        732:'africa',736:'africa',768:'africa',788:'africa',800:'africa',818:'africa',
-        834:'africa',854:'africa',894:'africa',
-        31:'europe',48:'middle_east',196:'middle_east',275:'middle_east',
-        364:'middle_east',368:'middle_east',376:'middle_east',400:'middle_east',
-        414:'middle_east',422:'middle_east',512:'middle_east',634:'middle_east',
-        682:'middle_east',760:'middle_east',784:'middle_east',792:'middle_east',
-        887:'middle_east',
-        4:'asia',50:'asia',64:'asia',96:'asia',104:'asia',116:'asia',
-        144:'asia',156:'asia',158:'asia',344:'asia',356:'asia',360:'asia',
-        392:'asia',398:'asia',408:'asia',410:'asia',417:'asia',418:'asia',
-        446:'asia',458:'asia',462:'asia',496:'asia',524:'asia',586:'asia',
-        608:'asia',626:'asia',702:'asia',704:'asia',762:'asia',764:'asia',
-        795:'asia',860:'asia',
-        36:'oceania',90:'oceania',184:'oceania',242:'oceania',258:'oceania',
-        296:'oceania',316:'oceania',520:'oceania',540:'oceania',548:'oceania',
-        554:'oceania',570:'oceania',574:'oceania',580:'oceania',581:'oceania',
-        583:'oceania',585:'oceania',598:'oceania',612:'oceania',772:'oceania',
-        776:'oceania',798:'oceania',876:'oceania',882:'oceania',
-      };
-
-      const REGIONS = {
-        europe:        { rest:'#4b2e1c', full:'#b15c2c', label:'🏰 Europe' },
-        north_america: { rest:'#4b2e1c', full:'#b15c2c', label:'🌎 North America' },
-        south_america: { rest:'#4b2e1c', full:'#b15c2c', label:'🌿 South America' },
-        africa:        { rest:'#4b2e1c', full:'#b15c2c', label:'🌍 Africa' },
-        middle_east:   { rest:'#4b2e1c', full:'#b15c2c', label:'🕌 Middle East' },
-        asia:          { rest:'#4b2e1c', full:'#b15c2c', label:'🏯 Asia' },
-        oceania:       { rest:'#4b2e1c', full:'#b15c2c', label:'🦘 Oceania' },
-      };
-
-      const ANTARCTICA = 10;
-
-      // Use a sphere-fitted projection so map fills container edge to edge
-      const projection = d3.geoNaturalEarth1().rotate([-10, 0]);
-      const path = d3.geoPath().projection(projection);
-
-      // Fit projection tightly to all land (excluding Antarctica)
-      const getRegionByCoords = (d, path, projection) => {
-        const centroid = path.centroid(d);
-        if (!projection.invert) return null;
-        const projected = projection.invert(centroid);
-        if (!projected) return null;
-        const [lon, lat] = projected;
-        if (lon > -82 && lon < -33 && lat > -60 && lat < 7) return 'south_america';
-        if (lon > -80 && lon < -60 && lat >= 7 && lat < 12) return 'south_america';
-        if (lon > -170 && lon < -60) return 'north_america';
-        if (lon > 25 && lon < 65 && lat > 10 && lat < 42) return 'middle_east';
-        if (lon > -25 && lon < 45 && lat > 35 && lat < 72) return 'europe';
-        if (lon > 100 && lat < -10) return 'oceania';
-        if (lon > 60 && lon < 180 && lat > -15 && lat < 55) return 'asia';
-        if (lon > -20 && lon < 55 && lat > -35 && lat < 38) return 'africa';
-        return null;
-      };
-
-      Promise.all([getMapWorld(), getMapTopo()])
-        .then(([world, topoImg]) => {
-          const countries = topojson.feature(world, world.objects.countries);
-          const land = {
-            type: 'FeatureCollection',
-            features: countries.features.filter(d => +d.id !== ANTARCTICA)
-          };
-
-          // Fit projection symmetrically — use fitSize so D3 centres automatically
-          const h = Math.round(w * 0.52);
-          projection.fitSize([w, h], land);
-          container.style.height = h + 'px';
-
-          const svg = d3.select(container).append('svg')
-            .attr('width', w).attr('height', h)
-            .style('display', 'block');
-
-          svg.append('rect').attr('width', w).attr('height', h).attr('fill', 'none');
-
-          const defs = svg.append('defs');
-
-          // Real elevation-based terrain texture: samples an actual grayscale
-          // elevation/bump-map image at every point on the map (via the same
-          // projection used for the country shapes, so it stays correctly
-          // aligned), and maps elevation to a brand-orange colour ramp --
-          // faint orange for lowlands, brand orange dominant across most of
-          // the range, deep orange-rust only at genuinely high elevation.
-          // Falls back to the plain two-stop brand gradient if the elevation
-          // image doesn't load, so the map is never left broken.
-          let fillRef = 'url(#ra-map-orange-grad)';
-          const fallbackGrad = defs.append('linearGradient')
-            .attr('id', 'ra-map-orange-grad')
-            .attr('gradientUnits', 'userSpaceOnUse')
-            .attr('x1', 0).attr('y1', 0).attr('x2', w).attr('y2', h);
-          fallbackGrad.append('stop').attr('offset', '0%').attr('stop-color', '#c2622a');
-          fallbackGrad.append('stop').attr('offset', '100%').attr('stop-color', '#f2822e');
-
-          if (topoImg) {
-            try {
-              const lerpColor = (c1, c2, t) => [
-                Math.round(c1[0] + (c2[0]-c1[0])*t),
-                Math.round(c1[1] + (c2[1]-c1[1])*t),
-                Math.round(c1[2] + (c2[2]-c1[2])*t)
-              ];
-              const STOPS = [
-                { t: 0.00, color: [235, 158, 96] },
-                { t: 0.22, color: [226, 130, 56] },
-                { t: 0.42, color: [194, 98, 42] },
-                { t: 0.62, color: [150, 75, 35] },
-                { t: 0.80, color: [110, 55, 25] },
-                { t: 1.00, color: [75, 38, 18] },
-              ];
-              const multiLerp = (t) => {
-                t = Math.max(0, Math.min(1, t));
-                for (let i = 0; i < STOPS.length - 1; i++) {
-                  if (t >= STOPS[i].t && t <= STOPS[i+1].t) {
-                    const localT = (t - STOPS[i].t) / (STOPS[i+1].t - STOPS[i].t);
-                    return lerpColor(STOPS[i].color, STOPS[i+1].color, localT);
-                  }
-                }
-                return STOPS[STOPS.length-1].color;
-              };
-
-              const sampleCanvas = document.createElement('canvas');
-              sampleCanvas.width = topoImg.width;
-              sampleCanvas.height = topoImg.height;
-              const sctx = sampleCanvas.getContext('2d');
-              sctx.drawImage(topoImg, 0, 0);
-              const texData = sctx.getImageData(0, 0, topoImg.width, topoImg.height).data;
-              const texW = topoImg.width, texH = topoImg.height;
-
-              let minB = 255, maxB = 0;
-              for (let i = 0; i < texData.length; i += 4) {
-                const v = texData[i];
-                if (v < minB) minB = v;
-                if (v > maxB) maxB = v;
-              }
-
-              const outCanvas = document.createElement('canvas');
-              const S = 2; const cw = Math.ceil(w / S), ch = Math.ceil(h / S);
-              outCanvas.width = cw; outCanvas.height = ch;
-              const octx = outCanvas.getContext('2d');
-              const outImg = octx.createImageData(cw, ch);
-
-              const FLOOR = 0.22;
-              const FLOOR_TEXTURE = 0.22;
-
-              for (let py = 0; py < ch; py++) {
-                for (let px = 0; px < cw; px++) {
-                  const lonlat = projection.invert([px * S, py * S]);
-                  const idx = (py * cw + px) * 4;
-                  if (!lonlat || isNaN(lonlat[0]) || isNaN(lonlat[1])) { outImg.data[idx+3] = 0; continue; }
-                  let [lon, lat] = lonlat;
-                  let tx = Math.max(0, Math.min(texW - 1, Math.floor((lon + 180) / 360 * texW)));
-                  let ty = Math.max(0, Math.min(texH - 1, Math.floor((90 - lat) / 180 * texH)));
-                  const raw = texData[(ty * texW + tx) * 4];
-                  let norm = (raw - minB) / (maxB - minB);
-                  let t;
-                  if (norm < FLOOR) {
-                    t = (norm / FLOOR) * FLOOR_TEXTURE;
-                  } else {
-                    const upperT = (norm - FLOOR) / (1 - FLOOR);
-                    t = FLOOR_TEXTURE + Math.pow(upperT, 0.5) * (1 - FLOOR_TEXTURE);
-                  }
-                  const [r,g,b] = multiLerp(t);
-                  outImg.data[idx] = r; outImg.data[idx+1] = g; outImg.data[idx+2] = b; outImg.data[idx+3] = 255;
-                }
-              }
-              octx.putImageData(outImg, 0, 0);
-              const dataUrl = outCanvas.toDataURL();
-
-              const pattern = defs.append('pattern').attr('id', 'ra-elev-pattern')
-                .attr('patternUnits', 'userSpaceOnUse')
-                .attr('width', w).attr('height', h).attr('x', 0).attr('y', 0);
-              pattern.append('image').attr('href', dataUrl).attr('width', w).attr('height', h);
-              fillRef = 'url(#ra-elev-pattern)';
-            } catch (e) {
-              // Sampling failed for any reason (e.g. browser canvas
-              // restriction) -- fillRef stays the plain fallback gradient.
-            }
-          }
-
-          const DARK = '#1a1714';
-          const HOVER_FILL = '#61361d';
-
-          const tip = document.getElementById('ra-map-tip');
-
-          // Explode MultiPolygon features into individual polygons so each
-          // gets coloured by its own centroid (fixes France/French Guiana etc.)
-          const exploded = [];
-          land.features.forEach(f => {
-            if (f.geometry.type === 'MultiPolygon') {
-              f.geometry.coordinates.forEach(coords => {
-                exploded.push({
-                  ...f,
-                  geometry: { type: 'Polygon', coordinates: coords }
-                });
-              });
-            } else {
-              exploded.push(f);
-            }
-          });
-
-          const regionOf = (d) => {
-            const centroid = path.centroid(d);
-            const projected = projection.invert ? projection.invert(centroid) : null;
-            if (projected) {
-              const [lon, lat] = projected;
-              if (lon > -82 && lon < -33 && lat > -60 && lat < 7) return 'south_america';
-              if (lon > -80 && lon < -60 && lat >= 7 && lat < 12) return 'south_america';
-            }
-            return COUNTRY_REGION[+d.id] || getRegionByCoords(d, path, projection);
-          };
-
-          svg.selectAll('.country')
-            .data(exploded)
-            .enter().append('path')
-            .attr('d', path)
-            .attr('fill', d => { const rid = regionOf(d); return rid ? fillRef : DARK; })
-            .attr('stroke', '#4a4237')
-            .attr('stroke-width', 0.5)
-            .style('cursor', 'pointer')
-            .style('transition', 'fill .2s ease, stroke-width .15s ease')
-            .on('mouseover', function(event, d) {
-              const rid = regionOf(d);
-              if (!rid) return;
-              d3.select(this).attr('fill', HOVER_FILL).attr('stroke-width', 1.6);
-              if (tip) { tip.textContent = REGIONS[rid].label; tip.style.display = 'block'; }
-            })
-            .on('mousemove', function(event) {
-              if (tip) { tip.style.left = (event.clientX + 14) + 'px'; tip.style.top = (event.clientY - 36) + 'px'; }
-            })
-            .on('mouseout', function(event, d) {
-              const rid = regionOf(d);
-              d3.select(this).attr('fill', rid ? fillRef : DARK).attr('stroke-width', 0.5);
-              if (tip) tip.style.display = 'none';
-            })
-            .on('click', function(event, d) {
-              const rid = regionOf(d);
-              if (!rid) return;
-              if (tip) tip.style.display = 'none';
-              onSelectRegion(rid);
-            });
-
-          svg.append('path')
-            .datum(topojson.mesh(world, world.objects.countries, (a,b) => a !== b && +a.id !== ANTARCTICA && +b.id !== ANTARCTICA))
-            .attr('fill', 'none').attr('stroke', '#4a4237').attr('stroke-width', 0.4).attr('d', path);
-        })
-        .catch(() => {});
+    const container = document.getElementById('ra-world-map');
+    if (!container) return;
+    // The map is drawn ahead of time (public/map/world-map.svg), so the browser
+    // only has to show it -- no map libraries and no drawing work on each visit.
+    const LABELS = {
+      europe:'🏰 Europe', north_america:'🌎 North America', south_america:'🌿 South America',
+      africa:'🌍 Africa', middle_east:'🕌 Middle East', asia:'🏯 Asia', oceania:'🦘 Oceania'
     };
+    const HOVER_FILL = '#61361d';
+    const tip = document.getElementById('ra-map-tip');
+    let cur = null, cancelled = false;
+    const restore = (p) => { p.setAttribute('fill', 'url(#ra-elev-pattern)'); p.removeAttribute('stroke-width'); };
+    const pathOf = (e) => (e.target && e.target.closest ? e.target.closest('path[data-r]') : null);
+    const onOver = (e) => {
+      const p = pathOf(e);
+      if (!p || p === cur) return;
+      if (cur) restore(cur);
+      cur = p;
+      p.setAttribute('fill', HOVER_FILL); p.setAttribute('stroke-width', '1.6');
+      if (tip) { tip.textContent = LABELS[p.dataset.r] || ''; tip.style.display = 'block'; }
+    };
+    const onMove = (e) => {
+      if (tip) { tip.style.left = (e.clientX + 14) + 'px'; tip.style.top = (e.clientY - 36) + 'px'; }
+    };
+    const onOut = (e) => {
+      if (cur && e.relatedTarget !== cur) { restore(cur); cur = null; if (tip) tip.style.display = 'none'; }
+    };
+    const onClick = (e) => {
+      const p = pathOf(e);
+      if (!p) return;
+      if (tip) tip.style.display = 'none';
+      onSelectRegion(p.dataset.r);
+    };
+    container.addEventListener('mouseover', onOver);
+    container.addEventListener('mousemove', onMove);
+    container.addEventListener('mouseout', onOut);
+    container.addEventListener('click', onClick);
 
-    // Everything the map needs is requested at the same moment (not one after another),
-    // so it appears as soon as the slowest single file arrives.
-    const loadScripts = (cb) => {
-      if (window.d3 && window.topojson) { cb(); return; }
-      const add = (srcs, ready) => new Promise((resolve) => {
-        if (ready()) { resolve(); return; }
-        const tryNext = (i) => {
-          if (i >= srcs.length) { resolve(); return; }
-          const el = document.createElement('script');
-          el.src = srcs[i]; el.async = true; el.onload = resolve; el.onerror = () => { el.remove(); tryNext(i + 1); };
-          document.head.appendChild(el);
-        };
-        tryNext(0);
-      });
-      Promise.all([
-        add(['/map/d3.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js'], () => window.d3),
-        add(['/map/topojson.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js'], () => window.topojson)
-      ]).then(cb);
-    };
-
-    // Small delay on first render so mobile layout has settled
-    let resizeTimer;
-    const handleResize = () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(loadMap, 100);
-    };
-
-    // Start the map only after the page has loaded and the browser is idle,
-    // so the heavy drawing never competes with first paint / interactivity.
-    let cancelled = false, startTimer;
-    const startMap = () => {
-      if (cancelled) return;
-      getMapWorld().catch(() => {});
-      getMapTopo();
-      loadScripts(() => {
-        if (cancelled) return;
-        // Files are downloaded by now; only the drawing waits for a quiet moment.
-        const draw = () => { if (!cancelled) loadMap(); };
-        if (window.requestIdleCallback) window.requestIdleCallback(draw, { timeout: 700 });
-        else setTimeout(draw, 100);
-        window.addEventListener('resize', handleResize);
-      });
-    };
-    const whenIdle = () => {
-      startTimer = setTimeout(startMap, 150);
-    };
-    if (document.readyState === 'complete') whenIdle();
-    else window.addEventListener('load', whenIdle, { once: true });
+    fetch('/map/world-map.svg')
+      .then(r => { if (!r.ok) throw new Error('map ' + r.status); return r.text(); })
+      .then(svg => { if (!cancelled) container.innerHTML = svg; })
+      .catch(() => {});
 
     return () => {
       cancelled = true;
-      clearTimeout(startTimer);
-      window.removeEventListener('load', whenIdle);
-      window.removeEventListener('resize', handleResize);
-      clearTimeout(resizeTimer);
+      container.removeEventListener('mouseover', onOver);
+      container.removeEventListener('mousemove', onMove);
+      container.removeEventListener('mouseout', onOut);
+      container.removeEventListener('click', onClick);
     };
   }, []);
 
@@ -3485,33 +3190,6 @@ function imgFallback(e) {
 function imgProps(url, w) {
   const src = sizedImage(url, w);
   return src === url ? { src } : { src, 'data-orig': url, onError: imgFallback };
-}
-
-// ── WORLD MAP FILES (loaded once, in parallel with the map scripts) ──────
-let mapWorldPromise = null, mapTopoPromise = null;
-// The map files are served from this site (/map/...). If one is ever missing, the public copy is used instead.
-function getMapWorld() {
-  if (!mapWorldPromise) {
-    const get = (url) => fetch(url).then(r => { if (!r.ok) throw new Error('map data ' + r.status); return r.json(); });
-    mapWorldPromise = get('/map/countries-110m.json')
-      .catch(() => get('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json'))
-      .catch(err => { mapWorldPromise = null; throw err; });
-  }
-  return mapWorldPromise;
-}
-function getMapTopo() {
-  if (!mapTopoPromise) {
-    const load = (url) => new Promise((resolve) => {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => resolve(img);
-      img.onerror = () => resolve(null);
-      img.src = url;
-    });
-    mapTopoPromise = load('/map/earth-topology.png')
-      .then(img => img || load('https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-topology.png'));
-  }
-  return mapTopoPromise;
 }
 
 // ── SEO TITLE & META DESCRIPTION HELPERS ──────────────────────────────────
