@@ -3185,15 +3185,15 @@ function RegionMap({ onSelectRegion }) {
       getMapTopo();
       loadScripts(() => {
         if (cancelled) return;
-        setTimeout(loadMap, 100);
+        // Files are downloaded by now; only the drawing waits for a quiet moment.
+        const draw = () => { if (!cancelled) loadMap(); };
+        if (window.requestIdleCallback) window.requestIdleCallback(draw, { timeout: 700 });
+        else setTimeout(draw, 100);
         window.addEventListener('resize', handleResize);
       });
     };
     const whenIdle = () => {
-      startTimer = setTimeout(() => {
-        if (window.requestIdleCallback) window.requestIdleCallback(startMap, { timeout: 3000 });
-        else startMap();
-      }, 1200);
+      startTimer = setTimeout(startMap, 150);
     };
     if (document.readyState === 'complete') whenIdle();
     else window.addEventListener('load', whenIdle, { once: true });
