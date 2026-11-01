@@ -5224,6 +5224,10 @@ function App() {
     } else if (existingImageTag) {
       existingImageTag.remove();
     }
+    // Twitter / X card (falls back to the og: tags above for title, description and image)
+    let twCard = document.querySelector('meta[name="twitter:card"]');
+    if (!twCard) { twCard = document.createElement('meta'); twCard.setAttribute('name', 'twitter:card'); document.head.appendChild(twCard); }
+    twCard.content = imageUrl ? 'summary_large_image' : 'summary';
 
     // ── RECIPE JSON-LD STRUCTURED DATA ──────────────────────────────────
     let jsonLd = document.querySelector('script[data-schema="recipe"]');
@@ -5293,6 +5297,23 @@ function App() {
       if (region) breadcrumbs.push({ name: region.name + ' Recipes', url: 'https://recipeatlas.co.uk/' + region.id });
       breadcrumbs.push({ name: country + ' Recipes', url: 'https://recipeatlas.co.uk/' + (region?.id || '') + '/' + country.toLowerCase().replace(/\s+/g, '-') });
       breadcrumbs.push({ name: selectedDish, url: 'https://recipeatlas.co.uk' + window.location.pathname });
+    } else if (view === 'blog') {
+      const bSlug = parts[1] || null;
+      const bPost = bSlug ? BLOG_POSTS.find(p => p.slug === bSlug) : null;
+      breadcrumbs.push({ name: 'Blog', url: 'https://recipeatlas.co.uk/blog' });
+      if (bPost) breadcrumbs.push({ name: bPost.title, url: 'https://recipeatlas.co.uk/blog/' + bPost.slug });
+    } else if (view === 'event' && selectedEventSlug && EVENTS_DB[selectedEventSlug]) {
+      breadcrumbs.push({ name: 'Food Events', url: 'https://recipeatlas.co.uk/events' });
+      breadcrumbs.push({ name: EVENTS_DB[selectedEventSlug].name, url: 'https://recipeatlas.co.uk' + window.location.pathname });
+    } else if (view === 'events') {
+      breadcrumbs.push({ name: 'Food Events', url: 'https://recipeatlas.co.uk/events' });
+    } else if (['meals', 'sauces-and-sides', 'pantry-to-plate', 'about', 'contact'].includes(view)) {
+      const leaf = { 'meals': 'Meals', 'sauces-and-sides': 'Sauces & Sides', 'pantry-to-plate': 'Pantry to Plate', 'about': 'About', 'contact': 'Contact' }[view];
+      breadcrumbs.push({ name: leaf, url: 'https://recipeatlas.co.uk' + window.location.pathname.replace(/\/$/, '') });
+    } else if (view === 'meal' && selectedMeal) {
+      const mm2 = MEALS.find(x => x.id === selectedMeal);
+      breadcrumbs.push({ name: 'Meals', url: 'https://recipeatlas.co.uk/meals' });
+      if (mm2) breadcrumbs.push({ name: mm2.label + ' Recipes', url: 'https://recipeatlas.co.uk' + window.location.pathname.replace(/\/$/, '') });
     }
     if (breadcrumbs.length > 1) {
       const breadcrumbSchema = {
