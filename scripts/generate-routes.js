@@ -109,7 +109,7 @@ function main() {
   }
 
   // Static info pages
-  for (const p of ['about', 'contact', 'privacy', 'terms', 'pantry-to-plate', 'sauces-and-sides', 'meals', 'meals/breakfast', 'meals/lunch', 'meals/dinner', 'meals/dessert']) {
+  for (const p of ['about', 'contact', 'privacy', 'terms', 'pantry-to-plate', 'sauces-and-sides', 'meals', 'saved', 'meals/breakfast', 'meals/lunch', 'meals/dinner', 'meals/dessert']) {
     routes.add(`/${p}`);
   }
 

@@ -3486,6 +3486,78 @@ function CommentSection({ dish }) {
   );
 }
 
+// ── SAVED RECIPES (stored in the visitor's own browser, no login needed) ──
+const SAVED_KEY = 'ra-saved-recipes';
+function readSaved() {
+  try {
+    const v = JSON.parse(localStorage.getItem(SAVED_KEY) || '[]');
+    return Array.isArray(v) ? v.filter(k => typeof k === 'string') : [];
+  } catch (e) { return []; }
+}
+function useSavedRecipes() {
+  const [saved, setSaved] = useState([]);
+  useEffect(() => {
+    const sync = () => setSaved(readSaved());
+    sync();
+    window.addEventListener('ra-saved-change', sync);
+    window.addEventListener('storage', sync);
+    return () => { window.removeEventListener('ra-saved-change', sync); window.removeEventListener('storage', sync); };
+  }, []);
+  const toggle = (key) => {
+    const cur = readSaved();
+    const next = cur.includes(key) ? cur.filter(k => k !== key) : [key, ...cur];
+    try { localStorage.setItem(SAVED_KEY, JSON.stringify(next)); } catch (e) {}
+    setSaved(next);
+    try { window.dispatchEvent(new Event('ra-saved-change')); } catch (e) {}
+  };
+  return { saved, toggle };
+}
+
+function SaveHeart({ dish, name }) {
+  const { saved, toggle } = useSavedRecipes();
+  const isSaved = saved.includes(dish);
+  return (
+    <button type="button" onClick={() => toggle(dish)} aria-pressed={isSaved}
+      aria-label={isSaved ? `Remove ${name || dish} from saved recipes` : `Save ${name || dish} to your saved recipes`}
+      title={isSaved ? "Saved. Tap to remove" : "Save this recipe"}
+      style={{ background:"none", border:"none", padding:6, margin:"-6px -6px 0 0", cursor:"pointer", display:"inline-flex", alignItems:"center", justifyContent:"center", minWidth:44, minHeight:44, flexShrink:0 }}>
+      <svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill={isSaved ? "#c2622a" : "none"} stroke="#c2622a" strokeWidth="1.4" strokeLinejoin="round" style={{ transition:"fill .15s" }}>
+        <path d="M12 20.5s-7.5-4.6-9.4-9.3C1.4 8 3.1 4.8 6.3 4.5c2-.2 3.8.8 5.7 3 1.9-2.2 3.7-3.2 5.7-3 3.2.3 4.9 3.5 3.7 6.7-1.9 4.7-9.4 9.3-9.4 9.3z" />
+      </svg>
+    </button>
+  );
+}
+
+function SavedPage() {
+  const { saved } = useSavedRecipes();
+  const items = saved.filter(k => RECIPE_DB[k]);
+  return (
+    <div style={{ maxWidth:1070, margin:"0 auto", padding:"56px 24px 60px" }}>
+      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(30px,4vw,48px)", fontWeight:700, color:"#1a1714", margin:"0 0 8px" }}>Saved Recipes</h1>
+      <p style={{ fontSize:15, color:"#6a6058", lineHeight:1.8, maxWidth:760, margin:"0 0 24px" }}>
+        Recipes you save with the heart are kept in this browser on this device. They are not uploaded anywhere, and clearing your browser data will remove them.
+      </p>
+      {items.length === 0 ? (
+        <p style={{ fontSize:15, color:"#6a6058", lineHeight:1.8 }}>
+          Nothing saved yet. Tap the heart next to the ingredients on any recipe to keep it here, or <AppLink to="/meals" style={{ color:"#c2622a", fontWeight:700 }}>browse recipes by meal</AppLink>.
+        </p>
+      ) : (
+        <div className="dish-tile-grid">
+          {items.map(k => {
+            const r = RECIPE_DB[k];
+            return (
+              <AppLink key={k} className="dish-tile" to={recipePath(k)}>
+                <div className="dish-tile-img"><img {...imgProps(r.image, 500)} alt={`${r.country} ${r.name} recipe`} loading="lazy" decoding="async" /></div>
+                <div className="dish-tile-name"><span>{r.name}</span></div>
+              </AppLink>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -3598,7 +3670,10 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
               </div>
             </div>
             <div style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:14, padding:24, marginBottom:12, boxShadow:"0 1px 4px rgba(0,0,0,.04)" }}>
-              <h3 style={{ fontFamily:"Fraunces", fontSize:19, color:"#1a1714", margin:0, marginBottom:16 }}>Ingredients</h3>
+              <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:12, marginBottom:16 }}>
+                <h3 style={{ fontFamily:"Fraunces", fontSize:19, color:"#1a1714", margin:0 }}>Ingredients</h3>
+                <SaveHeart dish={dish} name={recipe.name} />
+              </div>
               <div className="ing-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0 20px" }}>
                 {scaledIngredients.map((ing,i)=>(
                   <div key={i} style={{ display:"flex", gap:10, paddingBottom:9, borderBottom:"1px solid #f5f0e8", marginBottom:1, alignItems:"baseline" }}>
@@ -4949,6 +5024,8 @@ function NotFoundPage({ navigate }) {
 function App() {
   const [path, setPath] = useState(() => window.location.pathname);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { saved: savedList } = useSavedRecipes();
+  const savedCount = savedList.filter(k => RECIPE_DB[k]).length;
   const mobileMenuRef = useRef(null);
   const mobileMenuBtnRef = useRef(null);
   const [currentRating, setCurrentRating] = useState(null);
@@ -5016,7 +5093,7 @@ function App() {
   // Derive view from hierarchical URL: /europe, /europe/italy, /europe/italy/tiramisu
   const safePath = typeof path === 'string' ? path : '/';
   const parts = safePath.split('/').filter(Boolean);
-  const infoPages = ['blog','about','contact','privacy','terms','pantry-to-plate','sauces-and-sides','meals'];
+  const infoPages = ['blog','about','contact','privacy','terms','pantry-to-plate','sauces-and-sides','meals','saved'];
   let selectedMeal = null;
 
   let view = 'regions';
@@ -5147,6 +5224,9 @@ function App() {
       const ssCount = Object.keys(RECIPE_DB).filter(k => RECIPE_DB[k].category).length;
       title = 'Sauces, Dips & Side Dishes Around the World | Recipe Atlas';
       description = `Browse ${ssCount} sauces, dips, pickles, breads, salads and side dishes from around the world, from béarnaise to kimchi, and find what to serve with every main dish.`;
+    } else if (view === 'saved') {
+      title = 'Saved Recipes | Recipe Atlas';
+      description = 'Your saved recipes, kept in this browser so you can find them again.';
     } else if (view === 'notfound') {
       title = 'Page Not Found | Recipe Atlas';
       description = 'Sorry, we could not find that page. Search our recipes or browse the world map to find something delicious.';
@@ -5172,7 +5252,7 @@ function App() {
 
     // Not-found pages must never be indexed; every other page removes the tag again.
     let robotsTag = document.querySelector('meta[name="robots"][data-ra="notfound"]');
-    if (view === 'notfound') {
+    if (view === 'notfound' || view === 'saved') {
       if (!robotsTag) {
         robotsTag = document.createElement('meta');
         robotsTag.name = 'robots';
@@ -5422,6 +5502,21 @@ function App() {
     </AppLink>
   );
 
+  const savedPill = savedCount > 0 ? (
+    <AppLink to="/saved" className="nav-pill"
+      style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:13.5, fontWeight:700, fontFamily:"Fraunces",
+        color: view==="saved" ? "#c2622a" : "#1a1714", padding:0 }}>
+      <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="#c2622a" stroke="#c2622a" strokeWidth="1.4" strokeLinejoin="round" style={{ marginRight:6 }}><path d="M12 20.5s-7.5-4.6-9.4-9.3C1.4 8 3.1 4.8 6.3 4.5c2-.2 3.8.8 5.7 3 1.9-2.2 3.7-3.2 5.7-3 3.2.3 4.9 3.5 3.7 6.7-1.9 4.7-9.4 9.3-9.4 9.3z" /></svg>Saved ({savedCount})
+    </AppLink>
+  ) : null;
+  const savedPillMobile = savedCount > 0 ? (
+    <AppLink to="/saved" className="nav-pill"
+      style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
+        color: view==="saved" ? "#c2622a" : "#1a1714", padding:"6px 0" }}>
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="#c2622a" stroke="#c2622a" strokeWidth="1.4" strokeLinejoin="round" style={{ marginRight:7 }}><path d="M12 20.5s-7.5-4.6-9.4-9.3C1.4 8 3.1 4.8 6.3 4.5c2-.2 3.8.8 5.7 3 1.9-2.2 3.7-3.2 5.7-3 3.2.3 4.9 3.5 3.7 6.7-1.9 4.7-9.4 9.3-9.4 9.3z" /></svg>Saved ({savedCount})
+    </AppLink>
+  ) : null;
+
   const blogPillMobile = (
     <AppLink to="/blog" className="nav-pill"
       style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
@@ -5523,6 +5618,7 @@ function App() {
             {pantryPill}
             {eventsPill}
             {blogPill}
+            {savedPill}
             <SearchBox navigate={navigate} />
             {(view === "region" || view === "country" || view === "recipe") && breadcrumbContent}
           </nav>
@@ -5550,6 +5646,7 @@ function App() {
             {pantryPillMobile}
             {eventsPillMobile}
             {blogPillMobile}
+            {savedPillMobile}
           </div>
         )}
 
@@ -5574,6 +5671,7 @@ function App() {
         {/* Sauces & Sides hub */}
         {view === "sauces-and-sides" && <SaucesSidesPage />}
         {view === "meals" && <MealsHubPage />}
+        {view === "saved" && <SavedPage />}
         {view === "meal" && selectedMeal && <MealPage mealId={selectedMeal} />}
 
         {/* Not found */}
