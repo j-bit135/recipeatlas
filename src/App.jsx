@@ -3517,10 +3517,10 @@ function SaveHeart({ dish, name }) {
   const { saved, toggle } = useSavedRecipes();
   const isSaved = saved.includes(dish);
   return (
-    <button type="button" onClick={() => toggle(dish)} aria-pressed={isSaved}
+    <button type="button" className="no-print" onClick={() => toggle(dish)} aria-pressed={isSaved}
       aria-label={isSaved ? `Remove ${name || dish} from saved recipes` : `Save ${name || dish} to your saved recipes`}
       title={isSaved ? "Saved. Tap to remove" : "Save this recipe"}
-      style={{ background:"none", border:"none", padding:6, margin:"-6px -6px 0 0", cursor:"pointer", display:"inline-flex", alignItems:"center", justifyContent:"center", minWidth:44, minHeight:44, flexShrink:0 }}>
+      style={{ background:"none", border:"none", padding:6, margin:"-2px -6px 0 0", cursor:"pointer", display:"inline-flex", alignItems:"center", justifyContent:"center", minWidth:44, minHeight:44, flexShrink:0 }}>
       <svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill={isSaved ? "#c2622a" : "none"} stroke="#c2622a" strokeWidth="1.4" strokeLinejoin="round" style={{ transition:"fill .15s" }}>
         <path d="M12 20.5s-7.5-4.6-9.4-9.3C1.4 8 3.1 4.8 6.3 4.5c2-.2 3.8.8 5.7 3 1.9-2.2 3.7-3.2 5.7-3 3.2.3 4.9 3.5 3.7 6.7-1.9 4.7-9.4 9.3-9.4 9.3z" />
       </svg>
@@ -3610,7 +3610,10 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
           <div>
           <div className="recipe-print">
             <div style={{ marginBottom:28 }}>
-              <h1 style={{ fontFamily:"Fraunces", fontSize:32, fontWeight:700, color:"#1a1714", marginBottom:16, lineHeight:1.2 }}>{recipe.name}</h1>
+              <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:12, marginBottom:16 }}>
+                <h1 style={{ fontFamily:"Fraunces", fontSize:32, fontWeight:700, color:"#1a1714", margin:0, lineHeight:1.2 }}>{recipe.name}</h1>
+                <SaveHeart dish={dish} name={recipe.name} />
+              </div>
               {country && <div style={{ display:"inline-block", background:"#fdf3ed", borderRadius:100, padding:"4px 12px", fontSize:11, color:"#c2622a", fontWeight:600, letterSpacing:".06em", textTransform:"uppercase", marginBottom:16 }}>
                 {country}
               </div>}
@@ -3670,10 +3673,7 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
               </div>
             </div>
             <div style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:14, padding:24, marginBottom:12, boxShadow:"0 1px 4px rgba(0,0,0,.04)" }}>
-              <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:12, marginBottom:16 }}>
-                <h3 style={{ fontFamily:"Fraunces", fontSize:19, color:"#1a1714", margin:0 }}>Ingredients</h3>
-                <SaveHeart dish={dish} name={recipe.name} />
-              </div>
+              <h3 style={{ fontFamily:"Fraunces", fontSize:19, color:"#1a1714", margin:0, marginBottom:16 }}>Ingredients</h3>
               <div className="ing-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0 20px" }}>
                 {scaledIngredients.map((ing,i)=>(
                   <div key={i} style={{ display:"flex", gap:10, paddingBottom:9, borderBottom:"1px solid #f5f0e8", marginBottom:1, alignItems:"baseline" }}>
