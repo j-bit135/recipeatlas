@@ -2227,23 +2227,24 @@ const styles = `
 
 
   #main { overflow-x: clip; }
-  .nk-hero { display:flex; align-items:center; gap:56px; padding:48px 0 56px; flex-wrap:wrap; position:relative; }
+  .nk-hero { display:flex; align-items:flex-start; gap:56px; padding:48px 0 56px; flex-wrap:wrap; position:relative; }
   .nk-hero::before { content:""; position:absolute; inset:-120px -200px auto -200px; height:640px; background:radial-gradient(ellipse at 70% 40%, rgba(224,122,63,.16), transparent 62%); pointer-events:none; z-index:-1; }
-  .nk-hero-text { flex:1 1 440px; min-width:0; }
+  .nk-hero-text { flex:1 1 440px; min-width:0; padding-top:8px; }
   .nk-eyebrow { display:inline-flex; align-items:center; gap:10px; color:#f2a36b; font-weight:700; font-size:12px; letter-spacing:.16em; text-transform:uppercase; }
   .nk-eyebrow-line { width:28px; height:2px; background:#e07a3f; display:block; }
   .nk-h1 { font-family:Fraunces,serif; font-weight:700; font-size:clamp(40px,5.6vw,72px); line-height:1.04; letter-spacing:-.02em; margin:20px 0 0; color:#f6efe8; }
   .nk-h1-em { font-style:italic; font-weight:500; color:#f2a36b; }
   .nk-lede { font-size:18px; line-height:1.65; color:#c9bcaf; max-width:460px; margin:22px 0 0; }
-  .nk-search { display:flex; align-items:center; gap:12px; max-width:480px; margin:32px 0 0; background:#201a16; border:1px solid #3a2f28; border-radius:16px; padding:8px 8px 8px 20px; }
+  .nk-search { display:flex; align-items:center; gap:12px; max-width:none; margin:24px 0 0; background:#201a16; border:1px solid #3a2f28; border-radius:16px; padding:8px 8px 8px 20px; }
   .nk-search input { flex:1; min-width:0; background:none; border:none; outline:none; color:#f6efe8; font:inherit; font-size:15px; }
   .nk-search input::placeholder { color:#b9ada2; }
   .nk-search:focus-within { border-color:#e07a3f; }
   .nk-search button { background:#e07a3f; color:#14110f; font-weight:700; font-size:14px; padding:12px 20px; border-radius:12px; border:none; cursor:pointer; font-family:inherit; }
-  .nk-stats { display:flex; gap:40px; margin-top:40px; }
+  .nk-stats { display:flex; gap:40px; margin-top:28px; }
   .nk-stat-n { font-family:Fraunces,serif; font-size:36px; font-weight:700; color:#f2a36b; }
   .nk-stat-l { font-size:13px; color:#b9ada2; font-weight:600; }
-  .nk-mapcard { position:relative; flex:1.15 1 520px; min-width:0; background:#201a16; border:1px solid #3a2f28; border-radius:28px; padding:14px; box-shadow:0 0 0 1px rgba(224,122,63,.12), 0 30px 80px rgba(224,122,63,.22); }
+  .nk-hero-right { flex:1.15 1 520px; min-width:0; }
+  .nk-mapcard { position:relative; min-width:0; background:#201a16; border:1px solid #3a2f28; border-radius:28px; padding:14px; box-shadow:0 0 0 1px rgba(224,122,63,.12), 0 30px 80px rgba(224,122,63,.22); }
   .nk-mapinner { position:relative; border-radius:18px; overflow:hidden; aspect-ratio:1/0.52; background:#f6efe6; }
   .nk-pin { position:absolute; transform:translate(-50%,-50%); display:flex; align-items:center; gap:7px; background:#14110f; color:#f6efe8 !important; font-size:12px; font-weight:700; padding:7px 12px 7px 9px; border-radius:99px; box-shadow:0 6px 18px rgba(0,0,0,.35); text-decoration:none; white-space:nowrap; z-index:2; }
   .nk-pin i { width:9px; height:9px; border-radius:99px; background:#e07a3f; display:block; }
@@ -2255,7 +2256,8 @@ const styles = `
     .nk-search { margin-top:22px; }
     .nk-stats { margin-top:26px; gap:32px; }
     .nk-stat-n { font-size:30px; }
-    .nk-mapcard { flex-basis:100%; border-radius:22px; padding:8px; }
+    .nk-hero-right { flex-basis:100%; }
+    .nk-mapcard { border-radius:22px; padding:8px; }
     .nk-mapinner { border-radius:15px; }
     .nk-pin { font-size:9px; padding:4px 7px 4px 6px; gap:4px; }
     .nk-pin i { width:6px; height:6px; }
@@ -2271,8 +2273,10 @@ const styles = `
   .nk-rphoto-wrap { flex:0 0 min(44%,440px); width:min(44%,440px); margin-left:auto; }
   .nk-rphoto { width:100%; aspect-ratio:1/1; border-radius:28px; overflow:hidden; background:#241d18; border:1px solid #3a2f28; box-shadow:0 0 0 1px rgba(224,122,63,.12), 0 30px 80px rgba(224,122,63,.2); }
   @media (max-width: 760px) {
-    .nk-rhead { flex-direction:column; gap:20px; align-items:stretch; }
-    .nk-rphoto-wrap { order:-1; flex:none; width:100%; margin:0; }
+    .nk-rhead { flex-direction:column; gap:0; align-items:stretch; }
+    .nk-rhead-text { display:contents; }
+    .nk-rphoto-wrap { order:1; flex:none; width:100%; margin:4px 0 20px; }
+    .nk-after { order:2; }
     .nk-rphoto { border-radius:22px; }
     .nk-rstory { font-size:17px; }
   }
@@ -3000,16 +3004,8 @@ function RegionMap({ onSelectRegion, navigate }) {
           <div className="nk-eyebrow"><span className="nk-eyebrow-line" />World Cuisine Explorer</div>
           <h1 className="nk-h1">What would you like to <span className="nk-h1-em">cook?</span></h1>
           <p className="nk-lede">Choose a region to explore its most beloved dishes and get the full recipe.</p>
-          <form className="nk-search" role="search" onSubmit={e => { e.preventDefault(); const q = heroQuery.trim(); if (q) navigate(`/search/${encodeURIComponent(q)}`); }}>
-            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b9ada2" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-            <input type="search" aria-label="Search recipes, countries or ingredients" placeholder="Search a dish, country or ingredient" value={heroQuery} onChange={e => setHeroQuery(e.target.value)} />
-            <button type="submit">Search</button>
-          </form>
-          <div className="nk-stats">
-            <div><div className="nk-stat-n">{totalCountries}</div><div className="nk-stat-l">countries</div></div>
-            <div><div className="nk-stat-n">{REGIONS.length}</div><div className="nk-stat-l">regions</div></div>
-          </div>
         </div>
+        <div className="nk-hero-right">
         <section className="nk-mapcard" aria-label="World map">
           <div id="ra-world-map" className="ra-home-map nk-mapinner">
             <img src="/map/world-map.webp" width="1000" height="520" alt="World map: choose a region to explore its dishes" fetchPriority="high" decoding="async" style={{ display:"block", width:"100%", height:"100%" }} />
@@ -3019,6 +3015,16 @@ function RegionMap({ onSelectRegion, navigate }) {
             ))}
           </div>
         </section>
+        <div className="nk-stats">
+          <div><div className="nk-stat-n">{totalCountries}</div><div className="nk-stat-l">countries</div></div>
+          <div><div className="nk-stat-n">{REGIONS.length}</div><div className="nk-stat-l">regions</div></div>
+        </div>
+          <form className="nk-search" role="search" onSubmit={e => { e.preventDefault(); const q = heroQuery.trim(); if (q) navigate(`/search/${encodeURIComponent(q)}`); }}>
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b9ada2" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          <input type="search" aria-label="Search recipes, countries or ingredients" placeholder="Search a dish, country or ingredient" value={heroQuery} onChange={e => setHeroQuery(e.target.value)} />
+          <button type="submit">Search</button>
+        </form>
+        </div>
       </header>
       <div id="ra-map-tip" style={{ position:"fixed", background:"rgba(26,23,20,.9)", color:"#fff", padding:"6px 14px", borderRadius:8, fontSize:13, fontWeight:600, pointerEvents:"none", display:"none", zIndex:999, whiteSpace:"nowrap" }}></div>
 
@@ -3685,7 +3691,7 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
               </div>}
               {recipe.story && <p className="nk-rstory">{recipe.story}</p>}
               <p className="nk-rdesc">{recipe.description}</p>
-              <div className="stat-row" style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
+              <div className="stat-row nk-after" style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
                 {[{l:"Prep",v:recipe.prepTime},{l:"Cook",v:recipe.cookTime},{l:"Difficulty",v:recipe.difficulty},{l:"Calories",v:recipe.calories ? `${recipe.calories} kcal` : null}].filter(s=>s.v).map(({l,v})=>(
                   <div key={l} style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:10, padding:"8px 16px", textAlign:"center", minWidth:80, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
                     <div style={{ fontSize:10, color:"#9d9185", letterSpacing:".07em", textTransform:"uppercase", marginBottom:3, fontWeight:600 }}>{l}</div>
@@ -3710,16 +3716,16 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
                 )}
               </div>
               {recipe.serves != null && scaleServings != null && scaleServings !== recipe.serves && (
-                <div style={{ fontSize:11, color:"#9d9185", marginTop:6, fontStyle:"italic" }}>
+                <div className="nk-after" style={{ fontSize:11, color:"#9d9185", marginTop:6, fontStyle:"italic" }}>
                   Ingredient amounts below are scaled for {scaleServings} {scaleServings === 1 ? "serving" : "servings"} (original recipe serves {recipe.serves})
                 </div>
               )}
               {recipe.calories && (
-                <div style={{ fontSize:11, color:"#9d9185", marginTop:6, fontStyle:"italic" }}>
+                <div className="nk-after" style={{ fontSize:11, color:"#9d9185", marginTop:6, fontStyle:"italic" }}>
                   Calories are an estimate based on ingredients used
                 </div>
               )}
-              <div style={{ marginTop:18 }}>
+              <div className="nk-after" style={{ marginTop:18 }}>
                 <StarRating dish={dish} onRatingLoaded={onRatingChange} />
               </div>
             </div>
