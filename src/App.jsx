@@ -2205,7 +2205,7 @@ const EVENTS_DB = {
 // ── REGIONS ────────────────────────────────────────────────────────────
 const REGIONS = [
   { id:"europe", name:"Europe", emoji:"🏰", color:"#4a6fa5", light:"#f0f4fb", description:"From rustic Italian trattorias to French bistros and Spanish paella", countries:["Italy","France","Spain","Portugal","Germany","Greece","United Kingdom","Poland","Russia","Romania","Hungary","Georgia","Sweden","Netherlands","Belgium","Switzerland","Austria","Czech Republic","Ukraine","Norway","Finland","Denmark","Croatia"] },
-  { id:"north_america", name:"North America", emoji:"🌎", color:"#c2622a", light:"#fdf3ed", description:"Bold flavours from Mexico City street stalls to Texas smokepits", countries:["United States","Mexico","Canada","Jamaica","Cuba","Trinidad and Tobago","Haiti","Costa Rica","El Salvador","Puerto Rico"] },
+  { id:"north_america", name:"North America", emoji:"🌎", color:"#f2a36b", light:"#fdf3ed", description:"Bold flavours from Mexico City street stalls to Texas smokepits", countries:["United States","Mexico","Canada","Jamaica","Cuba","Trinidad and Tobago","Haiti","Costa Rica","El Salvador","Puerto Rico"] },
   { id:"south_america", name:"South America", emoji:"🌿", color:"#2a7a4a", light:"#edf7f1", description:"Vibrant cuisines from the Amazon to Patagonia", countries:["Brazil","Argentina","Peru","Colombia","Ecuador","Venezuela","Chile","Bolivia","Paraguay"] },
   { id:"africa", name:"Africa", emoji:"🌍", color:"#b5820a", light:"#fdf8e8", description:"Spiced, slow-cooked and deeply flavourful traditions", countries:["Morocco","Nigeria","Ethiopia","Egypt","South Africa","Senegal","Ghana","Kenya","Tanzania","Tunisia","Ivory Coast"] },
   { id:"middle_east", name:"Middle East", emoji:"🕌", color:"#8a4a9a", light:"#f8f0fb", description:"Ancient spice routes and legendary hospitality", countries:["Lebanon","Turkey","Iran","Jordan","Syria","Israel","Iraq","Saudi Arabia","Yemen"] },
@@ -2219,21 +2219,78 @@ const ACCENT = "#c2622a";
 const styles = `
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
-  body, #root { background: #fdfcf9; color: #1a1714; font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; }
+  body, #root { background: #14110f; color: #f6efe8; font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; }
   ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: #f5f0e8; }
-  ::-webkit-scrollbar-thumb { background: #d4c9b8; border-radius: 2px; }
+  ::-webkit-scrollbar-track { background: #201a16; }
+  ::-webkit-scrollbar-thumb { background: #4a3d33; border-radius: 2px; }
 
 
-  .nav-pill:hover { color: #c2622a !important; }
-  .social-links a:hover, .footer-link:hover { color: #c2622a !important; }
+
+  #main { overflow-x: clip; }
+  .nk-hero { display:flex; align-items:center; gap:56px; padding:48px 0 56px; flex-wrap:wrap; position:relative; }
+  .nk-hero::before { content:""; position:absolute; inset:-120px -200px auto -200px; height:640px; background:radial-gradient(ellipse at 70% 40%, rgba(224,122,63,.16), transparent 62%); pointer-events:none; z-index:-1; }
+  .nk-hero-text { flex:1 1 440px; min-width:0; }
+  .nk-eyebrow { display:inline-flex; align-items:center; gap:10px; color:#f2a36b; font-weight:700; font-size:12px; letter-spacing:.16em; text-transform:uppercase; }
+  .nk-eyebrow-line { width:28px; height:2px; background:#e07a3f; display:block; }
+  .nk-h1 { font-family:Fraunces,serif; font-weight:700; font-size:clamp(40px,5.6vw,72px); line-height:1.04; letter-spacing:-.02em; margin:20px 0 0; color:#f6efe8; }
+  .nk-h1-em { font-style:italic; font-weight:500; color:#f2a36b; }
+  .nk-lede { font-size:18px; line-height:1.65; color:#c9bcaf; max-width:460px; margin:22px 0 0; }
+  .nk-search { display:flex; align-items:center; gap:12px; max-width:480px; margin:32px 0 0; background:#201a16; border:1px solid #3a2f28; border-radius:16px; padding:8px 8px 8px 20px; }
+  .nk-search input { flex:1; min-width:0; background:none; border:none; outline:none; color:#f6efe8; font:inherit; font-size:15px; }
+  .nk-search input::placeholder { color:#b9ada2; }
+  .nk-search:focus-within { border-color:#e07a3f; }
+  .nk-search button { background:#e07a3f; color:#14110f; font-weight:700; font-size:14px; padding:12px 20px; border-radius:12px; border:none; cursor:pointer; font-family:inherit; }
+  .nk-stats { display:flex; gap:40px; margin-top:40px; }
+  .nk-stat-n { font-family:Fraunces,serif; font-size:36px; font-weight:700; color:#f2a36b; }
+  .nk-stat-l { font-size:13px; color:#b9ada2; font-weight:600; }
+  .nk-mapcard { position:relative; flex:1.15 1 520px; min-width:0; background:#201a16; border:1px solid #3a2f28; border-radius:28px; padding:14px; box-shadow:0 0 0 1px rgba(224,122,63,.12), 0 30px 80px rgba(224,122,63,.22); }
+  .nk-mapinner { position:relative; border-radius:18px; overflow:hidden; aspect-ratio:1/0.52; background:#f6efe6; }
+  .nk-pin { position:absolute; transform:translate(-50%,-50%); display:flex; align-items:center; gap:7px; background:#14110f; color:#f6efe8 !important; font-size:12px; font-weight:700; padding:7px 12px 7px 9px; border-radius:99px; box-shadow:0 6px 18px rgba(0,0,0,.35); text-decoration:none; white-space:nowrap; z-index:2; }
+  .nk-pin i { width:9px; height:9px; border-radius:99px; background:#e07a3f; display:block; }
+  .nk-pin:hover { background:#e07a3f; color:#14110f !important; }
+  .nk-pin:hover i { background:#14110f; }
+  @media (max-width: 760px) {
+    .nk-hero { gap:28px; padding:24px 0 36px; }
+    .nk-lede { font-size:16px; margin-top:16px; }
+    .nk-search { margin-top:22px; }
+    .nk-stats { margin-top:26px; gap:32px; }
+    .nk-stat-n { font-size:30px; }
+    .nk-mapcard { flex-basis:100%; border-radius:22px; padding:8px; }
+    .nk-mapinner { border-radius:15px; }
+    .nk-pin { font-size:9px; padding:4px 7px 4px 6px; gap:4px; }
+    .nk-pin i { width:6px; height:6px; }
+  }
+
+
+  .nk-rhead { display:flex; align-items:center; gap:48px; margin-bottom:32px; }
+  .nk-rhead-text { flex:1 1 0; min-width:0; }
+  .nk-rh1 { font-family:Fraunces,serif; font-weight:700; font-size:clamp(34px,4.6vw,60px); line-height:1.06; letter-spacing:-.02em; color:#f6efe8; margin:0; }
+  .nk-rcountry { display:inline-flex; color:#f2a36b; font-weight:700; font-size:12px; letter-spacing:.16em; text-transform:uppercase; margin-bottom:14px; }
+  .nk-rstory { font-family:Fraunces,serif; font-style:italic; font-size:19px; line-height:1.5; color:#f2a36b; margin:0 0 14px; }
+  .nk-rdesc { font-size:16px; color:#c9bcaf; line-height:1.75; margin:0 0 20px; }
+  .nk-rphoto-wrap { flex:0 0 min(44%,440px); width:min(44%,440px); margin-left:auto; }
+  .nk-rphoto { width:100%; aspect-ratio:1/1; border-radius:28px; overflow:hidden; background:#241d18; border:1px solid #3a2f28; box-shadow:0 0 0 1px rgba(224,122,63,.12), 0 30px 80px rgba(224,122,63,.2); }
+  @media (max-width: 760px) {
+    .nk-rhead { flex-direction:column; gap:20px; align-items:stretch; }
+    .nk-rphoto-wrap { order:-1; flex:none; width:100%; margin:0; }
+    .nk-rphoto { border-radius:22px; }
+    .nk-rstory { font-size:17px; }
+  }
+
+
+  input, textarea, select { background:#14110f; color:#f6efe8; }
+  input::placeholder, textarea::placeholder { color:#8f8478; }
+  .nk-tipblock { background:linear-gradient(135deg,#e07a3f,#c2622a) !important; border:none !important; border-radius:20px !important; }
+
+  .nav-pill:hover { color: #f2a36b !important; }
+  .social-links a:hover, .footer-link:hover { color: #f2a36b !important; }
   .rg-more-m { display: none; }
   @media (max-width: 768px) { .rg-more-m { display: inline !important; } }
   .meal-scroll { scrollbar-width: none; -ms-overflow-style: none; }
   .meal-scroll::-webkit-scrollbar { display: none; height: 0; }
   .meal-card { position: relative; flex: 0 0 232px; height: 318px; border-radius: 22px; padding: 20px 20px 18px; scroll-snap-align: start; display: flex; flex-direction: column; text-decoration: none; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,.10); transition: transform .2s, box-shadow .2s; box-sizing: border-box; }
   .meal-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.16); }
-  .meal-dot { width: 7px; height: 7px; border-radius: 50%; background: #d9d0c4; border: none; padding: 0; transition: all .2s; }
+  .meal-dot { width: 7px; height: 7px; border-radius: 50%; background: #4a3d33; border: none; padding: 0; transition: all .2s; }
   .meal-dot.active { background: #c2622a; width: 20px; border-radius: 4px; }
   .meal-hub-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
   @media (min-width: 900px) { .meal-hub-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; } .meal-hub-grid .meal-card { flex: none; width: auto; } }
@@ -2256,7 +2313,7 @@ const styles = `
 
   a.ra-link { color: inherit; text-decoration: none; -webkit-tap-highlight-color: transparent; }
   .dish-card {
-    background: #fff; border: 1.5px solid #ece6db; border-radius: 12px;
+    background: #1d1713; border: 1.5px solid #2e2620; border-radius: 12px;
     padding: 16px 18px; cursor: pointer; transition: all .2s;
     display: flex; align-items: center; justify-content: space-between; gap: 12px;
     box-shadow: 0 1px 3px rgba(0,0,0,.04);
@@ -2266,16 +2323,16 @@ const styles = `
   /* Country page: compact photo tiles, two across on phones, more as the screen widens */
   .dish-tile-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .dish-tile {
-    background: #fff; border: 1.5px solid #ece6db; border-radius: 12px; overflow: hidden;
+    background: #1d1713; border: 1.5px solid #2e2620; border-radius: 12px; overflow: hidden;
     display: flex; flex-direction: column; cursor: pointer; transition: all .2s;
     box-shadow: 0 1px 3px rgba(0,0,0,.04);
   }
   .dish-tile:hover { border-color: #c2622a; box-shadow: 0 4px 16px rgba(194,98,42,.12); transform: translateY(-2px); }
-  .dish-tile-img { height: 84px; background: #f0e8e0; overflow: hidden; }
+  .dish-tile-img { height: 84px; background: #241d18; overflow: hidden; }
   .dish-tile-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
   .dish-tile:hover .dish-tile-img img { transform: scale(1.06); }
   .dish-tile-name {
-    padding: 9px 11px 11px; font-size: 13.5px; font-weight: 600; color: #1a1714; line-height: 1.3;
+    padding: 9px 11px 11px; font-size: 13.5px; font-weight: 600; color: #f6efe8; line-height: 1.3;
     flex: 1; display: flex; align-items: center; min-height: 48px;
   }
   .dish-tile-name span { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -2288,12 +2345,12 @@ const styles = `
   /* Sauces & Sides hub */
   .ss-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   @media (min-width: 600px) { .ss-grid { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; } }
-  .ss-card { background: #fff; border: 1.5px solid #ece6db; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; transition: box-shadow .2s, border-color .2s; }
-  .ss-card:hover { border-color: #e3c7b2; box-shadow: 0 4px 16px rgba(194,98,42,.10); }
-  .ss-card-img { height: 104px; background: #f0e8e0; overflow: hidden; display: block; }
+  .ss-card { background: #1d1713; border: 1.5px solid #2e2620; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; transition: box-shadow .2s, border-color .2s; }
+  .ss-card:hover { border-color: #5a3a28; box-shadow: 0 4px 16px rgba(194,98,42,.10); }
+  .ss-card-img { height: 104px; background: #241d18; overflow: hidden; display: block; }
   .ss-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
   .ss-card:hover .ss-card-img img { transform: scale(1.05); }
-  .ss-chip { border: 1.5px solid #ece6db; background: #fff; color: #3a3028; border-radius: 20px; padding: 7px 15px; font-size: 13px; font-weight: 600; font-family: 'Plus Jakarta Sans', sans-serif; cursor: pointer; transition: all .15s; }
+  .ss-chip { border: 1.5px solid #2e2620; background: #1d1713; color: #e6dccf; border-radius: 20px; padding: 7px 15px; font-size: 13px; font-weight: 600; font-family: 'Plus Jakarta Sans', sans-serif; cursor: pointer; transition: all .15s; }
   .ss-chip:hover { border-color: #c2622a; }
   .ss-chip.active { background: #c2622a; border-color: #c2622a; color: #fff; }
 
@@ -2306,17 +2363,16 @@ const styles = `
   .btn:hover { background: #a8501f; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(194,98,42,.35); }
 
   .btn-ghost {
-    background: transparent; border: 1.5px solid #ddd6ca; color: #888;
+    background: transparent; border: 1.5px solid #3a2f28; color: #b0a498;
     padding: 8px 16px; font-size: 13px; font-family: 'Plus Jakarta Sans', sans-serif;
     border-radius: 10px; cursor: pointer; transition: all .15s;
     display: inline-flex; align-items: center; gap: 6px; font-weight: 500;
   }
-  .btn-ghost:hover { border-color: #c2622a; color: #c2622a; background: #fdf3ed; }
+  .btn-ghost:hover { border-color: #c2622a; color: #f2a36b; background: #2a1d15; }
 
   .step-num {
-    width: 28px; height: 28px; min-width: 28px; background: #c2622a; color: #fff;
-    border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 700;
+    min-width: 52px; color: #f2a36b; font-family: Fraunces, serif; font-size: 34px; font-weight: 700; line-height: 1;
+    padding-top: 2px;
   }
 
   .shopping-list-overlay {
@@ -2328,14 +2384,14 @@ const styles = `
     box-sizing: border-box;
     max-height: calc(100vh - 98px); max-height: calc(100dvh - 98px);
     width: calc(100% - 40px); max-width: 440px;
-    background: #fff; border-radius: 16px; overflow-y: auto; padding: 28px;
+    background: #1d1713; border-radius: 16px; overflow-y: auto; padding: 28px;
     box-shadow: 0 20px 60px rgba(0,0,0,.25);
   }
   .shopping-list-item {
-    display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f5f0e8;
-    font-size: 14px; color: #3a3028; align-items: baseline;
+    display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid #2a221d;
+    font-size: 14px; color: #e6dccf; align-items: baseline;
   }
-  .shopping-list-item span:first-child { font-weight: 700; color: #c2622a; min-width: 62px; flex-shrink: 0; }
+  .shopping-list-item span:first-child { font-weight: 700; color: #f2a36b; min-width: 62px; flex-shrink: 0; }
 
   @media (max-height: 700px) {
     .shopping-list-modal { top: 70px; max-height: calc(100vh - 80px); max-height: calc(100dvh - 80px); padding: 18px; }
@@ -2380,18 +2436,18 @@ const styles = `
   }
 
   .ptp-card {
-    background: #fff; border: 1.5px solid #ece6db; border-radius: 12px;
+    background: #1d1713; border: 1.5px solid #2e2620; border-radius: 12px;
     padding: 14px 16px; cursor: pointer; transition: all .2s;
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
     box-shadow: 0 1px 3px rgba(0,0,0,.04);
   }
   .ptp-card:hover { border-color: #c2622a; box-shadow: 0 4px 16px rgba(194,98,42,.12); transform: translateY(-2px); }
-  .ptp-card.selected { background: #fdf3ed; border-color: #c2622a; }
+  .ptp-card.selected { background: #2a1d15; border-color: #c2622a; }
   .ptp-card.disabled { opacity: .4; cursor: not-allowed; }
-  .ptp-card.disabled:hover { border-color: #ece6db; box-shadow: 0 1px 3px rgba(0,0,0,.04); transform: none; }
+  .ptp-card.disabled:hover { border-color: #2e2620; box-shadow: 0 1px 3px rgba(0,0,0,.04); transform: none; }
   .ptp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
   .ptp-recipe-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
-  .ptp-recipe-card { background: #fff; border: 1.5px solid #ece6db; border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform .15s, box-shadow .15s; }
+  .ptp-recipe-card { background: #1d1713; border: 1.5px solid #2e2620; border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform .15s, box-shadow .15s; }
   .ptp-recipe-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.08); }
   .ptp-chip { display: inline-flex; align-items: center; gap: 6px; background: #c2622a; color: #fff; padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; }
   .ptp-chip:hover { background: #a8501f; }
@@ -2592,8 +2648,8 @@ function DishCarousel({ dishKeys, title, subtitle, idPrefix, marginTop = 0, marg
   return (
     <div style={{ marginTop, marginBottom }}>
       <div style={{ marginBottom:16 }}>
-        <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#1a1714", margin:0 }}>{title}</h2>
-        <p style={{ fontSize:13, color:"#9a9088", margin:"4px 0 0" }}>{subtitle}</p>
+        <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#f6efe8", margin:0 }}>{title}</h2>
+        <p style={{ fontSize:13, color:"#b0a498", margin:"4px 0 0" }}>{subtitle}</p>
       </div>
       <div style={{ position:"relative" }}>
         <button className="classics-arrow classics-arrow-left" onClick={() => scrollByAmount(-1)} aria-label="Scroll left"
@@ -2643,17 +2699,17 @@ function EventsThisMonthCarousel({ headingSize = "clamp(18px,2.5vw,26px)", rando
     <div style={{ marginBottom:spacing }}>
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16, flexWrap:"wrap", gap:8 }}>
         <div>
-          <h2 style={{ fontFamily:"Fraunces", fontSize:headingSize, fontWeight:700, color:"#1a1714", margin:0 }}>What's On This Month</h2>
-          <p style={{ fontSize:13, color:"#9a9088", margin:"4px 0 0" }}>Festivals and food events happening in {monthNames[currentMonth]}</p>
+          <h2 style={{ fontFamily:"Fraunces", fontSize:headingSize, fontWeight:700, color:"#f6efe8", margin:0 }}>What's On This Month</h2>
+          <p style={{ fontSize:13, color:"#b0a498", margin:"4px 0 0" }}>Festivals and food events happening in {monthNames[currentMonth]}</p>
         </div>
         {randomize ? (
           <button onClick={() => setEventSlugs(pickThree())}
-            style={{ background:"#fdf3ed", border:"1.5px solid #e8c9b0", borderRadius:8, padding:"8px 16px", fontSize:13, fontWeight:600, color:"#c2622a", cursor:"pointer", fontFamily:"Plus Jakarta Sans", display:"flex", alignItems:"center", gap:6 }}>
+            style={{ background:"#2a1d15", border:"1.5px solid #5a3a28", borderRadius:8, padding:"8px 16px", fontSize:13, fontWeight:600, color:"#f2a36b", cursor:"pointer", fontFamily:"Plus Jakarta Sans", display:"flex", alignItems:"center", gap:6 }}>
             ↻ Randomise
           </button>
         ) : (
           <AppLink to="/events"
-            style={{ background:"#fdf3ed", border:"1.5px solid #e8c9b0", borderRadius:8, padding:"8px 16px", fontSize:13, fontWeight:600, color:"#c2622a", cursor:"pointer", fontFamily:"Plus Jakarta Sans", display:"flex", alignItems:"center", gap:6 }}>
+            style={{ background:"#2a1d15", border:"1.5px solid #5a3a28", borderRadius:8, padding:"8px 16px", fontSize:13, fontWeight:600, color:"#f2a36b", cursor:"pointer", fontFamily:"Plus Jakarta Sans", display:"flex", alignItems:"center", gap:6 }}>
             See more →
           </AppLink>
         )}
@@ -2663,14 +2719,14 @@ function EventsThisMonthCarousel({ headingSize = "clamp(18px,2.5vw,26px)", rando
           const e = EVENTS_DB[slug];
           const path = `/events/${e.region}/${slugify(e.country)}/${e.slug}`;
           return (
-            <AppLink key={slug} style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:14, overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)", cursor:"pointer", display:"block" }}
+            <AppLink key={slug} style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:14, overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)", cursor:"pointer", display:"block" }}
               to={path}>
-              <div style={{ height:130, background:"linear-gradient(135deg, #f0e8e0, #e8dccb)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:34 }}>{e.icon}</div>
+              <div style={{ height:130, background:"linear-gradient(135deg, #241d18, #2e2620)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:34 }}>{e.icon}</div>
               <div style={{ padding:16 }}>
-                <span style={{ display:"inline-block", fontSize:10, fontWeight:700, letterSpacing:".05em", textTransform:"uppercase", color:"#c2622a", background:"#fdf3ed", borderRadius:12, padding:"4px 10px", marginBottom:10 }}>{e.tag}</span>
+                <span style={{ display:"inline-block", fontSize:10, fontWeight:700, letterSpacing:".05em", textTransform:"uppercase", color:"#f2a36b", background:"#2a1d15", borderRadius:12, padding:"4px 10px", marginBottom:10 }}>{e.tag}</span>
                 <h3 style={{ fontFamily:"Fraunces", fontSize:17, fontWeight:600, margin:"0 0 6px", lineHeight:1.3 }}>{e.name}</h3>
-                <div style={{ fontSize:12.5, color:"#9a9088", marginBottom:10 }}>{e.day} {e.mon} &middot; {e.loc}</div>
-                <p style={{ fontSize:13, color:"#5a5048", lineHeight:1.6, margin:0 }}>{e.desc}</p>
+                <div style={{ fontSize:12.5, color:"#b0a498", marginBottom:10 }}>{e.day} {e.mon} &middot; {e.loc}</div>
+                <p style={{ fontSize:13, color:"#d0c4b7", lineHeight:1.6, margin:0 }}>{e.desc}</p>
               </div>
             </AppLink>
           );
@@ -2689,22 +2745,22 @@ function BlogHighlightsSection() {
     <div style={{ marginBottom:93 }}>
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16, flexWrap:"wrap", gap:8 }}>
         <div>
-          <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#1a1714", margin:0 }}>From the Blog</h2>
-          <p style={{ fontSize:13, color:"#9a9088", margin:"4px 0 0" }}>Stories, techniques and histories from the world's great food cultures</p>
+          <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#f6efe8", margin:0 }}>From the Blog</h2>
+          <p style={{ fontSize:13, color:"#b0a498", margin:"4px 0 0" }}>Stories, techniques and histories from the world's great food cultures</p>
         </div>
         <AppLink to="/blog"
-          style={{ background:"#fdf3ed", border:"1.5px solid #e8c9b0", borderRadius:8, padding:"8px 16px", fontSize:13, fontWeight:600, color:"#c2622a", cursor:"pointer", fontFamily:"Plus Jakarta Sans", display:"flex", alignItems:"center", gap:6 }}>
+          style={{ background:"#2a1d15", border:"1.5px solid #5a3a28", borderRadius:8, padding:"8px 16px", fontSize:13, fontWeight:600, color:"#f2a36b", cursor:"pointer", fontFamily:"Plus Jakarta Sans", display:"flex", alignItems:"center", gap:6 }}>
           See more →
         </AppLink>
       </div>
       <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(270px, 1fr))", gap:20 }}>
         {posts.map((p, i) => (
-          <AppLink key={p.slug || i} style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:14, padding:16, cursor:"pointer", boxShadow:"0 1px 3px rgba(0,0,0,.04)", display:"block" }}
+          <AppLink key={p.slug || i} style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:14, padding:16, cursor:"pointer", boxShadow:"0 1px 3px rgba(0,0,0,.04)", display:"block" }}
             to={`/blog/${p.slug}`}>
-            <span style={{ display:"inline-block", fontSize:10, fontWeight:700, letterSpacing:".05em", textTransform:"uppercase", color:"#c2622a", background:"#fdf3ed", borderRadius:12, padding:"4px 10px", marginBottom:10 }}>{p.tag}</span>
+            <span style={{ display:"inline-block", fontSize:10, fontWeight:700, letterSpacing:".05em", textTransform:"uppercase", color:"#f2a36b", background:"#2a1d15", borderRadius:12, padding:"4px 10px", marginBottom:10 }}>{p.tag}</span>
             <h3 style={{ fontFamily:"Fraunces", fontSize:17, fontWeight:600, margin:"0 0 6px", lineHeight:1.3 }}>{p.title}</h3>
-            <p style={{ fontSize:13, color:"#5a5048", lineHeight:1.6, margin:"0 0 10px" }}>{p.excerpt}</p>
-            <span style={{ fontSize:12, color:"#c2622a", fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>Read article →</span>
+            <p style={{ fontSize:13, color:"#d0c4b7", lineHeight:1.6, margin:"0 0 10px" }}>{p.excerpt}</p>
+            <span style={{ fontSize:12, color:"#f2a36b", fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>Read article →</span>
           </AppLink>
         ))}
       </div>
@@ -2742,11 +2798,11 @@ function RecipeInspiration({ recipes: initialRecipes, pool, title, spacing = 74 
     <div style={{ marginTop:spacing, marginBottom:spacing }}>
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16, flexWrap:"wrap", gap:8 }}>
         <div>
-          <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#1a1714", margin:0 }}>{title}</h2>
-          <p style={{ fontSize:13, color:"#9a9088", margin:"4px 0 0" }}>Tap a recipe to get cooking</p>
+          <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#f6efe8", margin:0 }}>{title}</h2>
+          <p style={{ fontSize:13, color:"#b0a498", margin:"4px 0 0" }}>Tap a recipe to get cooking</p>
         </div>
         <button onClick={shuffle}
-          style={{ background:"#fdf3ed", border:"1.5px solid #e8c9b0", borderRadius:8, padding:"8px 16px", fontSize:13, fontWeight:600, color:"#c2622a", cursor:"pointer", fontFamily:"Plus Jakarta Sans", display:"flex", alignItems:"center", gap:6 }}>
+          style={{ background:"#2a1d15", border:"1.5px solid #5a3a28", borderRadius:8, padding:"8px 16px", fontSize:13, fontWeight:600, color:"#f2a36b", cursor:"pointer", fontFamily:"Plus Jakarta Sans", display:"flex", alignItems:"center", gap:6 }}>
           ↻ Randomise
         </button>
       </div>
@@ -2755,19 +2811,19 @@ function RecipeInspiration({ recipes: initialRecipes, pool, title, spacing = 74 
           const region = REGIONS.find(r => r.countries?.includes(recipe.country));
           return (
             <AppLink key={i} to={recipePath(recipe.key || recipe.name)}
-              style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, overflow:"hidden", cursor:"pointer", transition:"transform .15s, box-shadow .15s", display:"block" }}
+              style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:12, overflow:"hidden", cursor:"pointer", transition:"transform .15s, box-shadow .15s", display:"block" }}
               onMouseEnter={e => { e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow="0 6px 20px rgba(0,0,0,.08)"; }}
               onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="none"; }}>
-              <div style={{ width:"100%", height:160, overflow:"hidden", background:"#f0e8e0" }}>
+              <div style={{ width:"100%", height:160, overflow:"hidden", background:"#241d18" }}>
                 <img {...imgProps(recipe.image, 600)} alt={`Authentic ${recipe.country} ${recipe.name} recipe`} loading="lazy" decoding="async" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
               </div>
               <div style={{ padding:"12px 14px 14px" }}>
                 <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:6 }}>
                   <span style={{ fontSize:14 }}>{COUNTRY_DISHES[recipe.country]?.flag}</span>
-                  <span style={{ fontSize:11, color:"#9a9088", fontFamily:"Plus Jakarta Sans", fontWeight:500 }}>{recipe.country}</span>
+                  <span style={{ fontSize:11, color:"#b0a498", fontFamily:"Plus Jakarta Sans", fontWeight:500 }}>{recipe.country}</span>
                 </div>
-                <div style={{ fontFamily:"Fraunces", fontSize:16, fontWeight:700, color:"#1a1714", lineHeight:1.3, marginBottom:4 }}>{recipe.name}</div>
-                <div style={{ fontSize:12, color:"#c2622a", fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>View recipe →</div>
+                <div style={{ fontFamily:"Fraunces", fontSize:16, fontWeight:700, color:"#f6efe8", lineHeight:1.3, marginBottom:4 }}>{recipe.name}</div>
+                <div style={{ fontSize:12, color:"#f2a36b", fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>View recipe →</div>
               </div>
             </AppLink>
           );
@@ -2824,7 +2880,18 @@ function useAppNavigate() {
   return { navigate: (path) => { window.history.pushState({}, '', path); window.scrollTo(0,0); window.dispatchEvent(new PopStateEvent('popstate')); } };
 }
 
-function RegionMap({ onSelectRegion }) {
+const NK_PINS = [
+  { id:"north_america", name:"North America", x:15, y:28 },
+  { id:"south_america", name:"South America", x:27, y:66 },
+  { id:"europe", name:"Europe", x:47, y:20 },
+  { id:"africa", name:"Africa", x:47, y:55 },
+  { id:"middle_east", name:"Middle East", x:58, y:38 },
+  { id:"asia", name:"Asia", x:72, y:27 },
+  { id:"oceania", name:"Oceania", x:80, y:70 },
+];
+function RegionMap({ onSelectRegion, navigate }) {
+  const [heroQuery, setHeroQuery] = useState("");
+  const totalCountries = useMemo(() => REGIONS.reduce((n, r) => n + r.countries.length, 0), []);
   const [hovered, setHovered] = useState(null);
   const textBlockRef = useRef(null);
   const [mapMaxWidth, setMapMaxWidth] = useState(1050);
@@ -2839,7 +2906,7 @@ function RegionMap({ onSelectRegion }) {
   // unrelated layout and spacing untouched.
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    if (window.innerWidth < 1101) { setMapMarginBottom(93); return; }
+    return;
     const AD_SPACE = 140; // the ad wrap's own ~24px top margin + ~90px ad height + a little buffer
     const MIN_MAP = 320, MAX_MAP = 1050;
     const recalc = () => {
@@ -2928,33 +2995,31 @@ function RegionMap({ onSelectRegion }) {
 
   return (
     <div>
-      <div style={{ textAlign:"center", marginBottom:16 }} ref={textBlockRef}>
-        <div className="ra-home-badge" style={{ display:"inline-block", background:"#fdf3ed", borderRadius:100, padding:"6px 16px", fontSize:11, fontWeight:700, color:"#c2622a", letterSpacing:".08em", textTransform:"uppercase", fontFamily:"Plus Jakarta Sans", marginBottom:12 }}>
-          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{display:"inline",verticalAlign:"middle",marginRight:4}}>
-                <circle cx="14" cy="12" r="8" stroke="#c2622a" strokeWidth="2" fill="none"/>
-                <path d="M6 12 Q14 8 22 12" stroke="#c2622a" strokeWidth="1.5" fill="none"/>
-                <path d="M6 12 Q14 16 22 12" stroke="#c2622a" strokeWidth="1.5" fill="none"/>
-                <line x1="14" y1="4" x2="14" y2="20" stroke="#c2622a" strokeWidth="1.5"/>
-                <line x1="3" y1="4" x2="3" y2="20" stroke="#c2622a" strokeWidth="2" strokeLinecap="round"/>
-                <line x1="1" y1="4" x2="1" y2="9" stroke="#c2622a" strokeWidth="1.5" strokeLinecap="round"/>
-                <line x1="5" y1="4" x2="5" y2="9" stroke="#c2622a" strokeWidth="1.5" strokeLinecap="round"/>
-                <path d="M1 9 Q3 13 5 9" stroke="#c2622a" strokeWidth="1.5" fill="none"/>
-              </svg> World Cuisine Explorer
+      <header className="nk-hero">
+        <div className="nk-hero-text" ref={textBlockRef}>
+          <div className="nk-eyebrow"><span className="nk-eyebrow-line" />World Cuisine Explorer</div>
+          <h1 className="nk-h1">What would you like to <span className="nk-h1-em">cook?</span></h1>
+          <p className="nk-lede">Choose a region to explore its most beloved dishes and get the full recipe.</p>
+          <form className="nk-search" role="search" onSubmit={e => { e.preventDefault(); const q = heroQuery.trim(); if (q) navigate(`/search/${encodeURIComponent(q)}`); }}>
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b9ada2" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            <input type="search" aria-label="Search recipes, countries or ingredients" placeholder="Search a dish, country or ingredient" value={heroQuery} onChange={e => setHeroQuery(e.target.value)} />
+            <button type="submit">Search</button>
+          </form>
+          <div className="nk-stats">
+            <div><div className="nk-stat-n">{totalCountries}</div><div className="nk-stat-l">countries</div></div>
+            <div><div className="nk-stat-n">{REGIONS.length}</div><div className="nk-stat-l">regions</div></div>
+          </div>
         </div>
-        <h1 className="ra-home-h1" style={{ fontFamily:"Fraunces", fontSize:"clamp(26px,4vw,48px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>
-          What would you like to cook?
-        </h1>
-        <p className="ra-home-subtitle" style={{ fontSize:"clamp(13px,1.5vw,16px)", color:"#9a9088", maxWidth:480, margin:"0 auto 24px", lineHeight:1.7 }}>
-          Choose a region to explore its most beloved dishes and get the full recipe.
-        </p>
-      </div>
-
-      {/* Interactive world map */}
-      <div id="ra-world-map" className="ra-home-map" style={{ position:"relative", width:"100%", aspectRatio:"1 / 0.52", maxWidth:mapMaxWidth, marginLeft:"auto", marginRight:"auto", borderRadius:12, overflow:"hidden", background:"transparent", marginBottom:mapMarginBottom }}>
-        {/* The finished map picture shows straight away; the clickable layer is added on top once the page is idle. */}
-        <img src="/map/world-map.webp" width="1000" height="520" alt="World map: choose a region to explore its dishes" fetchPriority="high" decoding="async" style={{ display:"block", width:"100%", height:"100%" }} />
-        <div id="ra-world-map-hit" style={{ position:"absolute", top:0, left:0, right:0, bottom:0 }}></div>
-      </div>
+        <section className="nk-mapcard" aria-label="World map">
+          <div id="ra-world-map" className="ra-home-map nk-mapinner">
+            <img src="/map/world-map.webp" width="1000" height="520" alt="World map: choose a region to explore its dishes" fetchPriority="high" decoding="async" style={{ display:"block", width:"100%", height:"100%" }} />
+            <div id="ra-world-map-hit" style={{ position:"absolute", top:0, left:0, right:0, bottom:0 }}></div>
+            {NK_PINS.map(p => (
+              <AppLink key={p.id} to={`/${p.id}`} className="nk-pin" style={{ left:p.x+"%", top:p.y+"%" }}><i />{p.name}</AppLink>
+            ))}
+          </div>
+        </section>
+      </header>
       <div id="ra-map-tip" style={{ position:"fixed", background:"rgba(26,23,20,.9)", color:"#fff", padding:"6px 14px", borderRadius:8, fontSize:13, fontWeight:600, pointerEvents:"none", display:"none", zIndex:999, whiteSpace:"nowrap" }}></div>
 
 
@@ -2964,28 +3029,28 @@ function RegionMap({ onSelectRegion }) {
 
       {/* Region buttons */}
       <div style={{ marginBottom:16 }}>
-        <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#1a1714", margin:0 }}>Explore by Region</h2>
-        <p style={{ fontSize:13, color:"#9a9088", margin:"4px 0 0" }}>Click a region to discover its most-loved recipes</p>
+        <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#f6efe8", margin:0 }}>Explore by Region</h2>
+        <p style={{ fontSize:13, color:"#b0a498", margin:"4px 0 0" }}>Click a region to discover its most-loved recipes</p>
       </div>
       <div className="region-grid" style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(260px, 1fr))", gap:12, marginBottom:93 }}>
         {REGIONS.map(region => (
           <AppLink key={region.id} to={`/${region.id}`}
             onMouseEnter={e => e.currentTarget.style.borderColor=region.color}
             onMouseLeave={e => e.currentTarget.style.borderColor="#ece6db"}
-            className="rg-card" style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, padding:"16px 18px", cursor:"pointer", display:"block", transition:"border-color .2s, box-shadow .2s" }}>
+            className="rg-card" style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:12, padding:"16px 18px", cursor:"pointer", display:"block", transition:"border-color .2s, box-shadow .2s" }}>
             <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
               <span style={{ fontSize:22 }}>{region.emoji}</span>
-              <span style={{ fontFamily:"Fraunces", fontSize:17, fontWeight:700, color:"#1a1714" }}>{region.name}</span>
+              <span style={{ fontFamily:"Fraunces", fontSize:17, fontWeight:700, color:"#f6efe8" }}>{region.name}</span>
             </div>
-            <p className="rg-desc" style={{ fontSize:13, color:"#6a6058", lineHeight:1.6, marginBottom:10 }}>{region.description}</p>
+            <p className="rg-desc" style={{ fontSize:13, color:"#c2b6a9", lineHeight:1.6, marginBottom:10 }}>{region.description}</p>
             <div style={{ display:"flex", flexWrap:"wrap", gap:4 }}>
               {region.countries.slice(0,5).map((c, ci) => (
-                <span key={c} className={ci >= 2 ? "rg-hide-m" : undefined} style={{ fontSize:11, background:"#faf7f3", border:"1px solid #ece6db", borderRadius:6, padding:"2px 8px", color:"#9a9088" }}>
+                <span key={c} className={ci >= 2 ? "rg-hide-m" : undefined} style={{ fontSize:11, background:"#14110f", border:"1px solid #2e2620", borderRadius:6, padding:"2px 8px", color:"#b0a498" }}>
                   {COUNTRY_DISHES[c]?.flag} {c}
                 </span>
               ))}
-              {region.countries.length > 5 && <span className="rg-more-d" style={{ fontSize:11, color:"#c8bfb0", padding:"2px 4px" }}>+{region.countries.length - 5} more</span>}
-              <span className="rg-more-m" style={{ fontSize:11, color:"#c8bfb0", padding:"2px 4px" }}>+{region.countries.length - 2} more</span>
+              {region.countries.length > 5 && <span className="rg-more-d" style={{ fontSize:11, color:"#8f8478", padding:"2px 4px" }}>+{region.countries.length - 5} more</span>}
+              <span className="rg-more-m" style={{ fontSize:11, color:"#8f8478", padding:"2px 4px" }}>+{region.countries.length - 2} more</span>
             </div>
           </AppLink>
         ))}
@@ -3027,21 +3092,21 @@ function RegionView({ regionId, onBack, onSelectCountry }) {
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
       <AppLink to="/"
-        style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", width:"fit-content", alignItems:"center", gap:6 }}>
+        style={{ background:"none", border:"none", color:"#f2a36b", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", width:"fit-content", alignItems:"center", gap:6 }}>
         ← All Regions
       </AppLink>
       <div style={{ marginBottom:8 }}>
         <div style={{ fontSize:44, marginBottom:8 }}>{region.emoji}</div>
-        <h1 style={{ fontFamily:"Fraunces", fontSize:32, fontWeight:700, color:"#1a1714", marginBottom:6 }}>{region.name}</h1>
-        <p style={{ fontSize:14, color:"#9a9088", marginBottom:6 }}>{region.description}</p>
+        <h1 style={{ fontFamily:"Fraunces", fontSize:32, fontWeight:700, color:"#f6efe8", marginBottom:6 }}>{region.name}</h1>
+        <p style={{ fontSize:14, color:"#b0a498", marginBottom:6 }}>{region.description}</p>
         <div style={{ height:3, width:40, background:region.color, borderRadius:2, marginBottom:24 }} />
       </div>
       <div style={{ marginBottom:28 }}>
-        <p style={{ fontSize:11, color:"#b8b0a8", marginBottom:14, letterSpacing:".08em", textTransform:"uppercase", fontWeight:600 }}>Select a country</p>
+        <p style={{ fontSize:11, color:"#9d9185", marginBottom:14, letterSpacing:".08em", textTransform:"uppercase", fontWeight:600 }}>Select a country</p>
         <div style={{ display:"flex", flexWrap:"wrap", gap:10 }}>
           {region.countries.map(country => (
             <AppLink key={country} to={countryPath(country)}
-              style={{ display:"inline-flex", alignItems:"center", gap:10, background:"#fff", border:`1.5px solid #ece6db`, borderRadius:12, padding:"12px 18px", cursor:"pointer", fontSize:14, color:"#1a1714", fontFamily:"Plus Jakarta Sans", transition:"all .15s", boxShadow:"0 1px 4px rgba(0,0,0,.05)", fontWeight:500 }}
+              style={{ display:"inline-flex", alignItems:"center", gap:10, background:"#1d1713", border:`1.5px solid #2e2620`, borderRadius:12, padding:"12px 18px", cursor:"pointer", fontSize:14, color:"#f6efe8", fontFamily:"Plus Jakarta Sans", transition:"all .15s", boxShadow:"0 1px 4px rgba(0,0,0,.05)", fontWeight:500 }}
               onMouseEnter={e => { e.currentTarget.style.borderColor=region.color; e.currentTarget.style.background=region.light; e.currentTarget.style.boxShadow=`0 4px 14px ${region.color}20`; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor="#ece6db"; e.currentTarget.style.background="#fff"; e.currentTarget.style.boxShadow="0 1px 4px rgba(0,0,0,.05)"; }}>
               <span style={{ fontSize:24 }}>{COUNTRY_DISHES[country]?.flag || "🌍"}</span>
@@ -3065,13 +3130,13 @@ function CountryView({ country, onBack, onSelectDish }) {
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
       <AppLink to={regionPath(country)}
-        style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", width:"fit-content", alignItems:"center", gap:6 }}>
+        style={{ background:"none", border:"none", color:"#f2a36b", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", width:"fit-content", alignItems:"center", gap:6 }}>
         ← Back
       </AppLink>
       <div style={{ marginBottom:8 }}>
         <div style={{ fontSize:44, marginBottom:8 }}>{flag}</div>
-        <h1 style={{ fontFamily:"Fraunces", fontSize:30, fontWeight:700, color:"#1a1714", marginBottom:6 }}>{country}</h1>
-        <p style={{ fontSize:14, color:"#9a9088", marginBottom:20 }}>Choose a dish to view the full recipe</p>
+        <h1 style={{ fontFamily:"Fraunces", fontSize:30, fontWeight:700, color:"#f6efe8", marginBottom:6 }}>{country}</h1>
+        <p style={{ fontSize:14, color:"#b0a498", marginBottom:20 }}>Choose a dish to view the full recipe</p>
       </div>
       <div style={{ marginBottom:28 }}>
         <div className="dish-tile-grid">
@@ -3366,7 +3431,7 @@ function StarRating({ dish, onRatingLoaded }) {
               cursor: myRating || submitting ? "default" : "pointer",
               fontSize: 22,
               lineHeight: 1,
-              color: n <= displayStars ? "#c2622a" : "#e0d8cc",
+              color: n <= displayStars ? "#f2a36b" : "#e0d8cc",
               transition: "color .15s"
             }}
             aria-label={`Rate ${n} star${n === 1 ? "" : "s"}`}>
@@ -3374,7 +3439,7 @@ function StarRating({ dish, onRatingLoaded }) {
           </span>
         ))}
       </div>
-      <div style={{ fontSize:12, color:"#9a9088", fontFamily:"Plus Jakarta Sans" }}>
+      <div style={{ fontSize:12, color:"#b0a498", fontFamily:"Plus Jakarta Sans" }}>
         {ratingData === null ? (
           "Loading ratings…"
         ) : ratingData.count > 0 ? (
@@ -3382,7 +3447,7 @@ function StarRating({ dish, onRatingLoaded }) {
         ) : (
           "No ratings yet — be the first!"
         )}
-        {myRating && <span style={{ color:"#c2622a", fontWeight:600, marginLeft:6 }}>· You rated this {myRating}★</span>}
+        {myRating && <span style={{ color:"#f2a36b", fontWeight:600, marginLeft:6 }}>· You rated this {myRating}★</span>}
       </div>
     </div>
   );
@@ -3390,7 +3455,7 @@ function StarRating({ dish, onRatingLoaded }) {
 
 
 function CommentSection({ dish }) {
-  const inputStyle = { padding:"10px 12px", fontSize:14, border:"1.5px solid #ece6db", borderRadius:8, fontFamily:"inherit", color:"#1a1714", width:"100%", boxSizing:"border-box", minWidth:0 };
+  const inputStyle = { background:"#14110f", padding:"10px 12px", fontSize:14, border:"1.5px solid #2e2620", borderRadius:8, fontFamily:"inherit", color:"#f6efe8", width:"100%", boxSizing:"border-box", minWidth:0 };
   const [comments, setComments] = useState(null);
   const [loadError, setLoadError] = useState(false);
   const [name, setName] = useState("");
@@ -3437,34 +3502,34 @@ function CommentSection({ dish }) {
   };
 
   return (
-    <div style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:14, padding:24, marginBottom:12, boxShadow:"0 1px 4px rgba(0,0,0,.04)" }}>
+    <div style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:14, padding:24, marginBottom:12, boxShadow:"0 1px 4px rgba(0,0,0,.04)" }}>
       {comments && comments.length > 0 && (
-        <div style={{ marginBottom:28, paddingBottom:24, borderBottom:"1.5px solid #ece6db" }}>
-          <h3 style={{ fontFamily:"Fraunces", fontSize:19, color:"#1a1714", marginBottom:16 }}>Comments</h3>
+        <div style={{ marginBottom:28, paddingBottom:24, borderBottom:"1.5px solid #2e2620" }}>
+          <h3 style={{ fontFamily:"Fraunces", fontSize:19, color:"#f6efe8", marginBottom:16 }}>Comments</h3>
           {comments.map((c, i) => (
-            <div key={c.id || i} style={{ marginBottom:18, paddingBottom:18, borderBottom: i < comments.length-1 ? "1px solid #f5f0e8" : "none" }}>
+            <div key={c.id || i} style={{ marginBottom:18, paddingBottom:18, borderBottom: i < comments.length-1 ? "1px solid #2a221d" : "none" }}>
               <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
-                <div style={{ width:28, height:28, borderRadius:"50%", background:ACCENT, color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:700, flexShrink:0 }}>
+                <div style={{ width:28, height:28, borderRadius:"50%", background:ACCENT, color:"#1d1713", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:700, flexShrink:0 }}>
                   {(c.name||"?").charAt(0).toUpperCase()}
                 </div>
-                <span style={{ fontSize:13, fontWeight:700, color:"#1a1714" }}>
-                  {c.website ? <a href={c.website} target="_blank" rel="noopener noreferrer" style={{color:"#1a1714", textDecoration:"none"}}>{c.name}</a> : c.name}
+                <span style={{ fontSize:13, fontWeight:700, color:"#f6efe8" }}>
+                  {c.website ? <a href={c.website} target="_blank" rel="noopener noreferrer" style={{color:"#f6efe8", textDecoration:"none"}}>{c.name}</a> : c.name}
                 </span>
-                <span style={{ fontSize:11, color:"#b8b0a8" }}>{c.date ? new Date(c.date).toLocaleDateString() : ""}</span>
+                <span style={{ fontSize:11, color:"#9d9185" }}>{c.date ? new Date(c.date).toLocaleDateString() : ""}</span>
               </div>
-              <p style={{ fontSize:14, color:"#5a5048", lineHeight:1.7, margin:0, paddingLeft:36 }}>{c.text}</p>
+              <p style={{ fontSize:14, color:"#d0c4b7", lineHeight:1.7, margin:0, paddingLeft:36 }}>{c.text}</p>
             </div>
           ))}
         </div>
       )}
       {comments === null && !loadError && (
-        <p style={{ fontSize:12, color:"#b8b0a8", marginBottom:20 }}>Loading comments…</p>
+        <p style={{ fontSize:12, color:"#9d9185", marginBottom:20 }}>Loading comments…</p>
       )}
       {loadError && (
-        <p style={{ fontSize:12, color:"#b8b0a8", marginBottom:20 }}>Couldn't load comments right now — please refresh.</p>
+        <p style={{ fontSize:12, color:"#9d9185", marginBottom:20 }}>Couldn't load comments right now — please refresh.</p>
       )}
-      <h3 style={{ fontFamily:"Fraunces", fontSize:19, color:"#1a1714", marginBottom:4 }}>Leave a Comment</h3>
-      <p style={{ fontSize:12, color:"#9a9088", marginBottom:20 }}>Your email address will not be published. Required fields are marked *</p>
+      <h3 style={{ fontFamily:"Fraunces", fontSize:19, color:"#f6efe8", marginBottom:4 }}>Leave a Comment</h3>
+      <p style={{ fontSize:12, color:"#b0a498", marginBottom:20 }}>Your email address will not be published. Required fields are marked *</p>
       <form onSubmit={handleSubmit}>
         <div className="comment-form-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:12 }}>
           <input type="text" placeholder="Name *" value={name} onChange={e=>setName(e.target.value)} style={inputStyle} disabled={submitting} />
@@ -3474,7 +3539,7 @@ function CommentSection({ dish }) {
           style={{...inputStyle, width:"100%", marginBottom:12, boxSizing:"border-box"}} />
         <textarea placeholder="Comment *" value={commentText} onChange={e=>setCommentText(e.target.value)} rows={4} disabled={submitting}
           style={{...inputStyle, width:"100%", marginBottom:12, resize:"vertical", boxSizing:"border-box"}} />
-        <label style={{ display:"flex", alignItems:"flex-start", gap:8, fontSize:12.5, color:"#6a6058", marginBottom:14, cursor:"pointer" }}>
+        <label style={{ display:"flex", alignItems:"flex-start", gap:8, fontSize:12.5, color:"#c2b6a9", marginBottom:14, cursor:"pointer" }}>
           <input type="checkbox" checked={subscribe} onChange={e=>setSubscribe(e.target.checked)} disabled={submitting} style={{ marginTop:2 }} />
           <span>Also send me occasional recipe emails and updates from Recipe Atlas (optional — you can unsubscribe anytime)</span>
         </label>
@@ -3533,13 +3598,13 @@ function SavedPage() {
   const items = saved.filter(k => RECIPE_DB[k]);
   return (
     <div style={{ maxWidth:1070, margin:"0 auto", padding:"56px 24px 60px" }}>
-      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(30px,4vw,48px)", fontWeight:700, color:"#1a1714", margin:"0 0 8px" }}>Saved Recipes</h1>
-      <p style={{ fontSize:15, color:"#6a6058", lineHeight:1.8, maxWidth:760, margin:"0 0 24px" }}>
+      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(30px,4vw,48px)", fontWeight:700, color:"#f6efe8", margin:"0 0 8px" }}>Saved Recipes</h1>
+      <p style={{ fontSize:15, color:"#c2b6a9", lineHeight:1.8, maxWidth:760, margin:"0 0 24px" }}>
         Recipes you save with the heart are kept in this browser on this device. They are not uploaded anywhere, and clearing your browser data will remove them.
       </p>
       {items.length === 0 ? (
-        <p style={{ fontSize:15, color:"#6a6058", lineHeight:1.8 }}>
-          Nothing saved yet. Tap the heart next to the ingredients on any recipe to keep it here, or <AppLink to="/meals" style={{ color:"#c2622a", fontWeight:700 }}>browse recipes by meal</AppLink>.
+        <p style={{ fontSize:15, color:"#c2b6a9", lineHeight:1.8 }}>
+          Nothing saved yet. Tap the heart next to the ingredients on any recipe to keep it here, or <AppLink to="/meals" style={{ color:"#f2a36b", fontWeight:700 }}>browse recipes by meal</AppLink>.
         </p>
       ) : (
         <div className="dish-tile-grid">
@@ -3597,61 +3662,47 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
       <AppLink to={countryPathOrHome(country)}
-        style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", width:"fit-content", alignItems:"center", gap:6 }}>
+        style={{ background:"none", border:"none", color:"#f2a36b", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", width:"fit-content", alignItems:"center", gap:6 }}>
         ← Back to {country}
       </AppLink>
       <div>
         {loading ? (
           <div style={{ textAlign:"center", padding:"60px 0" }}>
             <div className="spinner" style={{ width:24, height:24, margin:"0 auto 14px" }} />
-            <p style={{ fontSize:14, color:"#b8b0a8", fontStyle:"italic" }}>Preparing your recipe…</p>
+            <p style={{ fontSize:14, color:"#9d9185", fontStyle:"italic" }}>Preparing your recipe…</p>
           </div>
         ) : recipe && !recipe.error ? (
           <div>
           <div className="recipe-print">
-            <div style={{ marginBottom:28 }}>
+            <div className="nk-rhead">
+            <div className="nk-rhead-text">
               <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:12, marginBottom:16 }}>
-                <h1 style={{ fontFamily:"Fraunces", fontSize:32, fontWeight:700, color:"#1a1714", margin:0, lineHeight:1.2 }}>{recipe.name}</h1>
+                <h1 className="nk-rh1">{recipe.name}</h1>
                 <SaveHeart dish={dish} name={recipe.name} />
               </div>
-              {country && <div style={{ display:"inline-block", background:"#fdf3ed", borderRadius:100, padding:"4px 12px", fontSize:11, color:"#c2622a", fontWeight:600, letterSpacing:".06em", textTransform:"uppercase", marginBottom:16 }}>
+              {country && <div className="nk-rcountry">
                 {country}
               </div>}
-              {recipe.story && <p style={{ fontSize:13, color:"#b8b0a8", fontStyle:"italic", marginBottom:10, lineHeight:1.7 }}>{recipe.story}</p>}
-              <p style={{ fontSize:15, color:"#6a6058", lineHeight:1.85, marginBottom:16 }}>{recipe.description}</p>
-              {recipe.image && (
-                <div style={{ marginBottom: recipe.photoCredit ? 6 : 20, borderRadius:12, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.08)", background:"#f0e8e0" }}>
-                  <img {...imgProps(recipe.image, 960)} alt={`Authentic ${recipe.country} ${recipe.name} recipe`} fetchPriority="high" decoding="async"
-                    style={{ width:"100%", height:312, objectFit:"cover", display:"block" }}
-                  />
-                </div>
-              )}
-              {recipe.photoCredit && (
-                <div style={{ textAlign:"right", marginBottom:14 }}>
-                  <a href={recipe.photoCredit.url} target="_blank" rel="noopener noreferrer"
-                    style={{ fontSize:10, color:"#c8bfb0", fontFamily:"Plus Jakarta Sans", textDecoration:"none" }}>
-                    Photo: {recipe.photoCredit.name}
-                  </a>
-                </div>
-              )}
+              {recipe.story && <p className="nk-rstory">{recipe.story}</p>}
+              <p className="nk-rdesc">{recipe.description}</p>
               <div className="stat-row" style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
                 {[{l:"Prep",v:recipe.prepTime},{l:"Cook",v:recipe.cookTime},{l:"Difficulty",v:recipe.difficulty},{l:"Calories",v:recipe.calories ? `${recipe.calories} kcal` : null}].filter(s=>s.v).map(({l,v})=>(
-                  <div key={l} style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:10, padding:"8px 16px", textAlign:"center", minWidth:80, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                    <div style={{ fontSize:10, color:"#b8b0a8", letterSpacing:".07em", textTransform:"uppercase", marginBottom:3, fontWeight:600 }}>{l}</div>
-                    <div style={{ fontSize:13, fontWeight:600, color:"#1a1714" }}>{v}</div>
+                  <div key={l} style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:10, padding:"8px 16px", textAlign:"center", minWidth:80, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                    <div style={{ fontSize:10, color:"#9d9185", letterSpacing:".07em", textTransform:"uppercase", marginBottom:3, fontWeight:600 }}>{l}</div>
+                    <div style={{ fontSize:13, fontWeight:600, color:"#f6efe8" }}>{v}</div>
                   </div>
                 ))}
                 {recipe.serves != null && scaleServings != null && (
-                  <div style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:10, padding:"8px 12px", textAlign:"center", minWidth:118, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
-                    <div style={{ fontSize:10, color:"#b8b0a8", letterSpacing:".07em", textTransform:"uppercase", marginBottom:3, fontWeight:600 }}>Serves</div>
+                  <div style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:10, padding:"8px 12px", textAlign:"center", minWidth:118, boxShadow:"0 1px 3px rgba(0,0,0,.04)" }}>
+                    <div style={{ fontSize:10, color:"#9d9185", letterSpacing:".07em", textTransform:"uppercase", marginBottom:3, fontWeight:600 }}>Serves</div>
                     <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
                       <button onClick={() => setScaleServings(s => Math.max(1, s - 1))} aria-label="Decrease servings"
-                        style={{ width:20, height:20, borderRadius:6, border:"1px solid #ece6db", background:"#fdf8f3", color:ACCENT, fontSize:14, fontWeight:700, lineHeight:1, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", padding:0 }}>
+                        style={{ width:20, height:20, borderRadius:6, border:"1px solid #2e2620", background:"#1a1512", color:ACCENT, fontSize:14, fontWeight:700, lineHeight:1, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", padding:0 }}>
                         −
                       </button>
-                      <span style={{ fontSize:13, fontWeight:600, color:"#1a1714", minWidth:16 }}>{scaleServings}</span>
+                      <span style={{ fontSize:13, fontWeight:600, color:"#f6efe8", minWidth:16 }}>{scaleServings}</span>
                       <button onClick={() => setScaleServings(s => s + 1)} aria-label="Increase servings"
-                        style={{ width:20, height:20, borderRadius:6, border:"1px solid #ece6db", background:"#fdf8f3", color:ACCENT, fontSize:14, fontWeight:700, lineHeight:1, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", padding:0 }}>
+                        style={{ width:20, height:20, borderRadius:6, border:"1px solid #2e2620", background:"#1a1512", color:ACCENT, fontSize:14, fontWeight:700, lineHeight:1, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", padding:0 }}>
                         +
                       </button>
                     </div>
@@ -3659,12 +3710,12 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
                 )}
               </div>
               {recipe.serves != null && scaleServings != null && scaleServings !== recipe.serves && (
-                <div style={{ fontSize:11, color:"#b8b0a8", marginTop:6, fontStyle:"italic" }}>
+                <div style={{ fontSize:11, color:"#9d9185", marginTop:6, fontStyle:"italic" }}>
                   Ingredient amounts below are scaled for {scaleServings} {scaleServings === 1 ? "serving" : "servings"} (original recipe serves {recipe.serves})
                 </div>
               )}
               {recipe.calories && (
-                <div style={{ fontSize:11, color:"#b8b0a8", marginTop:6, fontStyle:"italic" }}>
+                <div style={{ fontSize:11, color:"#9d9185", marginTop:6, fontStyle:"italic" }}>
                   Calories are an estimate based on ingredients used
                 </div>
               )}
@@ -3672,26 +3723,44 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
                 <StarRating dish={dish} onRatingLoaded={onRatingChange} />
               </div>
             </div>
-            <div style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:14, padding:24, marginBottom:12, boxShadow:"0 1px 4px rgba(0,0,0,.04)" }}>
-              <h3 style={{ fontFamily:"Fraunces", fontSize:19, color:"#1a1714", margin:0, marginBottom:16 }}>Ingredients</h3>
+            {recipe.image && (
+              <div className="nk-rphoto-wrap">
+                <div className="nk-rphoto">
+                  <img {...imgProps(recipe.image, 960)} alt={`Authentic ${recipe.country} ${recipe.name} recipe`} fetchPriority="high" decoding="async"
+                    style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }}
+                  />
+                </div>
+                {recipe.photoCredit && (
+                  <div style={{ textAlign:"right", marginTop:8 }}>
+                    <a href={recipe.photoCredit.url} target="_blank" rel="noopener noreferrer"
+                      style={{ fontSize:10, color:"#8f8478", fontFamily:"Plus Jakarta Sans", textDecoration:"none" }}>
+                      Photo: {recipe.photoCredit.name}
+                    </a>
+                  </div>
+                )}
+              </div>
+            )}
+            </div>
+            <div style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:14, padding:24, marginBottom:12, boxShadow:"0 1px 4px rgba(0,0,0,.04)" }}>
+              <h3 style={{ fontFamily:"Fraunces", fontSize:19, color:"#f6efe8", margin:0, marginBottom:16 }}>Ingredients</h3>
               <div className="ing-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0 20px" }}>
                 {scaledIngredients.map((ing,i)=>(
-                  <div key={i} style={{ display:"flex", gap:10, paddingBottom:9, borderBottom:"1px solid #f5f0e8", marginBottom:1, alignItems:"baseline" }}>
+                  <div key={i} style={{ display:"flex", gap:10, paddingBottom:9, borderBottom:"1px solid #2a221d", marginBottom:1, alignItems:"baseline" }}>
                     <span style={{ fontSize:12, fontWeight:700, color:ACCENT, minWidth:60, flexShrink:0 }}>{ing.amount}</span>
-                    <span style={{ fontSize:13, color:"#5a5048" }}>{ing.item}</span>
+                    <span style={{ fontSize:13, color:"#d0c4b7" }}>{ing.item}</span>
                   </div>
                 ))}
               </div>
               <div style={{ display:"flex", alignItems:"center", gap:10, flexWrap:"wrap", marginTop:20 }}>
-                <div style={{ display:"flex", border:"1.5px solid #ece6db", borderRadius:8, overflow:"hidden" }}>
+                <div style={{ display:"flex", border:"1.5px solid #2e2620", borderRadius:8, overflow:"hidden" }}>
                   <button onClick={() => setUnitSystemPersist('metric')}
                     style={{ padding:"8px 14px", fontSize:12, fontWeight:700, fontFamily:"Plus Jakarta Sans", border:"none", cursor:"pointer",
-                      background: unitSystem === 'metric' ? ACCENT : "#fff", color: unitSystem === 'metric' ? "#fff" : "#9a9088" }}>
+                      background: unitSystem === 'metric' ? ACCENT : "#1d1713", color: unitSystem === 'metric' ? "#1d1713" : "#b0a498" }}>
                     Metric
                   </button>
                   <button onClick={() => setUnitSystemPersist('imperial')}
                     style={{ padding:"8px 14px", fontSize:12, fontWeight:700, fontFamily:"Plus Jakarta Sans", border:"none", cursor:"pointer",
-                      background: unitSystem === 'imperial' ? ACCENT : "#fff", color: unitSystem === 'imperial' ? "#fff" : "#9a9088" }}>
+                      background: unitSystem === 'imperial' ? ACCENT : "#1d1713", color: unitSystem === 'imperial' ? "#1d1713" : "#b0a498" }}>
                     Imperial
                   </button>
                 </div>
@@ -3705,12 +3774,12 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
                 <div className="shopping-list-modal shopping-list-print"
                   onClick={(e) => e.stopPropagation()}>
                   <button onClick={() => setShowShoppingList(false)} className="no-print"
-                    style={{ position:"absolute", top:16, right:16, background:"none", border:"none", fontSize:20, color:"#b8b0a8", cursor:"pointer", lineHeight:1, padding:4 }}
+                    style={{ position:"absolute", top:16, right:16, background:"none", border:"none", fontSize:20, color:"#9d9185", cursor:"pointer", lineHeight:1, padding:4 }}
                     aria-label="Close shopping list">
                     ×
                   </button>
-                  <h3 style={{ fontFamily:"Fraunces", fontSize:20, color:"#1a1714", marginBottom:4, paddingRight:24 }}>{recipe.name}</h3>
-                  <p style={{ fontSize:12, color:"#b8b0a8", marginBottom:18 }}>
+                  <h3 style={{ fontFamily:"Fraunces", fontSize:20, color:"#f6efe8", marginBottom:4, paddingRight:24 }}>{recipe.name}</h3>
+                  <p style={{ fontSize:12, color:"#9d9185", marginBottom:18 }}>
                     Shopping list for {scaleServings} {scaleServings === 1 ? "serving" : "servings"}
                   </p>
                   <div style={{ marginBottom:20 }}>
@@ -3758,26 +3827,26 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
                 </div>
               </div>
             )}
-            <div style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:14, padding:24, marginBottom:12, boxShadow:"0 1px 4px rgba(0,0,0,.04)" }}>
-              <h3 style={{ fontFamily:"Fraunces", fontSize:19, marginBottom:20, color:"#1a1714" }}>Method</h3>
+            <div style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:14, padding:24, marginBottom:12, boxShadow:"0 1px 4px rgba(0,0,0,.04)" }}>
+              <h3 style={{ fontFamily:"Fraunces", fontSize:19, marginBottom:20, color:"#f6efe8" }}>Method</h3>
               <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
                 {(recipe.steps||[]).map((step,i)=>(
                   <div key={i} id={`step-${i+1}`} style={{ display:"flex", gap:14, alignItems:"flex-start", scrollMarginTop:80 }}>
-                    <div className="step-num">{i+1}</div>
-                    <p style={{ fontSize:14, color:"#5a5048", lineHeight:1.8, paddingTop:3 }}>{step}</p>
+                    <div className="step-num">{String(i+1).padStart(2,"0")}</div>
+                    <p style={{ fontSize:16, color:"#e6dccf", lineHeight:1.75, paddingTop:6 }}>{step}</p>
                   </div>
                 ))}
               </div>
             </div>
             {recipe.tip && (
-              <div style={{ background:"#fdf8f3", border:"1.5px solid #f0e4d4", borderRadius:14, padding:18, borderLeft:`4px solid ${ACCENT}`, marginBottom:12 }}>
-                <div style={{ fontSize:11, color:ACCENT, letterSpacing:".08em", textTransform:"uppercase", fontWeight:700, marginBottom:6 }}>Chef's Tip</div>
-                <p style={{ fontSize:14, color:"#6a6058", lineHeight:1.75 }}>{recipe.tip}</p>
+              <div className="nk-tipblock" style={{ padding:"22px 26px", marginBottom:12 }}>
+                <div style={{ fontSize:11, color:"#14110f", letterSpacing:".16em", textTransform:"uppercase", fontWeight:700, marginBottom:8 }}>Chef's Tip</div>
+                <p style={{ fontSize:17, color:"#14110f", lineHeight:1.65, fontFamily:"Fraunces", fontWeight:600 }}>{recipe.tip}</p>
               </div>
             )}
             <div className="no-print" style={{ display:"flex", gap:10, marginBottom:12, flexWrap:"wrap" }}>
               <button onClick={() => printRecipeCard({ recipe, country, ingredients: scaledIngredients, servings: scaleServings })}
-                style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:8, padding:"9px 16px", fontSize:13, fontWeight:600, color:"#6a6058", cursor:"pointer", fontFamily:"Plus Jakarta Sans", display:"flex", alignItems:"center", gap:6, flex:"1 1 140px", justifyContent:"center" }}>
+                style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:8, padding:"9px 16px", fontSize:13, fontWeight:600, color:"#c2b6a9", cursor:"pointer", fontFamily:"Plus Jakarta Sans", display:"flex", alignItems:"center", gap:6, flex:"1 1 140px", justifyContent:"center" }}>
                 🖨️ Print
               </button>
               <button
@@ -3794,7 +3863,7 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
                     }).catch(() => {});
                   }
                 }}
-                style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:8, padding:"9px 16px", fontSize:13, fontWeight:600, color:"#6a6058", cursor:"pointer", fontFamily:"Plus Jakarta Sans", display:"flex", alignItems:"center", gap:6, flex:"1 1 140px", justifyContent:"center" }}>
+                style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:8, padding:"9px 16px", fontSize:13, fontWeight:600, color:"#c2b6a9", cursor:"pointer", fontFamily:"Plus Jakarta Sans", display:"flex", alignItems:"center", gap:6, flex:"1 1 140px", justifyContent:"center" }}>
                 {recipeShareFeedback ? "Link copied!" : "📤 Share"}
               </button>
             </div>
@@ -3810,8 +3879,8 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
               return (
                 <div style={{ marginTop:32 }}>
                   <div style={{ marginBottom:16 }}>
-                    <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,24px)", fontWeight:700, color:"#1a1714", margin:0 }}>Serve with</h2>
-                    <p style={{ fontSize:13, color:"#9a9088", margin:"4px 0 0" }}>{isSide ? `Dishes that go well with ${recipe.name}` : `Sauces, sides and condiments that pair well with ${recipe.name}`}</p>
+                    <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,24px)", fontWeight:700, color:"#f6efe8", margin:0 }}>Serve with</h2>
+                    <p style={{ fontSize:13, color:"#b0a498", margin:"4px 0 0" }}>{isSide ? `Dishes that go well with ${recipe.name}` : `Sauces, sides and condiments that pair well with ${recipe.name}`}</p>
                   </div>
                   <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(220px, 1fr))", gap:16 }}>
                     {pairKeys.map((key) => {
@@ -3819,19 +3888,19 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
                       return (
                         <AppLink key={key}
                           to={recipePath(key)}
-                          style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, overflow:"hidden", cursor:"pointer", transition:"transform .15s, box-shadow .15s", display:"block" }}
+                          style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:12, overflow:"hidden", cursor:"pointer", transition:"transform .15s, box-shadow .15s", display:"block" }}
                           onMouseEnter={e => { e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow="0 6px 20px rgba(0,0,0,.08)"; }}
                           onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="none"; }}>
-                          <div style={{ width:"100%", height:140, overflow:"hidden", background:"#f0e8e0" }}>
+                          <div style={{ width:"100%", height:140, overflow:"hidden", background:"#241d18" }}>
                             <img {...imgProps(rec.image, 500)} loading="lazy" decoding="async" alt={isSide ? `${rec.name} recipe — serve with ${recipe.name}` : `${rec.name} — a ${(rec.category || "side").toLowerCase()} to serve with ${recipe.name}`} style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
                           </div>
                           <div style={{ padding:"12px 14px 14px" }}>
                             <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:6 }}>
                               <span style={{ fontSize:14 }}>{COUNTRY_DISHES[rec.country]?.flag}</span>
-                              <span style={{ fontSize:11, color:"#9a9088", fontFamily:"Plus Jakarta Sans", fontWeight:500 }}>{rec.country}{rec.category ? ` · ${rec.category}` : ""}</span>
+                              <span style={{ fontSize:11, color:"#b0a498", fontFamily:"Plus Jakarta Sans", fontWeight:500 }}>{rec.country}{rec.category ? ` · ${rec.category}` : ""}</span>
                             </div>
-                            <div style={{ fontFamily:"Fraunces", fontSize:16, fontWeight:700, color:"#1a1714", lineHeight:1.3, marginBottom:4 }}>{rec.name}</div>
-                            <div style={{ fontSize:12, color:"#c2622a", fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>View recipe →</div>
+                            <div style={{ fontFamily:"Fraunces", fontSize:16, fontWeight:700, color:"#f6efe8", lineHeight:1.3, marginBottom:4 }}>{rec.name}</div>
+                            <div style={{ fontSize:12, color:"#f2a36b", fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>View recipe →</div>
                           </div>
                         </AppLink>
                       );
@@ -3861,8 +3930,8 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
               return (
                 <div style={{ marginTop:32 }}>
                   <div style={{ marginBottom:16 }}>
-                    <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,24px)", fontWeight:700, color:"#1a1714", margin:0 }}>You may also like</h2>
-                    <p style={{ fontSize:13, color:"#9a9088", margin:"4px 0 0" }}>More recipes you might enjoy</p>
+                    <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,24px)", fontWeight:700, color:"#f6efe8", margin:0 }}>You may also like</h2>
+                    <p style={{ fontSize:13, color:"#b0a498", margin:"4px 0 0" }}>More recipes you might enjoy</p>
                   </div>
                   <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(220px, 1fr))", gap:16 }}>
                     {shuffled.map((key, i) => {
@@ -3871,19 +3940,19 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
                       return (
                         <AppLink key={i}
                           to={recipePath(key)}
-                          style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, overflow:"hidden", cursor:"pointer", transition:"transform .15s, box-shadow .15s", display:"block" }}
+                          style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:12, overflow:"hidden", cursor:"pointer", transition:"transform .15s, box-shadow .15s", display:"block" }}
                           onMouseEnter={e => { e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow="0 6px 20px rgba(0,0,0,.08)"; }}
                           onMouseLeave={e => { e.currentTarget.style.transform="none"; e.currentTarget.style.boxShadow="none"; }}>
-                          <div style={{ width:"100%", height:160, overflow:"hidden", background:"#f0e8e0" }}>
+                          <div style={{ width:"100%", height:160, overflow:"hidden", background:"#241d18" }}>
                             <img {...imgProps(rec.image, 500)} alt={`Authentic ${rec.country} ${rec.name} recipe`} loading="lazy" decoding="async" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
                           </div>
                           <div style={{ padding:"12px 14px 14px" }}>
                             <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:6 }}>
                               <span style={{ fontSize:14 }}>{COUNTRY_DISHES[rec.country]?.flag}</span>
-                              <span style={{ fontSize:11, color:"#9a9088", fontFamily:"Plus Jakarta Sans", fontWeight:500 }}>{rec.country}</span>
+                              <span style={{ fontSize:11, color:"#b0a498", fontFamily:"Plus Jakarta Sans", fontWeight:500 }}>{rec.country}</span>
                             </div>
-                            <div style={{ fontFamily:"Fraunces", fontSize:16, fontWeight:700, color:"#1a1714", lineHeight:1.3, marginBottom:4 }}>{rec.name}</div>
-                            <div style={{ fontSize:12, color:"#c2622a", fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>View recipe →</div>
+                            <div style={{ fontFamily:"Fraunces", fontSize:16, fontWeight:700, color:"#f6efe8", lineHeight:1.3, marginBottom:4 }}>{rec.name}</div>
+                            <div style={{ fontSize:12, color:"#f2a36b", fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>View recipe →</div>
                           </div>
                         </AppLink>
                       );
@@ -3896,7 +3965,7 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
 
           </div>
         ) : (
-          <div style={{ textAlign:"center", padding:"40px 0", color:"#b8b0a8" }}>Couldn't load this recipe — please try again.</div>
+          <div style={{ textAlign:"center", padding:"40px 0", color:"#9d9185" }}>Couldn't load this recipe — please try again.</div>
         )}
       </div>
     </div>
@@ -3915,19 +3984,19 @@ function EventsDirectory() {
   })).filter(g => g.events.length > 0);
   return (
     <div style={{ marginTop:64 }}>
-      <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#1a1714", marginBottom:8, lineHeight:1.2 }}>Every event, by region</h2>
-      <p style={{ fontSize:13, color:"#9a9088", marginBottom:20, maxWidth:560 }}>The full list of festivals, markets and tastings in our guide. Open a region to browse them all.</p>
+      <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#f6efe8", marginBottom:8, lineHeight:1.2 }}>Every event, by region</h2>
+      <p style={{ fontSize:13, color:"#b0a498", marginBottom:20, maxWidth:560 }}>The full list of festivals, markets and tastings in our guide. Open a region to browse them all.</p>
       <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
         {groups.map(({ region, events }) => (
-          <details key={region.id} style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, padding:"4px 18px" }}>
-            <summary style={{ cursor:"pointer", fontFamily:"Fraunces", fontSize:17, fontWeight:700, color:"#1a1714", padding:"12px 0" }}>
-              {region.emoji} {region.name} <span style={{ fontFamily:"Plus Jakarta Sans", fontSize:12, fontWeight:500, color:"#9a9088" }}>· {events.length} events</span>
+          <details key={region.id} style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:12, padding:"4px 18px" }}>
+            <summary style={{ cursor:"pointer", fontFamily:"Fraunces", fontSize:17, fontWeight:700, color:"#f6efe8", padding:"12px 0" }}>
+              {region.emoji} {region.name} <span style={{ fontFamily:"Plus Jakarta Sans", fontSize:12, fontWeight:500, color:"#b0a498" }}>· {events.length} events</span>
             </summary>
             <ul style={{ listStyle:"none", margin:0, padding:"0 0 14px" }}>
               {events.map(e => (
-                <li key={e.slug} style={{ padding:"7px 0", borderTop:"1px solid #f3eee6", fontSize:13.5, color:"#5a5048", lineHeight:1.5 }}>
-                  <AppLink to={`/events/${e.region}/${slugify(e.country)}/${e.slug}`} style={{ color:"#c2622a", fontWeight:600, display:"inline" }}>{e.name}</AppLink>
-                  <span style={{ color:"#9a9088" }}> — {e.loc}, {e.country} · {e.day} {e.mon}</span>
+                <li key={e.slug} style={{ padding:"7px 0", borderTop:"1px solid #2e2620", fontSize:13.5, color:"#d0c4b7", lineHeight:1.5 }}>
+                  <AppLink to={`/events/${e.region}/${slugify(e.country)}/${e.slug}`} style={{ color:"#f2a36b", fontWeight:600, display:"inline" }}>{e.name}</AppLink>
+                  <span style={{ color:"#b0a498" }}> — {e.loc}, {e.country} · {e.day} {e.mon}</span>
                 </li>
               ))}
             </ul>
@@ -3952,22 +4021,22 @@ function EventsListView({ navigate }) {
 
   const pillStyle = (active) => ({
     fontSize:13, fontWeight:600, padding:"9px 16px", borderRadius:20,
-    border: active ? "1.5px solid #e8c9b0" : "1.5px solid #ece6db",
-    background: active ? "#fdf3ed" : "#fff",
-    color: active ? "#c2622a" : "#5a5048",
+    border: active ? "1.5px solid #5a3a28" : "1.5px solid #2e2620",
+    background: active ? "#2a1d15" : "#1d1713",
+    color: active ? "#f2a36b" : "#d0c4b7",
     cursor:"pointer", whiteSpace:"nowrap"
   });
 
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
       <div style={{ marginTop:44 }}>
-      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(30px,4vw,48px)", fontWeight:700, color:"#1a1714", marginBottom:4 }}>Events</h1>
+      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(30px,4vw,48px)", fontWeight:700, color:"#f6efe8", marginBottom:4 }}>Events</h1>
       <hr style={{ height:2, background:"#c2622a", opacity:.25, border:"none", margin:"28px 0" }} />
       <EventsThisMonthCarousel randomize />
-      <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#1a1714", marginBottom:8, lineHeight:1.2 }}>Food events near you</h2>
-      <p style={{ fontSize:13, color:"#9a9088", marginBottom:32, maxWidth:560 }}>Festivals, markets and tastings from across the world — browse by region, country and month to find what's on.</p>
+      <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#f6efe8", marginBottom:8, lineHeight:1.2 }}>Food events near you</h2>
+      <p style={{ fontSize:13, color:"#b0a498", marginBottom:32, maxWidth:560 }}>Festivals, markets and tastings from across the world — browse by region, country and month to find what's on.</p>
 
-      <div style={{ fontSize:11, fontWeight:700, letterSpacing:".06em", textTransform:"uppercase", color:"#c2622a", marginBottom:12 }}>Region</div>
+      <div style={{ fontSize:11, fontWeight:700, letterSpacing:".06em", textTransform:"uppercase", color:"#f2a36b", marginBottom:12 }}>Region</div>
       <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
         {REGIONS.map(r => (
           <div key={r.id} style={pillStyle(activeRegion === r.id)}
@@ -3980,7 +4049,7 @@ function EventsListView({ navigate }) {
       {activeRegion && (
         <>
           <hr style={{ height:2, background:"#c2622a", opacity:.25, border:"none", margin:"28px 0" }} />
-          <div style={{ fontSize:11, fontWeight:700, letterSpacing:".06em", textTransform:"uppercase", color:"#c2622a", marginBottom:12 }}>Country</div>
+          <div style={{ fontSize:11, fontWeight:700, letterSpacing:".06em", textTransform:"uppercase", color:"#f2a36b", marginBottom:12 }}>Country</div>
           <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
             {region.countries.map(c => (
               <div key={c} style={pillStyle(activeCountry === c)}
@@ -3995,7 +4064,7 @@ function EventsListView({ navigate }) {
       {activeRegion && activeCountry && (
         <>
           <hr style={{ height:2, background:"#c2622a", opacity:.25, border:"none", margin:"28px 0" }} />
-          <div style={{ fontSize:11, fontWeight:700, letterSpacing:".06em", textTransform:"uppercase", color:"#c2622a", marginBottom:12 }}>Month</div>
+          <div style={{ fontSize:11, fontWeight:700, letterSpacing:".06em", textTransform:"uppercase", color:"#f2a36b", marginBottom:12 }}>Month</div>
           <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
             {months.map((m, i) => (
               <div key={m} style={pillStyle(activeMonth === i)} onClick={() => setActiveMonth(i)}>
@@ -4010,7 +4079,7 @@ function EventsListView({ navigate }) {
         <>
           <hr style={{ height:2, background:"#c2622a", opacity:.25, border:"none", margin:"28px 0" }} />
           {filtered.length === 0 ? (
-            <div style={{ textAlign:"center", padding:"40px 20px", color:"#9a9088", fontSize:14, background:"#fff", border:"1.5px dashed #ece6db", borderRadius:12 }}>
+            <div style={{ textAlign:"center", padding:"40px 20px", color:"#b0a498", fontSize:14, background:"#1d1713", border:"1.5px dashed #2e2620", borderRadius:12 }}>
               No events found for {activeCountry} in {months[activeMonth]} yet.<br/>New events are added as they're confirmed — check back soon.
             </div>
           ) : (
@@ -4018,14 +4087,14 @@ function EventsListView({ navigate }) {
               {filtered.map(slug => {
                 const e = EVENTS_DB[slug];
                 return (
-                  <AppLink key={slug} style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:14, overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)", cursor:"pointer", display:"block" }}
+                  <AppLink key={slug} style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:14, overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)", cursor:"pointer", display:"block" }}
                     to={`/events/${e.region}/${slugify(e.country)}/${e.slug}`}>
-                    <div style={{ height:130, background:"linear-gradient(135deg, #f0e8e0, #e8dccb)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:34 }}>{e.icon}</div>
+                    <div style={{ height:130, background:"linear-gradient(135deg, #241d18, #2e2620)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:34 }}>{e.icon}</div>
                     <div style={{ padding:16 }}>
-                      <span style={{ display:"inline-block", fontSize:10, fontWeight:700, letterSpacing:".05em", textTransform:"uppercase", color:"#c2622a", background:"#fdf3ed", borderRadius:12, padding:"4px 10px", marginBottom:10 }}>{e.tag}</span>
+                      <span style={{ display:"inline-block", fontSize:10, fontWeight:700, letterSpacing:".05em", textTransform:"uppercase", color:"#f2a36b", background:"#2a1d15", borderRadius:12, padding:"4px 10px", marginBottom:10 }}>{e.tag}</span>
                       <h3 style={{ fontFamily:"Fraunces", fontSize:17, fontWeight:600, margin:"0 0 6px", lineHeight:1.3 }}>{e.name}</h3>
-                      <div style={{ fontSize:12.5, color:"#9a9088", marginBottom:10 }}>{e.day} {e.mon} &middot; {e.loc}</div>
-                      <p style={{ fontSize:13, color:"#5a5048", lineHeight:1.6, margin:0 }}>{e.desc}</p>
+                      <div style={{ fontSize:12.5, color:"#b0a498", marginBottom:10 }}>{e.day} {e.mon} &middot; {e.loc}</div>
+                      <p style={{ fontSize:13, color:"#d0c4b7", lineHeight:1.6, margin:0 }}>{e.desc}</p>
                     </div>
                   </AppLink>
                 );
@@ -4048,53 +4117,53 @@ function EventDetailView({ eventSlug, onBack, navigate }) {
     return (
       <div style={{ maxWidth:1070, margin:"0 auto" }}>
         <AppLink to="/events"
-          style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", width:"fit-content", alignItems:"center", gap:6 }}>
+          style={{ background:"none", border:"none", color:"#f2a36b", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", width:"fit-content", alignItems:"center", gap:6 }}>
           ← Back to events
         </AppLink>
-        <div style={{ textAlign:"center", padding:"40px 0", color:"#b8b0a8" }}>Couldn't find this event — please try again.</div>
+        <div style={{ textAlign:"center", padding:"40px 0", color:"#9d9185" }}>Couldn't find this event — please try again.</div>
       </div>
     );
   }
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
       <AppLink to="/events"
-        style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", width:"fit-content", alignItems:"center", gap:6 }}>
+        style={{ background:"none", border:"none", color:"#f2a36b", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", margin:"16px 0 24px", padding:0, display:"flex", width:"fit-content", alignItems:"center", gap:6 }}>
         ← Back to events
       </AppLink>
       <div>
-      <h1 style={{ fontFamily:"Fraunces", fontSize:32, fontWeight:700, color:"#1a1714", marginBottom:10, lineHeight:1.2 }}>{event.name}</h1>
-      <div style={{ display:"block", background:"#fdf3ed", borderRadius:100, padding:"4px 12px", fontSize:11, color:"#c2622a", fontWeight:600, letterSpacing:".06em", textTransform:"uppercase", marginBottom:12, width:"fit-content" }}>
+      <h1 style={{ fontFamily:"Fraunces", fontSize:32, fontWeight:700, color:"#f6efe8", marginBottom:10, lineHeight:1.2 }}>{event.name}</h1>
+      <div style={{ display:"block", background:"#2a1d15", borderRadius:100, padding:"4px 12px", fontSize:11, color:"#f2a36b", fontWeight:600, letterSpacing:".06em", textTransform:"uppercase", marginBottom:12, width:"fit-content" }}>
         {event.tag}
       </div>
-      <p style={{ fontSize:15, color:"#6a6058", lineHeight:1.85, marginBottom:20 }}>{event.desc}</p>
+      <p style={{ fontSize:15, color:"#c2b6a9", lineHeight:1.85, marginBottom:20 }}>{event.desc}</p>
       {event.image && (
-        <div style={{ marginBottom:20, borderRadius:12, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.08)", background:"#f0e8e0" }}>
+        <div style={{ marginBottom:20, borderRadius:12, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.08)", background:"#241d18" }}>
           <img {...imgProps(event.image, 960)} alt={`${event.name} in ${event.loc}, ${event.country}`} fetchPriority="high" decoding="async"
             style={{ width:"100%", height:312, objectFit:"cover", display:"block" }} />
         </div>
       )}
-      <div style={{ fontSize:13, fontWeight:700, color:"#1a1714", marginBottom:6 }}>{event.day} {event.mon}</div>
-      <div style={{ fontSize:13, fontWeight:700, color:"#1a1714", marginBottom:14 }}>{event.loc}, {event.country}</div>
+      <div style={{ fontSize:13, fontWeight:700, color:"#f6efe8", marginBottom:6 }}>{event.day} {event.mon}</div>
+      <div style={{ fontSize:13, fontWeight:700, color:"#f6efe8", marginBottom:14 }}>{event.loc}, {event.country}</div>
       {event.url && (
-        <a href={event.url} target="_blank" rel="noopener noreferrer" style={{ fontSize:13, color:"#c2622a", textDecoration:"none", fontWeight:600 }}>
+        <a href={event.url} target="_blank" rel="noopener noreferrer" style={{ fontSize:13, color:"#f2a36b", textDecoration:"none", fontWeight:600 }}>
           {event.urlLabel || "Learn more"} →
         </a>
       )}
       <hr style={{ height:2, background:"#c2622a", opacity:.25, border:"none", margin:"28px 0" }} />
       <div>
         {(event.longDesc || event.desc).split("\n\n").map((p, i) => (
-          <p key={i} style={{ fontSize:15.5, lineHeight:1.8, color:"#5a5048", marginBottom:18 }}>{p}</p>
+          <p key={i} style={{ fontSize:15.5, lineHeight:1.8, color:"#d0c4b7", marginBottom:18 }}>{p}</p>
         ))}
       </div>
       {((event.highlights && event.highlights.length > 0) || typeof event.ticketRequired === "boolean" || event.duration || event.since) && (
-        <div style={{ marginTop:8, paddingTop:28, borderTop:"1.5px solid #ece6db", display:"flex", flexWrap:"wrap", gap:32 }}>
+        <div style={{ marginTop:8, paddingTop:28, borderTop:"1.5px solid #2e2620", display:"flex", flexWrap:"wrap", gap:32 }}>
           {event.highlights && event.highlights.length > 0 && (
             <div style={{ flex:"1 1 260px" }}>
-              <h3 style={{ fontFamily:"Fraunces", fontSize:15, fontWeight:700, color:"#1a1714", marginBottom:12 }}>Highlights</h3>
+              <h3 style={{ fontFamily:"Fraunces", fontSize:15, fontWeight:700, color:"#f6efe8", marginBottom:12 }}>Highlights</h3>
               <ul style={{ margin:0, padding:0, listStyle:"none" }}>
                 {event.highlights.map((h, i) => (
-                  <li key={i} style={{ display:"flex", alignItems:"flex-start", gap:8, fontSize:13.5, color:"#5a5048", marginBottom:9, lineHeight:1.5 }}>
-                    <span style={{ color:"#c2622a", fontWeight:700, flexShrink:0 }}>✓</span>
+                  <li key={i} style={{ display:"flex", alignItems:"flex-start", gap:8, fontSize:13.5, color:"#d0c4b7", marginBottom:9, lineHeight:1.5 }}>
+                    <span style={{ color:"#f2a36b", fontWeight:700, flexShrink:0 }}>✓</span>
                     <span>{h}</span>
                   </li>
                 ))}
@@ -4103,8 +4172,8 @@ function EventDetailView({ eventSlug, onBack, navigate }) {
           )}
           {typeof event.ticketRequired === "boolean" && (
             <div style={{ flex:"1 1 200px" }}>
-              <h3 style={{ fontFamily:"Fraunces", fontSize:15, fontWeight:700, color:"#1a1714", marginBottom:12 }}>Getting In</h3>
-              <div style={{ display:"flex", alignItems:"center", gap:8, fontSize:13.5, color:"#5a5048" }}>
+              <h3 style={{ fontFamily:"Fraunces", fontSize:15, fontWeight:700, color:"#f6efe8", marginBottom:12 }}>Getting In</h3>
+              <div style={{ display:"flex", alignItems:"center", gap:8, fontSize:13.5, color:"#d0c4b7" }}>
                 <span>{event.ticketRequired ? "🎟️" : "🆓"}</span>
                 <span>{event.ticketRequired ? "Ticket required" : "No ticket required"}</span>
               </div>
@@ -4112,8 +4181,8 @@ function EventDetailView({ eventSlug, onBack, navigate }) {
           )}
           {event.duration && (
             <div style={{ flex:"1 1 160px" }}>
-              <h3 style={{ fontFamily:"Fraunces", fontSize:15, fontWeight:700, color:"#1a1714", marginBottom:12 }}>Duration</h3>
-              <div style={{ display:"flex", alignItems:"center", gap:8, fontSize:13.5, color:"#5a5048" }}>
+              <h3 style={{ fontFamily:"Fraunces", fontSize:15, fontWeight:700, color:"#f6efe8", marginBottom:12 }}>Duration</h3>
+              <div style={{ display:"flex", alignItems:"center", gap:8, fontSize:13.5, color:"#d0c4b7" }}>
                 <span>⏱️</span>
                 <span>{event.duration}</span>
               </div>
@@ -4121,8 +4190,8 @@ function EventDetailView({ eventSlug, onBack, navigate }) {
           )}
           {event.since && (
             <div style={{ flex:"1 1 160px" }}>
-              <h3 style={{ fontFamily:"Fraunces", fontSize:15, fontWeight:700, color:"#1a1714", marginBottom:12 }}>Since</h3>
-              <div style={{ display:"flex", alignItems:"center", gap:8, fontSize:13.5, color:"#5a5048" }}>
+              <h3 style={{ fontFamily:"Fraunces", fontSize:15, fontWeight:700, color:"#f6efe8", marginBottom:12 }}>Since</h3>
+              <div style={{ display:"flex", alignItems:"center", gap:8, fontSize:13.5, color:"#d0c4b7" }}>
                 <span>📅</span>
                 <span>{event.since}</span>
               </div>
@@ -4377,25 +4446,25 @@ function SearchBox({ navigate, mobile, onOpenChange }) {
 
   const resultsList = (
     results.length === 0 ? (
-      <div style={{ padding: "16px 18px", fontSize: 13, color: "#b8b0a8", fontStyle: "italic" }}>No recipes found.</div>
+      <div style={{ padding: "16px 18px", fontSize: 13, color: "#9d9185", fontStyle: "italic" }}>No recipes found.</div>
     ) : (
       <>
         {results.map(r => (
           <div key={r.key} onClick={() => goToRecipe(r)}
-            style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", cursor: "pointer", borderBottom: "1px solid #f5f0e8" }}
+            style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", cursor: "pointer", borderBottom: "1px solid #2a221d" }}
             onMouseEnter={e => e.currentTarget.style.background = "#faf7f3"}
             onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
-            <div style={{ width: 36, height: 36, borderRadius: 8, overflow: "hidden", flexShrink: 0, background: "#f0e8e0" }}>
+            <div style={{ width: 36, height: 36, borderRadius: 8, overflow: "hidden", flexShrink: 0, background: "#241d18" }}>
               <img {...imgProps(r.image, 160)} alt="" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </div>
             <div style={{ minWidth: 0 }}>
-              <div style={{ fontFamily: "Fraunces", fontSize: 13.5, fontWeight: 700, color: "#1a1714", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.name || r.key}</div>
-              <div style={{ fontSize: 11, color: "#9a9088" }}>{r.country}</div>
+              <div style={{ fontFamily: "Fraunces", fontSize: 13.5, fontWeight: 700, color: "#f6efe8", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.name || r.key}</div>
+              <div style={{ fontSize: 11, color: "#b0a498" }}>{r.country}</div>
             </div>
           </div>
         ))}
         <div onClick={submitSearch}
-          style={{ padding: "10px 14px", fontSize: 12, fontWeight: 600, color: "#c2622a", cursor: "pointer", textAlign: "center" }}
+          style={{ padding: "10px 14px", fontSize: 12, fontWeight: 600, color: "#f2a36b", cursor: "pointer", textAlign: "center" }}
           onMouseEnter={e => e.currentTarget.style.background = "#fdf3ed"}
           onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
           See all results for "{query.trim()}" →
@@ -4412,14 +4481,14 @@ function SearchBox({ navigate, mobile, onOpenChange }) {
       <div ref={boxRef} style={{ position: "relative", display: "flex", alignItems: "center" }}>
         <button type="button" onClick={() => setOpen(o => !o)}
           style={{ cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: 8, border: "none", padding: 0,
-            color: open ? "#fff" : "#1a1714", background: open ? "#c2622a" : "transparent" }}
+            color: open ? "#fff" : "#f6efe8", background: open ? "#f2a36b" : "transparent" }}
           aria-label="Search recipes" aria-expanded={open}>
           {searchIcon(2.6)}
         </button>
 
         {open && (
-          <div style={{ position: "fixed", top: 62, left: 0, right: 0, width: "100%", background: "#fff", borderBottom: "1.5px solid #ece6db", padding: "12px 16px", zIndex: 200, boxShadow: "0 6px 20px rgba(0,0,0,.08)", boxSizing: "border-box" }}>
-            <div style={{ display: "flex", alignItems: "center", background: "#fdf3ed", border: "1.5px solid #e8c9b0", borderRadius: 20, padding: "10px 14px", gap: 8 }}>
+          <div style={{ position: "fixed", top: 62, left: 0, right: 0, width: "100%", background: "#1d1713", borderBottom: "1.5px solid #2e2620", padding: "12px 16px", zIndex: 200, boxShadow: "0 6px 20px rgba(0,0,0,.08)", boxSizing: "border-box" }}>
+            <div style={{ display: "flex", alignItems: "center", background: "#2a1d15", border: "1.5px solid #5a3a28", borderRadius: 20, padding: "10px 14px", gap: 8 }}>
               <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c2622a" strokeWidth="2.6" strokeLinecap="round" style={{ flexShrink: 0 }}>
                 <circle cx="11" cy="11" r="7" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -4430,11 +4499,11 @@ function SearchBox({ navigate, mobile, onOpenChange }) {
                 onChange={e => setQuery(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter") submitSearch(); }}
                 placeholder="Search recipes..."
-                style={{ border: "none", outline: "none", background: "transparent", fontSize: 16, fontFamily: "Plus Jakarta Sans", color: "#1a1714", width: "100%" }}
+                style={{ border: "none", outline: "none", background: "transparent", fontSize: 16, fontFamily: "Plus Jakarta Sans", color: "#f6efe8", width: "100%" }}
               />
             </div>
             {query.trim() && (
-              <div style={{ marginTop: 8, background: "#fff", border: "1.5px solid #ece6db", borderRadius: 12, boxShadow: "0 8px 28px rgba(0,0,0,.12)", overflow: "hidden", maxHeight: "60vh", overflowY: "auto" }}>
+              <div style={{ marginTop: 8, background: "#1d1713", border: "1.5px solid #2e2620", borderRadius: 12, boxShadow: "0 8px 28px rgba(0,0,0,.12)", overflow: "hidden", maxHeight: "60vh", overflowY: "auto" }}>
                 {resultsList}
               </div>
             )}
@@ -4448,14 +4517,14 @@ function SearchBox({ navigate, mobile, onOpenChange }) {
     <div ref={boxRef} style={{ position: "relative", display: "flex", alignItems: "center" }}>
       {!open ? (
         <button type="button" onClick={() => setOpen(true)}
-          style={{ cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: "50%", color: "#1a1714", background: "transparent", border: "none", padding: 0 }}
+          style={{ cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: "50%", color: "#f6efe8", background: "transparent", border: "none", padding: 0 }}
           onMouseEnter={e => { e.currentTarget.style.background = "#fdf3ed"; e.currentTarget.style.color = "#c2622a"; }}
           onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#1a1714"; }}
           aria-label="Search recipes" aria-expanded={open}>
           {searchIcon(2.6)}
         </button>
       ) : (
-        <div style={{ display: "flex", alignItems: "center", background: "#fdf3ed", border: "1.5px solid #e8c9b0", borderRadius: 20, padding: "6px 12px", gap: 8, width: 220 }}>
+        <div style={{ display: "flex", alignItems: "center", background: "#2a1d15", border: "1.5px solid #5a3a28", borderRadius: 20, padding: "6px 12px", gap: 8, width: 220 }}>
           <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c2622a" strokeWidth="2.2" strokeLinecap="round" style={{ flexShrink: 0 }}>
             <circle cx="11" cy="11" r="7" />
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -4466,13 +4535,13 @@ function SearchBox({ navigate, mobile, onOpenChange }) {
             onChange={e => setQuery(e.target.value)}
             onKeyDown={e => { if (e.key === "Enter") submitSearch(); }}
             placeholder="Search recipes..."
-            style={{ border: "none", outline: "none", background: "transparent", fontSize: 13, fontFamily: "Plus Jakarta Sans", color: "#1a1714", width: "100%" }}
+            style={{ border: "none", outline: "none", background: "transparent", fontSize: 13, fontFamily: "Plus Jakarta Sans", color: "#f6efe8", width: "100%" }}
           />
         </div>
       )}
 
       {open && query.trim() && (
-        <div style={{ position: "absolute", top: "calc(100% + 8px)", right: 0, width: 300, background: "#fff", border: "1.5px solid #ece6db", borderRadius: 12, boxShadow: "0 8px 28px rgba(0,0,0,.12)", overflow: "hidden", zIndex: 100 }}>
+        <div style={{ position: "absolute", top: "calc(100% + 8px)", right: 0, width: 300, background: "#1d1713", border: "1.5px solid #2e2620", borderRadius: 12, boxShadow: "0 8px 28px rgba(0,0,0,.12)", overflow: "hidden", zIndex: 100 }}>
           {resultsList}
         </div>
       )}
@@ -4495,7 +4564,7 @@ function SearchResultsPage({ query, navigate }) {
       <h1 style={{ fontFamily: "Fraunces", fontSize: "clamp(26px,3.5vw,40px)", fontWeight: 700, marginBottom: 8 }}>
         {query ? <>Results for "{query}"</> : "Search"}
       </h1>
-      <p style={{ fontSize: 14, color: "#9a9088", marginBottom: 32 }}>
+      <p style={{ fontSize: 14, color: "#b0a498", marginBottom: 32 }}>
         {results.length === 0
           ? "No recipes found — try a different name, country or ingredient."
           : `${results.length} recipe${results.length === 1 ? "" : "s"} found.`}
@@ -4505,19 +4574,19 @@ function SearchResultsPage({ query, navigate }) {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16 }}>
           {results.map(r => (
             <div key={r.key} onClick={() => goToRecipe(r)}
-              style={{ background: "#fff", border: "1.5px solid #ece6db", borderRadius: 12, overflow: "hidden", cursor: "pointer", transition: "transform .15s, box-shadow .15s" }}
+              style={{ background: "#1d1713", border: "1.5px solid #2e2620", borderRadius: 12, overflow: "hidden", cursor: "pointer", transition: "transform .15s, box-shadow .15s" }}
               onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 6px 20px rgba(0,0,0,.08)"; }}
               onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}>
-              <div style={{ width: "100%", height: 160, overflow: "hidden", background: "#f0e8e0" }}>
+              <div style={{ width: "100%", height: 160, overflow: "hidden", background: "#241d18" }}>
                 <img {...imgProps(r.image, 500)} alt={`Authentic ${r.country} ${r.name} recipe`} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
               </div>
               <div style={{ padding: "12px 14px 14px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
                   <span style={{ fontSize: 14 }}>{COUNTRY_DISHES[r.country]?.flag}</span>
-                  <span style={{ fontSize: 11, color: "#9a9088", fontFamily: "Plus Jakarta Sans", fontWeight: 500 }}>{r.country}</span>
+                  <span style={{ fontSize: 11, color: "#b0a498", fontFamily: "Plus Jakarta Sans", fontWeight: 500 }}>{r.country}</span>
                 </div>
-                <div style={{ fontFamily: "Fraunces", fontSize: 16, fontWeight: 700, color: "#1a1714", lineHeight: 1.3, marginBottom: 4 }}>{r.name}</div>
-                <div style={{ fontSize: 12, color: "#c2622a", fontWeight: 600, fontFamily: "Plus Jakarta Sans" }}>View recipe →</div>
+                <div style={{ fontFamily: "Fraunces", fontSize: 16, fontWeight: 700, color: "#f6efe8", lineHeight: 1.3, marginBottom: 4 }}>{r.name}</div>
+                <div style={{ fontSize: 12, color: "#f2a36b", fontWeight: 600, fontFamily: "Plus Jakarta Sans" }}>View recipe →</div>
               </div>
             </div>
           ))}
@@ -4673,8 +4742,8 @@ function PantryToPlate({ navigate }) {
       <div style={{ maxWidth: 1070, margin: "0 auto 32px" }}>
       </div>
       <h1 style={{ fontFamily: "Fraunces", fontSize: "clamp(30px,4vw,48px)", fontWeight: 700, marginBottom: 4 }}>Pantry to Plate</h1>
-      <h2 style={{ fontFamily: "Fraunces", fontSize: "clamp(16px,2vw,20px)", fontWeight: 600, color: "#c2622a", marginBottom: 12 }}>What's in your kitchen?</h2>
-      <p style={{ fontSize: 14, color: "#9a9088", marginBottom: 32, maxWidth: 560 }}>
+      <h2 style={{ fontFamily: "Fraunces", fontSize: "clamp(16px,2vw,20px)", fontWeight: 600, color: "#f2a36b", marginBottom: 12 }}>What's in your kitchen?</h2>
+      <p style={{ fontSize: 14, color: "#b0a498", marginBottom: 32, maxWidth: 560 }}>
         Pick up to {PTP_MAX_SELECTED} ingredients you've got on hand, and we'll surface real recipes from every corner of the world that use them.
       </p>
 
@@ -4682,7 +4751,7 @@ function PantryToPlate({ navigate }) {
       <div style={{ marginBottom: 36 }}>
         <h3 style={{ fontFamily: "Fraunces", fontSize: 20, fontWeight: 700, marginBottom: 12 }}>Ingredients</h3>
         {selected.length === 0 ? (
-          <div style={{ fontSize: 13, color: "#b8b0a8", fontStyle: "italic" }}>
+          <div style={{ fontSize: 13, color: "#9d9185", fontStyle: "italic" }}>
             Nothing selected yet — tap up to {PTP_MAX_SELECTED} ingredients below to get started.
           </div>
         ) : (
@@ -4692,7 +4761,7 @@ function PantryToPlate({ navigate }) {
                 {label} <span style={{ fontSize: 15, lineHeight: 1 }}>×</span>
               </div>
             ))}
-            <div style={{ fontSize: 12, color: "#b8b0a8", alignSelf: "center", marginLeft: 4 }}>
+            <div style={{ fontSize: 12, color: "#9d9185", alignSelf: "center", marginLeft: 4 }}>
               {selected.length}/{PTP_MAX_SELECTED} selected
             </div>
           </div>
@@ -4702,7 +4771,7 @@ function PantryToPlate({ navigate }) {
       {/* Category pickers */}
       {PTP_CATEGORIES.map((cat) => (
         <div key={cat.name} style={{ marginBottom: 28 }}>
-          <h3 style={{ fontFamily: "Fraunces", fontSize: 16, fontWeight: 700, marginBottom: 12, color: "#1a1714" }}>{cat.name}</h3>
+          <h3 style={{ fontFamily: "Fraunces", fontSize: 16, fontWeight: 700, marginBottom: 12, color: "#f6efe8" }}>{cat.name}</h3>
           <div className="ptp-grid">
             {cat.items.map((item) => {
               const isSelected = selected.includes(item.label);
@@ -4713,8 +4782,8 @@ function PantryToPlate({ navigate }) {
                   className={`ptp-card ${isSelected ? "selected" : ""} ${isDisabled ? "disabled" : ""}`}
                   onClick={() => !isDisabled && toggle(item.label)}
                 >
-                  <span style={{ fontFamily: "Plus Jakarta Sans", fontSize: 13.5, fontWeight: 600, color: "#1a1714" }}>{item.label}</span>
-                  <span style={{ fontSize: 13, color: isSelected ? "#c2622a" : "#c8bfb0", fontWeight: 700 }}>{isSelected ? "✓" : "+"}</span>
+                  <span style={{ fontFamily: "Plus Jakarta Sans", fontSize: 13.5, fontWeight: 600, color: "#f6efe8" }}>{item.label}</span>
+                  <span style={{ fontSize: 13, color: isSelected ? "#f2a36b" : "#8f8478", fontWeight: 700 }}>{isSelected ? "✓" : "+"}</span>
                 </div>
               );
             })}
@@ -4723,9 +4792,9 @@ function PantryToPlate({ navigate }) {
       ))}
 
       {/* Recipe Suggestions */}
-      <div style={{ marginTop: 44, paddingTop: 32, borderTop: "1px solid #ece6db" }}>
+      <div style={{ marginTop: 44, paddingTop: 32, borderTop: "1px solid #2e2620" }}>
         <h2 style={{ fontFamily: "Fraunces", fontSize: "clamp(20px,2.5vw,28px)", fontWeight: 700, marginBottom: 4 }}>Recipe Suggestions</h2>
-        <p style={{ fontSize: 13, color: "#9a9088", marginBottom: 20 }}>
+        <p style={{ fontSize: 13, color: "#b0a498", marginBottom: 20 }}>
           {selected.length === 0
             ? "Select ingredients above to see matching recipes here."
             : matches.length === 0
@@ -4737,18 +4806,18 @@ function PantryToPlate({ navigate }) {
           <div className="ptp-recipe-grid">
             {matches.slice(0, PTP_MAX_RESULTS).map((r) => (
               <div key={r.key} className="ptp-recipe-card" onClick={() => goToRecipe(r)}>
-                <div style={{ width: "100%", height: 160, overflow: "hidden", background: "#f0e8e0" }}>
+                <div style={{ width: "100%", height: 160, overflow: "hidden", background: "#241d18" }}>
                   <img {...imgProps(r.image, 500)} alt={`Authentic ${r.country} ${r.name} recipe`} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                 </div>
                 <div style={{ padding: "12px 14px 14px" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-                    <span style={{ fontSize: 11, color: "#9a9088", fontFamily: "Plus Jakarta Sans", fontWeight: 500 }}>{r.country}</span>
-                    <span style={{ fontSize: 10, color: "#c2622a", background: "#fdf3ed", border: "1px solid #e8c9b0", borderRadius: 10, padding: "2px 8px", fontWeight: 700 }}>
+                    <span style={{ fontSize: 11, color: "#b0a498", fontFamily: "Plus Jakarta Sans", fontWeight: 500 }}>{r.country}</span>
+                    <span style={{ fontSize: 10, color: "#f2a36b", background: "#2a1d15", border: "1px solid #5a3a28", borderRadius: 10, padding: "2px 8px", fontWeight: 700 }}>
                       {r.matchCount}/{selected.length} match{r.matchCount === 1 ? "" : "es"}
                     </span>
                   </div>
-                  <div style={{ fontFamily: "Fraunces", fontSize: 16, fontWeight: 700, color: "#1a1714", lineHeight: 1.3, marginBottom: 4 }}>{r.name}</div>
-                  <div style={{ fontSize: 12, color: "#c2622a", fontWeight: 600, fontFamily: "Plus Jakarta Sans" }}>View recipe →</div>
+                  <div style={{ fontFamily: "Fraunces", fontSize: 16, fontWeight: 700, color: "#f6efe8", lineHeight: 1.3, marginBottom: 4 }}>{r.name}</div>
+                  <div style={{ fontSize: 12, color: "#f2a36b", fontWeight: 600, fontFamily: "Plus Jakarta Sans" }}>View recipe →</div>
                 </div>
               </div>
             ))}
@@ -4756,7 +4825,7 @@ function PantryToPlate({ navigate }) {
         )}
 
         {matches.length > PTP_MAX_RESULTS && (
-          <div style={{ textAlign: "center", fontSize: 12, color: "#b8b0a8", marginTop: 16 }}>
+          <div style={{ textAlign: "center", fontSize: 12, color: "#9d9185", marginTop: 16 }}>
             Showing top {PTP_MAX_RESULTS} of {matches.length} matches.
           </div>
         )}
@@ -4789,13 +4858,13 @@ function MealCard({ meal, style, onClick }) {
       <div style={{ display:"flex", marginBottom:14, paddingLeft:6 }}>
         {photos.map((k, i) => (
           <img key={k} {...imgProps(RECIPE_DB[k].image, 160)} alt="" width={46} height={46} loading="lazy" decoding="async" draggable={false}
-            style={{ width:46, height:46, borderRadius:"50%", objectFit:"cover", border:`2.5px solid ${dark ? "#6b4a86" : "#fff"}`, marginLeft: i ? -12 : 0, background:"#f0e8e0", pointerEvents:"none" }} />
+            style={{ width:46, height:46, borderRadius:"50%", objectFit:"cover", border:`2.5px solid ${dark ? "#6b4a86" : "#1d1713"}`, marginLeft: i ? -12 : 0, background:"#241d18", pointerEvents:"none" }} />
         ))}
       </div>
       <div className="meal-title" style={{ fontFamily:"Fraunces", fontSize:30, fontWeight:700, lineHeight:1.1 }}>{meal.label}</div>
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:8 }}>
         <span style={{ fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", opacity:.85 }}>{count} recipes</span>
-        <span aria-hidden="true" style={{ width:36, height:36, borderRadius:"50%", background:"#1a1714", color:"#fff", display:"flex", alignItems:"center", justifyContent:"center" }}>
+        <span aria-hidden="true" style={{ width:36, height:36, borderRadius:"50%", background:"#2e2620", color:"#fff", display:"flex", alignItems:"center", justifyContent:"center" }}>
           <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
         </span>
       </div>
@@ -4822,10 +4891,10 @@ function ExploreByMeal({ marginBottom = 93 }) {
     <div style={{ marginTop:0, marginBottom }}>
       <div style={{ marginBottom:16, display:"flex", alignItems:"flex-end", justifyContent:"space-between", gap:12 }}>
         <div>
-          <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#1a1714", margin:0 }}>Explore by Meal</h2>
-          <p style={{ fontSize:13, color:"#9a9088", margin:"4px 0 0" }}>What are you cooking? Pick a meal and browse the world.</p>
+          <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#f6efe8", margin:0 }}>Explore by Meal</h2>
+          <p style={{ fontSize:13, color:"#b0a498", margin:"4px 0 0" }}>What are you cooking? Pick a meal and browse the world.</p>
         </div>
-        <AppLink to="/meals" style={{ fontSize:13, fontWeight:700, color:"#c2622a", whiteSpace:"nowrap" }}>View all</AppLink>
+        <AppLink to="/meals" style={{ fontSize:13, fontWeight:700, color:"#f2a36b", whiteSpace:"nowrap" }}>View all</AppLink>
       </div>
       <div style={{ position:"relative" }}>
         <button className="meal-arrow classics-arrow" onClick={() => go(Math.max(0, active - 1))} aria-label="Previous meal"
@@ -4852,8 +4921,8 @@ function ExploreByMeal({ marginBottom = 93 }) {
 function MealsHubPage() {
   return (
     <div style={{ maxWidth:1070, margin:"0 auto", padding:"64px 24px 60px" }}>
-      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(30px,4vw,48px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>Recipes by Meal</h1>
-      <p style={{ fontSize:15, color:"#6a6058", lineHeight:1.8, maxWidth:760, margin:"0 0 28px" }}>
+      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(30px,4vw,48px)", fontWeight:700, color:"#f6efe8", marginBottom:8 }}>Recipes by Meal</h1>
+      <p style={{ fontSize:15, color:"#c2b6a9", lineHeight:1.8, maxWidth:760, margin:"0 0 28px" }}>
         Know what you are in the mood for? Choose breakfast, lunch, dinner or dessert and browse authentic recipes from every region of the world.
       </p>
       <div className="meal-hub-grid">
@@ -4875,9 +4944,9 @@ function MealPage({ mealId }) {
   const countries = new Set(items.map(k => RECIPE_DB[k].country));
   return (
     <div style={{ maxWidth:1070, margin:"0 auto", padding:"56px 24px 60px" }}>
-      <AppLink to="/meals" style={{ fontSize:13, fontWeight:700, color:"#c2622a" }}>&larr; All meals</AppLink>
-      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(30px,4vw,48px)", fontWeight:700, color:"#1a1714", margin:"10px 0 8px" }}>{meal.label} Recipes</h1>
-      <p style={{ fontSize:15, color:"#6a6058", lineHeight:1.8, maxWidth:760, margin:"0 0 22px" }}>
+      <AppLink to="/meals" style={{ fontSize:13, fontWeight:700, color:"#f2a36b" }}>&larr; All meals</AppLink>
+      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(30px,4vw,48px)", fontWeight:700, color:"#f6efe8", margin:"10px 0 8px" }}>{meal.label} Recipes</h1>
+      <p style={{ fontSize:15, color:"#c2b6a9", lineHeight:1.8, maxWidth:760, margin:"0 0 22px" }}>
         {items.length} {meal.label.toLowerCase()} recipes from {countries.size} countries: {meal.tag.toLowerCase()}. Each one has a full recipe, method and the story behind the dish.
       </p>
       <div style={{ display:"flex", flexWrap:"wrap", gap:8, marginBottom:22 }}>
@@ -4915,8 +4984,8 @@ function SaucesSidesPage() {
     .sort((a, b) => RECIPE_DB[a].name.localeCompare(RECIPE_DB[b].name));
   return (
     <div style={{ maxWidth:1070, margin:"0 auto", padding:"64px 24px 60px" }}>
-      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(30px,4vw,48px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>Sauces &amp; Sides</h1>
-      <p style={{ fontSize:15, color:"#6a6058", lineHeight:1.8, maxWidth:760, margin:"0 0 24px" }}>
+      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(30px,4vw,48px)", fontWeight:700, color:"#f6efe8", marginBottom:8 }}>Sauces &amp; Sides</h1>
+      <p style={{ fontSize:15, color:"#c2b6a9", lineHeight:1.8, maxWidth:760, margin:"0 0 24px" }}>
         Every great main dish has a supporting cast. Here are {items.length} sauces, dips, pickles, breads, salads and side dishes from {countries.size} countries,
         from French béarnaise and Argentine chimichurri to Korean kimchi and Ethiopian niter kibbeh. Each has a full recipe
         and a note on which dishes to serve it with.
@@ -4938,16 +5007,16 @@ function SaucesSidesPage() {
                 <img {...imgProps(r.image, 500)} alt={`${r.name} recipe`} loading="lazy" decoding="async" />
               </AppLink>
               <div style={{ padding:"12px 14px 14px", display:"flex", flexDirection:"column", gap:6, flex:1 }}>
-                <div style={{ fontSize:11, color:"#9a9088", fontFamily:"Plus Jakarta Sans", fontWeight:500 }}>
+                <div style={{ fontSize:11, color:"#b0a498", fontFamily:"Plus Jakarta Sans", fontWeight:500 }}>
                   {COUNTRY_DISHES[r.country]?.flag} {r.country} · {r.category}
                 </div>
-                <AppLink to={recipePath(k)} style={{ fontFamily:"Fraunces", fontSize:16, fontWeight:700, color:"#1a1714", lineHeight:1.3 }}>{r.name}</AppLink>
+                <AppLink to={recipePath(k)} style={{ fontFamily:"Fraunces", fontSize:16, fontWeight:700, color:"#f6efe8", lineHeight:1.3 }}>{r.name}</AppLink>
                 {mains.length > 0 && (
-                  <div style={{ fontSize:12, color:"#9a9088", lineHeight:1.6, marginTop:"auto", paddingTop:4 }}>
+                  <div style={{ fontSize:12, color:"#b0a498", lineHeight:1.6, marginTop:"auto", paddingTop:4 }}>
                     Serve with:{" "}
                     {mains.map((m, i) => (
                       <span key={m}>
-                        <AppLink to={recipePath(m)} style={{ color:"#c2622a", fontWeight:600, display:"inline" }}>{RECIPE_DB[m].name}</AppLink>
+                        <AppLink to={recipePath(m)} style={{ color:"#f2a36b", fontWeight:600, display:"inline" }}>{RECIPE_DB[m].name}</AppLink>
                         {i < mains.length - 1 ? ", " : ""}
                       </span>
                     ))}
@@ -4958,18 +5027,18 @@ function SaucesSidesPage() {
           );
         })}
       </div>
-      <details style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, padding:"4px 18px", marginTop:40 }}>
-        <summary style={{ cursor:"pointer", fontFamily:"Fraunces", fontSize:18, fontWeight:700, color:"#1a1714", padding:"14px 0" }}>
-          Find a match by main dish <span style={{ fontFamily:"Plus Jakarta Sans", fontSize:12, fontWeight:500, color:"#9a9088" }}>· {byDish.length} dishes</span>
+      <details style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:12, padding:"4px 18px", marginTop:40 }}>
+        <summary style={{ cursor:"pointer", fontFamily:"Fraunces", fontSize:18, fontWeight:700, color:"#f6efe8", padding:"14px 0" }}>
+          Find a match by main dish <span style={{ fontFamily:"Plus Jakarta Sans", fontSize:12, fontWeight:500, color:"#b0a498" }}>· {byDish.length} dishes</span>
         </summary>
         <ul style={{ listStyle:"none", margin:0, padding:"0 0 14px" }}>
           {byDish.map(d => (
-            <li key={d} style={{ padding:"8px 0", borderTop:"1px solid #f3eee6", fontSize:13.5, color:"#5a5048", lineHeight:1.6 }}>
-              <AppLink to={recipePath(d)} style={{ color:"#1a1714", fontWeight:700, display:"inline" }}>{RECIPE_DB[d].name}</AppLink>
-              <span style={{ color:"#9a9088" }}> goes with </span>
+            <li key={d} style={{ padding:"8px 0", borderTop:"1px solid #2e2620", fontSize:13.5, color:"#d0c4b7", lineHeight:1.6 }}>
+              <AppLink to={recipePath(d)} style={{ color:"#f6efe8", fontWeight:700, display:"inline" }}>{RECIPE_DB[d].name}</AppLink>
+              <span style={{ color:"#b0a498" }}> goes with </span>
               {DISH_PAIRINGS[d].filter(x => RECIPE_DB[x]).map((x, i, arr) => (
                 <span key={x}>
-                  <AppLink to={recipePath(x)} style={{ color:"#c2622a", fontWeight:600, display:"inline" }}>{RECIPE_DB[x].name}</AppLink>
+                  <AppLink to={recipePath(x)} style={{ color:"#f2a36b", fontWeight:600, display:"inline" }}>{RECIPE_DB[x].name}</AppLink>
                   {i < arr.length - 1 ? ", " : ""}
                 </span>
               ))}
@@ -4992,30 +5061,30 @@ function NotFoundPage({ navigate }) {
   return (
     <div style={{ maxWidth:760, margin:"0 auto", padding:"24px 0 16px", textAlign:"center" }}>
       <div style={{ fontSize:56, marginBottom:8 }} aria-hidden="true">🍽️</div>
-      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(28px,4vw,42px)", fontWeight:700, color:"#1a1714", margin:"0 0 12px", lineHeight:1.2 }}>We can't find that page</h1>
-      <p style={{ fontSize:15, color:"#6a6058", lineHeight:1.8, margin:"0 auto 28px", maxWidth:520 }}>
+      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(28px,4vw,42px)", fontWeight:700, color:"#f6efe8", margin:"0 0 12px", lineHeight:1.2 }}>We can't find that page</h1>
+      <p style={{ fontSize:15, color:"#c2b6a9", lineHeight:1.8, margin:"0 auto 28px", maxWidth:520 }}>
         The link may be old or mistyped. Try searching for a recipe, or pick up from one of the places below.
       </p>
       <form onSubmit={submit} style={{ display:"flex", gap:8, maxWidth:460, margin:"0 auto 28px" }}>
         <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search recipes, countries or ingredients" aria-label="Search recipes"
-          style={{ flex:1, minWidth:0, border:"1.5px solid #ece6db", borderRadius:10, padding:"12px 14px", fontSize:14, fontFamily:"Plus Jakarta Sans", background:"#fff", color:"#1a1714", outline:"none" }} />
+          style={{ flex:1, minWidth:0, border:"1.5px solid #2e2620", borderRadius:10, padding:"12px 14px", fontSize:14, fontFamily:"Plus Jakarta Sans", background:"#1d1713", color:"#f6efe8", outline:"none" }} />
         <button type="submit" style={{ background:"#c2622a", color:"#fff", border:"none", borderRadius:10, padding:"12px 20px", fontSize:14, fontWeight:600, fontFamily:"Plus Jakarta Sans", cursor:"pointer" }}>Search</button>
       </form>
       <div style={{ marginBottom:28 }}>
-        <AppLink to="/" style={{ display:"inline-block", background:"#fdf3ed", color:"#c2622a", border:"1.5px solid #f0e4d4", borderRadius:10, padding:"10px 20px", fontSize:14, fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>🗺️ Back to the world map</AppLink>
+        <AppLink to="/" style={{ display:"inline-block", background:"#2a1d15", color:"#f2a36b", border:"1.5px solid #2e2620", borderRadius:10, padding:"10px 20px", fontSize:14, fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>🗺️ Back to the world map</AppLink>
       </div>
-      <h2 style={{ fontFamily:"Fraunces", fontSize:19, fontWeight:700, color:"#1a1714", margin:"0 0 12px" }}>Browse by region</h2>
+      <h2 style={{ fontFamily:"Fraunces", fontSize:19, fontWeight:700, color:"#f6efe8", margin:"0 0 12px" }}>Browse by region</h2>
       <div style={{ display:"flex", flexWrap:"wrap", gap:8, justifyContent:"center", marginBottom:28 }}>
         {REGIONS.map(r => (
-          <AppLink key={r.id} to={`/${r.id}`} style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:20, padding:"8px 16px", fontSize:13, fontWeight:600, color:"#3a3028", fontFamily:"Plus Jakarta Sans" }}>{r.emoji} {r.name}</AppLink>
+          <AppLink key={r.id} to={`/${r.id}`} style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:20, padding:"8px 16px", fontSize:13, fontWeight:600, color:"#e6dccf", fontFamily:"Plus Jakarta Sans" }}>{r.emoji} {r.name}</AppLink>
         ))}
       </div>
-      <h2 style={{ fontFamily:"Fraunces", fontSize:19, fontWeight:700, color:"#1a1714", margin:"0 0 12px" }}>Popular recipes</h2>
+      <h2 style={{ fontFamily:"Fraunces", fontSize:19, fontWeight:700, color:"#f6efe8", margin:"0 0 12px" }}>Popular recipes</h2>
       <div style={{ display:"flex", flexWrap:"wrap", gap:8, justifyContent:"center" }}>
         {popular.map(k => (
-          <AppLink key={k} to={recipePath(k)} style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:20, padding:"8px 16px", fontSize:13, fontWeight:600, color:"#c2622a", fontFamily:"Plus Jakarta Sans" }}>{RECIPE_DB[k].name}</AppLink>
+          <AppLink key={k} to={recipePath(k)} style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:20, padding:"8px 16px", fontSize:13, fontWeight:600, color:"#f2a36b", fontFamily:"Plus Jakarta Sans" }}>{RECIPE_DB[k].name}</AppLink>
         ))}
-        <AppLink to="/blog" style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:20, padding:"8px 16px", fontSize:13, fontWeight:600, color:"#3a3028", fontFamily:"Plus Jakarta Sans" }}>📖 Read the blog</AppLink>
+        <AppLink to="/blog" style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:20, padding:"8px 16px", fontSize:13, fontWeight:600, color:"#e6dccf", fontFamily:"Plus Jakarta Sans" }}>📖 Read the blog</AppLink>
       </div>
     </div>
   );
@@ -5476,19 +5545,19 @@ function App() {
   const region = REGIONS.find(r => r.id === selectedRegion);
 
   const breadcrumbContent = (
-    <div style={{ display:"flex", alignItems:"center", gap:6, fontSize:12, color:"#b8b0a8", flexWrap:"wrap" }}>
+    <div style={{ display:"flex", alignItems:"center", gap:6, fontSize:12, color:"#9d9185", flexWrap:"wrap" }}>
       {view === "recipe" && recipeCountry ? (
         <>
-          <AppLink to={countryPathOrHome(recipeCountry)} style={{ color:"#9a9088", fontWeight:500, display:"inline" }}>{recipeCountry}</AppLink>
-          {selectedDish && <><span>›</span><span style={{ color:"#1a1714", fontWeight:600 }}>{selectedDish}</span></>}
+          <AppLink to={countryPathOrHome(recipeCountry)} style={{ color:"#b0a498", fontWeight:500, display:"inline" }}>{recipeCountry}</AppLink>
+          {selectedDish && <><span>›</span><span style={{ color:"#f6efe8", fontWeight:600 }}>{selectedDish}</span></>}
         </>
       ) : (
         <>
-          <AppLink to="/" style={{ color:"#9a9088", fontWeight:500, display:"inline" }}>Regions</AppLink>
-          {selectedRegion && <><span>›</span><AppLink to={view==="region" ? null : `/${selectedRegion}`} style={{ cursor: view==="region" ? "default" : "pointer", color: view!=="region"?"#9a9088":"#1a1714", fontWeight:500, display:"inline" }}>{region?.name}</AppLink></>}
-          {!selectedRegion && countryRegion && <><span>›</span><AppLink to={`/${countryRegion.id}`} style={{ color:"#9a9088", fontWeight:500, display:"inline" }}>{countryRegion.name}</AppLink></>}
-          {selectedCountry && <><span>›</span><AppLink to={view==="country" ? null : `/${selectedRegion}/${slugify(selectedCountry)}`} style={{ cursor: view==="country" ? "default" : "pointer", color: view!=="country"?"#9a9088":"#1a1714", fontWeight:500, display:"inline" }}>{selectedCountry}</AppLink></>}
-          {selectedDish && <><span>›</span><span style={{ color:"#1a1714", fontWeight:600 }}>{selectedDish}</span></>}
+          <AppLink to="/" style={{ color:"#b0a498", fontWeight:500, display:"inline" }}>Regions</AppLink>
+          {selectedRegion && <><span>›</span><AppLink to={view==="region" ? null : `/${selectedRegion}`} style={{ cursor: view==="region" ? "default" : "pointer", color: view!=="region"?"#b0a498":"#f6efe8", fontWeight:500, display:"inline" }}>{region?.name}</AppLink></>}
+          {!selectedRegion && countryRegion && <><span>›</span><AppLink to={`/${countryRegion.id}`} style={{ color:"#b0a498", fontWeight:500, display:"inline" }}>{countryRegion.name}</AppLink></>}
+          {selectedCountry && <><span>›</span><AppLink to={view==="country" ? null : `/${selectedRegion}/${slugify(selectedCountry)}`} style={{ cursor: view==="country" ? "default" : "pointer", color: view!=="country"?"#b0a498":"#f6efe8", fontWeight:500, display:"inline" }}>{selectedCountry}</AppLink></>}
+          {selectedDish && <><span>›</span><span style={{ color:"#f6efe8", fontWeight:600 }}>{selectedDish}</span></>}
         </>
       )}
     </div>
@@ -5497,7 +5566,7 @@ function App() {
   const pantryPillMobile = (
     <AppLink to="/pantry-to-plate" className="nav-pill"
       style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
-        color: view==="pantry-to-plate" ? "#c2622a" : "#1a1714", padding:"6px 0" }}>
+        color: view==="pantry-to-plate" ? "#f2a36b" : "#f6efe8", padding:"6px 0" }}>
       <span aria-hidden="true" style={{ marginRight:7, fontSize:14, lineHeight:1 }}>🥕</span>Pantry to Plate
     </AppLink>
   );
@@ -5505,14 +5574,14 @@ function App() {
   const savedPill = savedCount > 0 ? (
     <AppLink to="/saved" className="nav-pill"
       style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:13.5, fontWeight:700, fontFamily:"Fraunces",
-        color: view==="saved" ? "#c2622a" : "#1a1714", padding:0 }}>
+        color: view==="saved" ? "#f2a36b" : "#f6efe8", padding:0 }}>
       <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="#c2622a" stroke="#c2622a" strokeWidth="1.4" strokeLinejoin="round" style={{ marginRight:6 }}><path d="M12 20.5s-7.5-4.6-9.4-9.3C1.4 8 3.1 4.8 6.3 4.5c2-.2 3.8.8 5.7 3 1.9-2.2 3.7-3.2 5.7-3 3.2.3 4.9 3.5 3.7 6.7-1.9 4.7-9.4 9.3-9.4 9.3z" /></svg>Saved ({savedCount})
     </AppLink>
   ) : null;
   const savedPillMobile = savedCount > 0 ? (
     <AppLink to="/saved" className="nav-pill"
       style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
-        color: view==="saved" ? "#c2622a" : "#1a1714", padding:"6px 0" }}>
+        color: view==="saved" ? "#f2a36b" : "#f6efe8", padding:"6px 0" }}>
       <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="#c2622a" stroke="#c2622a" strokeWidth="1.4" strokeLinejoin="round" style={{ marginRight:7 }}><path d="M12 20.5s-7.5-4.6-9.4-9.3C1.4 8 3.1 4.8 6.3 4.5c2-.2 3.8.8 5.7 3 1.9-2.2 3.7-3.2 5.7-3 3.2.3 4.9 3.5 3.7 6.7-1.9 4.7-9.4 9.3-9.4 9.3z" /></svg>Saved ({savedCount})
     </AppLink>
   ) : null;
@@ -5520,7 +5589,7 @@ function App() {
   const blogPillMobile = (
     <AppLink to="/blog" className="nav-pill"
       style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
-        color: view==="blog" ? "#c2622a" : "#1a1714", padding:"6px 0" }}>
+        color: view==="blog" ? "#f2a36b" : "#f6efe8", padding:"6px 0" }}>
       <span aria-hidden="true" style={{ marginRight:7, fontSize:14, lineHeight:1 }}>📖</span>Blog
     </AppLink>
   );
@@ -5528,7 +5597,7 @@ function App() {
   const mealsPillMobile = (
     <AppLink to="/meals" className="nav-pill"
       style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
-        color: (view==="meals"||view==="meal") ? "#c2622a" : "#1a1714", padding:"6px 0" }}>
+        color: (view==="meals"||view==="meal") ? "#f2a36b" : "#f6efe8", padding:"6px 0" }}>
       <span aria-hidden="true" style={{ marginRight:7, fontSize:14, lineHeight:1 }}>🍳</span>By Meal
     </AppLink>
   );
@@ -5536,7 +5605,7 @@ function App() {
   const mealsPill = (
     <AppLink to="/meals" className="nav-pill"
       style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:13.5, fontWeight:700, fontFamily:"Fraunces",
-        color: (view==="meals"||view==="meal") ? "#c2622a" : "#1a1714", padding:0 }}>
+        color: (view==="meals"||view==="meal") ? "#f2a36b" : "#f6efe8", padding:0 }}>
       <span aria-hidden="true" style={{ marginRight:6, fontSize:14, lineHeight:1 }}>🍳</span>By Meal
     </AppLink>
   );
@@ -5544,7 +5613,7 @@ function App() {
   const saucesPillMobile = (
     <AppLink to="/sauces-and-sides" className="nav-pill"
       style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
-        color: view==="sauces-and-sides" ? "#c2622a" : "#1a1714", padding:"6px 0" }}>
+        color: view==="sauces-and-sides" ? "#f2a36b" : "#f6efe8", padding:"6px 0" }}>
       <span aria-hidden="true" style={{ marginRight:7, fontSize:14, lineHeight:1 }}>🫙</span>Sauces &amp; Sides
     </AppLink>
   );
@@ -5552,7 +5621,7 @@ function App() {
   const eventsPillMobile = (
     <AppLink to="/events" className="nav-pill"
       style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:15, fontWeight:700, fontFamily:"Fraunces",
-        color: (view==="events"||view==="event") ? "#c2622a" : "#1a1714", padding:"6px 0" }}>
+        color: (view==="events"||view==="event") ? "#f2a36b" : "#f6efe8", padding:"6px 0" }}>
       <span aria-hidden="true" style={{ marginRight:7, fontSize:14, lineHeight:1 }}>🎪</span>Events
     </AppLink>
   );
@@ -5560,7 +5629,7 @@ function App() {
   const pantryPill = (
     <AppLink to="/pantry-to-plate" className="nav-pill"
       style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:13.5, fontWeight:700, fontFamily:"Fraunces",
-        color: view==="pantry-to-plate" ? "#c2622a" : "#1a1714", padding:0 }}>
+        color: view==="pantry-to-plate" ? "#f2a36b" : "#f6efe8", padding:0 }}>
       <span aria-hidden="true" style={{ marginRight:6, fontSize:14, lineHeight:1 }}>🥕</span>Pantry to Plate
     </AppLink>
   );
@@ -5568,7 +5637,7 @@ function App() {
   const blogPill = (
     <AppLink to="/blog" className="nav-pill"
       style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:13.5, fontWeight:700, fontFamily:"Fraunces",
-        color: view==="blog" ? "#c2622a" : "#1a1714", padding:0 }}>
+        color: view==="blog" ? "#f2a36b" : "#f6efe8", padding:0 }}>
       <span aria-hidden="true" style={{ marginRight:6, fontSize:14, lineHeight:1 }}>📖</span>Blog
     </AppLink>
   );
@@ -5576,7 +5645,7 @@ function App() {
   const saucesPill = (
     <AppLink to="/sauces-and-sides" className="nav-pill"
       style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:13.5, fontWeight:700, fontFamily:"Fraunces",
-        color: view==="sauces-and-sides" ? "#c2622a" : "#1a1714", padding:0 }}>
+        color: view==="sauces-and-sides" ? "#f2a36b" : "#f6efe8", padding:0 }}>
       <span aria-hidden="true" style={{ marginRight:6, fontSize:14, lineHeight:1 }}>🫙</span>Sauces &amp; Sides
     </AppLink>
   );
@@ -5584,7 +5653,7 @@ function App() {
   const eventsPill = (
     <AppLink to="/events" className="nav-pill"
       style={{ display:"inline-flex", alignItems:"center", cursor:"pointer", fontSize:13.5, fontWeight:700, fontFamily:"Fraunces",
-        color: (view==="events"||view==="event") ? "#c2622a" : "#1a1714", padding:0 }}>
+        color: (view==="events"||view==="event") ? "#f2a36b" : "#f6efe8", padding:0 }}>
       <span aria-hidden="true" style={{ marginRight:6, fontSize:14, lineHeight:1 }}>🎪</span>Events
     </AppLink>
   );
@@ -5592,9 +5661,9 @@ function App() {
   return (
     <>
       <style>{styles}</style>
-      <div style={{ minHeight:"100vh", background:"#fdfcf9" }}>
+      <div style={{ minHeight:"100vh", background:"#14110f" }}>
         {/* Header */}
-        <header style={{ background:"#fff", borderBottom:"1.5px solid #ece6db", padding:"13px 28px", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12, position:"sticky", top:0, zIndex:50, boxShadow:"0 1px 8px rgba(0,0,0,.05)" }}>
+        <header style={{ background:"#1d1713", borderBottom:"1.5px solid #2e2620", padding:"13px 28px", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12, position:"sticky", top:0, zIndex:50, boxShadow:"0 1px 8px rgba(0,0,0,.05)" }}>
           <AppLink to="/" style={{ cursor:"pointer", display:"flex", alignItems:"center", gap:12 }}>
             <div style={{ width:36, height:36, background:"linear-gradient(135deg,#c2622a,#e8832a)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, boxShadow:"0 2px 8px rgba(194,98,42,.35)" }}>
               <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -5609,7 +5678,7 @@ function App() {
               </svg>
             </div>
             <div>
-              <div style={{ fontFamily:"Fraunces", fontSize:19.5, fontWeight:700, color:"#1a1714" }}>Recipe Atlas</div>
+              <div style={{ fontFamily:"Fraunces", fontSize:19.5, fontWeight:700, color:"#f6efe8" }}>Recipe Atlas</div>
             </div>
           </AppLink>
           <nav aria-label="Main menu" className="header-nav-desktop" style={{ display:"flex", alignItems:"center", gap:14, flexWrap:"wrap" }}>
@@ -5626,7 +5695,7 @@ function App() {
             <SearchBox navigate={navigate} mobile onOpenChange={(isOpen) => { if (isOpen) setMobileMenuOpen(false); }} />
             <button type="button" ref={mobileMenuBtnRef} onClick={() => setMobileMenuOpen(o => !o)}
               style={{ cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", width:34, height:34, borderRadius:8, border:"none", padding:0,
-                color: mobileMenuOpen ? "#fff" : "#1a1714", background: mobileMenuOpen ? "#c2622a" : "transparent" }}
+                color: mobileMenuOpen ? "#fff" : "#f6efe8", background: mobileMenuOpen ? "#f2a36b" : "transparent" }}
               aria-label="Menu" aria-expanded={mobileMenuOpen}>
               <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
                 <line x1="4" y1="7" x2="20" y2="7" />
@@ -5639,7 +5708,7 @@ function App() {
 
         {mobileMenuOpen && (
           <div ref={mobileMenuRef} className="header-nav-mobile-panel"
-            style={{ background:"#fff", borderBottom:"1.5px solid #ece6db", padding:"14px 20px 18px", display:"flex", flexDirection:"column", alignItems:"flex-start", gap:14, position:"sticky", top:62, zIndex:49, boxShadow:"0 6px 20px rgba(0,0,0,.08)" }}
+            style={{ background:"#1d1713", borderBottom:"1.5px solid #2e2620", padding:"14px 20px 18px", display:"flex", flexDirection:"column", alignItems:"flex-start", gap:14, position:"sticky", top:62, zIndex:49, boxShadow:"0 6px 20px rgba(0,0,0,.08)" }}
             onClick={() => setMobileMenuOpen(false)}>
             {mealsPillMobile}
             {saucesPillMobile}
@@ -5652,19 +5721,19 @@ function App() {
 
         {/* Main */}
         <main id="main" style={{ position:"relative", backgroundImage:"url(/background-beans.jpg)", backgroundSize:"2860px auto", backgroundRepeat:"repeat", backgroundPosition:"top left", backgroundAttachment:"fixed" }}>
-          <div style={{ position:"absolute", inset:0, background:"rgba(253,252,249,0.90)" }} />
+          <div style={{ position:"absolute", inset:0, background:"rgba(20,17,15,0.96)" }} />
           <div style={{ position:"relative", zIndex:1 }}>
         {!["blog","about","contact","privacy","terms","pantry-to-plate","search","notfound","sauces-and-sides","meals","meal"].includes(view) && (
           <div style={{ padding:"20px 24px 60px", maxWidth:1160, margin:"0 auto" }}>
-            {view === "regions"  && <RegionMap onSelectRegion={goToRegion} />}
+            {view === "regions"  && <RegionMap onSelectRegion={goToRegion} navigate={navigate} />}
             {view === "region"   && selectedRegion && <RegionView regionId={selectedRegion} onBack={goToRegions} onSelectCountry={goToCountry} />}
             {view === "country"  && selectedCountry && <CountryView country={selectedCountry} onBack={goToRegionBack} onSelectDish={goToDish} />}
             {view === "recipe"   && selectedDish && <RecipeView key={selectedDish} country={recipeCountry || selectedCountry} dish={selectedDish} navigate={navigate} onRatingChange={setCurrentRating} onBack={() => { const r = REGIONS.find(r => r.countries?.includes(recipeCountry)); navigate(recipeCountry && r ? `/${r.id}/${slugify(recipeCountry)}` : '/'); }} />}
             {view === "events"   && <EventsListView navigate={navigate} />}
             {view === "event"    && selectedEventSlug && <EventDetailView key={selectedEventSlug} eventSlug={selectedEventSlug} navigate={navigate} onBack={() => navigate('/events')} />}
-            {(view === "region" && !selectedRegion) && <RegionMap onSelectRegion={goToRegion} />}
-            {(view === "country" && !selectedCountry) && <RegionMap onSelectRegion={goToRegion} />}
-            {(view === "recipe" && !selectedDish) && <RegionMap onSelectRegion={goToRegion} />}
+            {(view === "region" && !selectedRegion) && <RegionMap onSelectRegion={goToRegion} navigate={navigate} />}
+            {(view === "country" && !selectedCountry) && <RegionMap onSelectRegion={goToRegion} navigate={navigate} />}
+            {(view === "recipe" && !selectedDish) && <RegionMap onSelectRegion={goToRegion} navigate={navigate} />}
           </div>
         )}
 
@@ -5699,11 +5768,11 @@ function App() {
           </div>
         </main>
         {/* Creative Commons credit strip */}
-        <div style={{ padding:"14px 28px", textAlign:"center", borderTop:"1px solid #ece6db" }}>
+        <div style={{ padding:"14px 28px", textAlign:"center", borderTop:"1px solid #2e2620" }}>
           <span style={{ fontSize:10, color:"#d8d0c5", fontFamily:"Plus Jakarta Sans" }}>Some recipe photos courtesy of Openverse and Wikimedia Commons contributors, used under Creative Commons licenses.</span>
         </div>
         {/* Footer */}
-        <footer style={{ borderTop:"1.5px solid #ece6db", padding:"28px", background:"#fdfcf9" }}>
+        <footer style={{ borderTop:"1.5px solid #2e2620", padding:"28px", background:"#14110f" }}>
           <div style={{ maxWidth:960, margin:"0 auto" }}>
             <div style={{ display:"flex", flexDirection:"column", rowGap:20, marginBottom:20 }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", columnGap:16 }}>
@@ -5719,13 +5788,13 @@ function App() {
                   <path d="M1 9 Q3 13 5 9" stroke="#c2622a" strokeWidth="1.6" fill="none"/>
                 </svg>
                   <div>
-                    <div style={{ fontFamily:"Fraunces", fontSize:15, fontWeight:700, color:"#1a1714" }}>Recipe Atlas</div>
+                    <div style={{ fontFamily:"Fraunces", fontSize:15, fontWeight:700, color:"#f6efe8" }}>Recipe Atlas</div>
                   </div>
                 </div>
                 <div className="social-links" style={{ display:"flex", gap:6, marginRight:-6 }}>
                   {SOCIAL_LINKS.map(l => (
                     <a key={l.name} href={l.url} target="_blank" rel="noopener noreferrer me" aria-label={`Recipe Atlas on ${l.name}`} title={l.name}
-                      style={{ display:"flex", alignItems:"center", justifyContent:"center", width:34, height:34, color:"#1a1714" }}>
+                      style={{ display:"flex", alignItems:"center", justifyContent:"center", width:34, height:34, color:"#f6efe8" }}>
                       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{l.icon}</svg>
                     </a>
                   ))}
@@ -5739,7 +5808,7 @@ function App() {
                   <div key={gi} style={{ display:"flex", flexWrap:"wrap", columnGap:"clamp(10px, 2.8vw, 20px)", rowGap:20 }}>
                     {group.map(([v,label]) => (
                       <AppLink key={v} className="footer-link" to={`/${v}`}
-                        style={{ fontSize:12, color:"#1a1714", cursor:"pointer", fontWeight:500, fontFamily:"Plus Jakarta Sans" }}>
+                        style={{ fontSize:12, color:"#f6efe8", cursor:"pointer", fontWeight:500, fontFamily:"Plus Jakarta Sans" }}>
                         {label}
                       </AppLink>
                     ))}
@@ -5747,9 +5816,9 @@ function App() {
                 ))}
               </div>
             </div>
-            <div style={{ borderTop:"1px solid #ece6db", paddingTop:16, display:"flex", flexWrap:"wrap", justifyContent:"space-between", gap:8 }}>
-              <span style={{ fontSize:11, color:"#c8bfb0", fontFamily:"Plus Jakarta Sans" }}>© {new Date().getFullYear()} Recipe Atlas. All rights reserved.</span>
-              <span style={{ fontSize:11, color:"#c8bfb0", fontFamily:"Plus Jakarta Sans" }}>Celebrating food from every corner of the world.</span>
+            <div style={{ borderTop:"1px solid #2e2620", paddingTop:16, display:"flex", flexWrap:"wrap", justifyContent:"space-between", gap:8 }}>
+              <span style={{ fontSize:11, color:"#8f8478", fontFamily:"Plus Jakarta Sans" }}>© {new Date().getFullYear()} Recipe Atlas. All rights reserved.</span>
+              <span style={{ fontSize:11, color:"#8f8478", fontFamily:"Plus Jakarta Sans" }}>Celebrating food from every corner of the world.</span>
             </div>
           </div>
         </footer>
@@ -6066,21 +6135,21 @@ function BlogRecipeCard({ dish, navigate }) {
       )}
       {r.photoCredit && (
         <div style={{ textAlign:"right", padding:"4px 18px 0" }}>
-          <span style={{ fontSize:9, color:"#c8bfb0", fontFamily:"Plus Jakarta Sans" }}>Photo: {r.photoCredit.name}</span>
+          <span style={{ fontSize:9, color:"#8f8478", fontFamily:"Plus Jakarta Sans" }}>Photo: {r.photoCredit.name}</span>
         </div>
       )}
       <div style={{ padding:"16px 18px" }}>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:6 }}>
-          <h4 style={{ fontFamily:"Fraunces", fontSize:17, fontWeight:700, color:"#1a1714", margin:0 }}>{r.name}</h4>
-          <span style={{ fontSize:10, background:"#fdf3ed", color:"#c2622a", padding:"3px 9px", borderRadius:20, fontWeight:600, fontFamily:"Plus Jakarta Sans", flexShrink:0, marginLeft:10 }}>{r.country}</span>
+          <h4 style={{ fontFamily:"Fraunces", fontSize:17, fontWeight:700, color:"#f6efe8", margin:0 }}>{r.name}</h4>
+          <span style={{ fontSize:10, background:"#2a1d15", color:"#f2a36b", padding:"3px 9px", borderRadius:20, fontWeight:600, fontFamily:"Plus Jakarta Sans", flexShrink:0, marginLeft:10 }}>{r.country}</span>
         </div>
-        <p style={{ fontSize:13, color:"#6a6058", lineHeight:1.7, marginBottom:10 }}>{r.description}</p>
-        <div style={{ display:"flex", gap:14, flexWrap:"wrap", fontSize:11, color:"#b8b0a8", marginBottom:10 }}>
+        <p style={{ fontSize:13, color:"#c2b6a9", lineHeight:1.7, marginBottom:10 }}>{r.description}</p>
+        <div style={{ display:"flex", gap:14, flexWrap:"wrap", fontSize:11, color:"#9d9185", marginBottom:10 }}>
           {r.prepTime && <span>Prep: {r.prepTime}</span>}
           {r.cookTime && <span>Cook: {r.cookTime}</span>}
           {r.difficulty && <span>{r.difficulty}</span>}
         </div>
-        <span style={{ fontSize:12, fontWeight:600, color:"#c2622a" }}>View Recipe →</span>
+        <span style={{ fontSize:12, fontWeight:600, color:"#f2a36b" }}>View Recipe →</span>
       </div>
     </AppLink>
   );
@@ -6109,22 +6178,22 @@ function BlogPage({ initialSlug, navigate }) {
     return (
       <div style={{ maxWidth:1070, margin:"0 auto" }}>
         <AppLink to="/blog"
-          style={{ background:"none", border:"none", color:"#c2622a", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", marginBottom:20, padding:0, display:"flex", width:"fit-content", alignItems:"center", gap:6 }}>
+          style={{ background:"none", border:"none", color:"#f2a36b", cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"Plus Jakarta Sans", marginBottom:20, padding:0, display:"flex", width:"fit-content", alignItems:"center", gap:6 }}>
           ← Back to Blog
         </AppLink>
-        <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(22px,3vw,36px)", fontWeight:700, color:"#1a1714", marginBottom:16, lineHeight:1.25 }}>{ post.title}</h1>
+        <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(22px,3vw,36px)", fontWeight:700, color:"#f6efe8", marginBottom:16, lineHeight:1.25 }}>{ post.title}</h1>
         <div style={{ display:"flex", gap:8, marginBottom:16, flexWrap:"wrap" }}>
-          <span style={{ fontSize:11, background:"#fdf3ed", color:"#c2622a", padding:"3px 10px", borderRadius:20, fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>{post.tag}</span>
+          <span style={{ fontSize:11, background:"#2a1d15", color:"#f2a36b", padding:"3px 10px", borderRadius:20, fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>{post.tag}</span>
               </div>
         {post.image && (
-          <div style={{ marginBottom:20, borderRadius:12, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.08)", background:"#f0e8e0" }}>
+          <div style={{ marginBottom:20, borderRadius:12, overflow:"hidden", boxShadow:"0 2px 12px rgba(0,0,0,.08)", background:"#241d18" }}>
             <img {...imgProps(post.image, 960)} alt={post.title} fetchPriority="high" decoding="async" style={{ width:"100%", height:320, objectFit:"cover", display:"block" }} />
           </div>
         )}
         <div style={{ marginTop:24 }}>
           {post.body.map((item, i) => (
             typeof item === "string" ? (
-              <p key={i} style={{ fontSize:15, color:"#3a3028", lineHeight:1.9, marginBottom:20 }}>{item}</p>
+              <p key={i} style={{ fontSize:15, color:"#e6dccf", lineHeight:1.9, marginBottom:20 }}>{item}</p>
             ) : item && item.type === "recipe" ? (
               <BlogRecipeCard key={i} dish={item.dish} navigate={navigate} />
             ) : null
@@ -6136,26 +6205,26 @@ function BlogPage({ initialSlug, navigate }) {
 
   return (
     <div>
-      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(30px,4vw,48px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>Blog</h1>
-      <p style={{ fontSize:13, color:"#9a9088", marginBottom:24 }}>Stories, techniques and histories from the world's great food cultures.</p>
+      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(30px,4vw,48px)", fontWeight:700, color:"#f6efe8", marginBottom:8 }}>Blog</h1>
+      <p style={{ fontSize:13, color:"#b0a498", marginBottom:24 }}>Stories, techniques and histories from the world's great food cultures.</p>
       <div className="blog-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20, marginTop:24 }}>
         {BLOG_POSTS.map((p,i) => (
           <AppLink key={i} to={`/blog/${p.slug}`}
-            style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, overflow:"hidden", cursor:"pointer", display:"block", transition:"border-color .2s, box-shadow .2s" }}
+            style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:12, overflow:"hidden", cursor:"pointer", display:"block", transition:"border-color .2s, box-shadow .2s" }}
             onMouseEnter={e => { e.currentTarget.style.borderColor="#c2622a"; e.currentTarget.style.boxShadow="0 2px 12px rgba(194,98,42,.08)"; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor="#ece6db"; e.currentTarget.style.boxShadow="none"; }}>
             {p.image && (
-              <div style={{ background:"#f0e8e0" }}>
+              <div style={{ background:"#241d18" }}>
                 <img {...imgProps(p.image, 640)} alt={p.title} loading="lazy" decoding="async" style={{ width:"100%", height:170, objectFit:"cover", display:"block" }} />
               </div>
             )}
             <div style={{ padding:24 }}>
               <div style={{ display:"flex", gap:8, marginBottom:10, flexWrap:"wrap" }}>
-                <span style={{ fontSize:11, background:"#fdf3ed", color:"#c2622a", padding:"3px 10px", borderRadius:20, fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>{p.tag}</span>
+                <span style={{ fontSize:11, background:"#2a1d15", color:"#f2a36b", padding:"3px 10px", borderRadius:20, fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>{p.tag}</span>
               </div>
-              <h2 style={{ fontFamily:"Fraunces", fontSize:18, fontWeight:700, color:"#1a1714", marginBottom:8, lineHeight:1.3 }}>{p.title}</h2>
-              <p style={{ fontSize:14, color:"#6a6058", lineHeight:1.75, margin:"0 0 12px" }}>{p.excerpt}</p>
-              <span style={{ fontSize:12, color:"#c2622a", fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>Read article →</span>
+              <h2 style={{ fontFamily:"Fraunces", fontSize:18, fontWeight:700, color:"#f6efe8", marginBottom:8, lineHeight:1.3 }}>{p.title}</h2>
+              <p style={{ fontSize:14, color:"#c2b6a9", lineHeight:1.75, margin:"0 0 12px" }}>{p.excerpt}</p>
+              <span style={{ fontSize:12, color:"#f2a36b", fontWeight:600, fontFamily:"Plus Jakarta Sans" }}>Read article →</span>
             </div>
           </AppLink>
         ))}
@@ -6169,7 +6238,7 @@ function BlogPage({ initialSlug, navigate }) {
 function AboutPage() {
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
-      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,40px)", fontWeight:700, color:"#1a1714", marginBottom:16 }}>About Recipe Atlas</h1>
+      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,40px)", fontWeight:700, color:"#f6efe8", marginBottom:16 }}>About Recipe Atlas</h1>
       <div style={{ marginTop:16, display:"flex", flexDirection:"column", gap:20 }}>
         {[
           ["Our Mission","Recipe Atlas exists to celebrate the extraordinary diversity of world cuisine — from the intricate spice blends of Ethiopian berbere to the precise techniques of Japanese ramen. We believe that cooking another culture's food is one of the most respectful and joyful ways to understand it."],
@@ -6177,9 +6246,9 @@ function AboutPage() {
           ["Our Approach","We research each recipe carefully, consulting multiple sources and traditional methods. Where a dish has strong regional variations we explain the differences and choose the most widely celebrated version as our baseline."],
           ["Get In Touch","We love hearing from readers — whether you've cooked one of our recipes, spotted an error, or want to suggest a dish we're missing. Reach us at contact.jwgroup@proton.me"],
         ].map(([title, text]) => (
-          <div key={title} style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, padding:24 }}>
-            <h2 style={{ fontFamily:"Fraunces", fontSize:18, fontWeight:700, color:"#1a1714", marginBottom:10 }}>{title}</h2>
-            <p style={{ fontSize:14, color:"#6a6058", lineHeight:1.8, margin:0 }}>{text}</p>
+          <div key={title} style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:12, padding:24 }}>
+            <h2 style={{ fontFamily:"Fraunces", fontSize:18, fontWeight:700, color:"#f6efe8", marginBottom:10 }}>{title}</h2>
+            <p style={{ fontSize:14, color:"#c2b6a9", lineHeight:1.8, margin:0 }}>{text}</p>
           </div>
         ))}
       </div>
@@ -6190,9 +6259,9 @@ function AboutPage() {
 function ContactPage() {
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
-      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,36px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>Contact Us</h1>
-      <p style={{ fontSize:15, color:"#6a6058", lineHeight:1.8, marginBottom:32, marginTop:16 }}>
-        Whether you have a question, a suggestion, or want to talk about advertising — we'd love to hear from you. Get in touch at <a href="mailto:contact.jwgroup@proton.me" style={{ color:"#c2622a", fontWeight:600 }}>contact.jwgroup@proton.me</a> and we'll get back to you as soon as possible.
+      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,36px)", fontWeight:700, color:"#f6efe8", marginBottom:8 }}>Contact Us</h1>
+      <p style={{ fontSize:15, color:"#c2b6a9", lineHeight:1.8, marginBottom:32, marginTop:16 }}>
+        Whether you have a question, a suggestion, or want to talk about advertising — we'd love to hear from you. Get in touch at <a href="mailto:contact.jwgroup@proton.me" style={{ color:"#f2a36b", fontWeight:600 }}>contact.jwgroup@proton.me</a> and we'll get back to you as soon as possible.
       </p>
 
       <div style={{ marginTop:16, display:"flex", flexDirection:"column", gap:20 }}>
@@ -6201,9 +6270,9 @@ function ContactPage() {
           ["Advertising & Partnerships", "Recipe Atlas attracts a passionate audience of home cooks, food explorers and culinary enthusiasts from around the world. We offer advertising opportunities including display advertising, sponsored content and brand collaborations. To discuss rates, email contact.jwgroup@proton.me"],
           ["Content & Recipe Submissions", "Are you a chef, food writer or culinary expert with a recipe or story to share? We'd love to feature authentic regional dishes and the stories behind them. Reach out at contact.jwgroup@proton.me"],
         ].map(([title, text]) => (
-          <div key={title} style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, padding:24 }}>
-            <h2 style={{ fontFamily:"Fraunces", fontSize:18, fontWeight:700, color:"#1a1714", marginBottom:10 }}>{title}</h2>
-            <p style={{ fontSize:14, color:"#6a6058", lineHeight:1.8, margin:0 }}>{text}</p>
+          <div key={title} style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:12, padding:24 }}>
+            <h2 style={{ fontFamily:"Fraunces", fontSize:18, fontWeight:700, color:"#f6efe8", marginBottom:10 }}>{title}</h2>
+            <p style={{ fontSize:14, color:"#c2b6a9", lineHeight:1.8, margin:0 }}>{text}</p>
           </div>
         ))}
       </div>
@@ -6215,8 +6284,8 @@ function ContactPage() {
 function TermsPage() {
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
-      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,36px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>Terms of Service</h1>
-      <p style={{ fontSize:13, color:"#9a9088", marginBottom:28, marginTop:16 }}>Last updated: June 2025</p>
+      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,36px)", fontWeight:700, color:"#f6efe8", marginBottom:8 }}>Terms of Service</h1>
+      <p style={{ fontSize:13, color:"#b0a498", marginBottom:28, marginTop:16 }}>Last updated: June 2025</p>
 
       <div style={{ marginTop:24, display:"flex", flexDirection:"column", gap:20 }}>
       {[
@@ -6231,9 +6300,9 @@ function TermsPage() {
         { title:"9. Governing Law", text:"These Terms of Service are governed by the laws of England and Wales. Any disputes arising from your use of Recipe Atlas shall be subject to the exclusive jurisdiction of the courts of England and Wales." },
         { title:"10. Contact", text:"If you have any questions about these Terms of Service, please contact us at contact.jwgroup@proton.me." },
       ].map(({ title, text }) => (
-        <div key={title} style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, padding:24 }}>
-          <h2 style={{ fontFamily:"Fraunces", fontSize:18, fontWeight:700, color:"#1a1714", marginBottom:10 }}>{title}</h2>
-          <p style={{ fontSize:14, color:"#6a6058", lineHeight:1.8, margin:0 }}>{text}</p>
+        <div key={title} style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:12, padding:24 }}>
+          <h2 style={{ fontFamily:"Fraunces", fontSize:18, fontWeight:700, color:"#f6efe8", marginBottom:10 }}>{title}</h2>
+          <p style={{ fontSize:14, color:"#c2b6a9", lineHeight:1.8, margin:0 }}>{text}</p>
         </div>
       ))}
       </div>
@@ -6244,8 +6313,8 @@ function TermsPage() {
 function PrivacyPage() {
   return (
     <div style={{ maxWidth:1070, margin:"0 auto" }}>
-      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,40px)", fontWeight:700, color:"#1a1714", marginBottom:8 }}>Privacy Policy</h1>
-      <p style={{ fontSize:12, color:"#c8bfb0", marginBottom:24, fontFamily:"Plus Jakarta Sans" }}>Last updated: June 2025</p>
+      <h1 style={{ fontFamily:"Fraunces", fontSize:"clamp(24px,3vw,40px)", fontWeight:700, color:"#f6efe8", marginBottom:8 }}>Privacy Policy</h1>
+      <p style={{ fontSize:12, color:"#8f8478", marginBottom:24, fontFamily:"Plus Jakarta Sans" }}>Last updated: June 2025</p>
       <div style={{ marginTop:24, display:"flex", flexDirection:"column", gap:16 }}>
         {[
           ["Information We Collect","Recipe Atlas collects minimal data. Any data we do collect we do not sell, rent or share your personal information with third parties."],
@@ -6254,9 +6323,9 @@ function PrivacyPage() {
           ["Your Rights","You have the right to access, correct or delete any personal data we hold about you. To exercise these rights, please contact us at contact.jwgroup@proton.me"],
           ["Contact","For any privacy-related questions, please contact us at contact.jwgroup@proton.me and we will respond within 5 business days."],
         ].map(([title, text]) => (
-          <div key={title} style={{ background:"#fff", border:"1.5px solid #ece6db", borderRadius:12, padding:20 }}>
-            <h2 style={{ fontFamily:"Fraunces", fontSize:16, fontWeight:700, color:"#1a1714", marginBottom:8 }}>{title}</h2>
-            <p style={{ fontSize:13, color:"#6a6058", lineHeight:1.8, margin:0 }}>{text}</p>
+          <div key={title} style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:12, padding:20 }}>
+            <h2 style={{ fontFamily:"Fraunces", fontSize:16, fontWeight:700, color:"#f6efe8", marginBottom:8 }}>{title}</h2>
+            <p style={{ fontSize:13, color:"#c2b6a9", lineHeight:1.8, margin:0 }}>{text}</p>
           </div>
         ))}
       </div>
