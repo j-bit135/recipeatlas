@@ -2230,7 +2230,9 @@ const styles = `
   .nk-hero { display:flex; align-items:flex-start; gap:56px; padding:48px 0 56px; flex-wrap:wrap; position:relative; }
   .nk-hero::before { content:""; position:absolute; top:-120px; left:50%; width:100vw; height:700px; transform:translateX(-50%); background:radial-gradient(ellipse 42% 50% at 68% 45%, rgba(224,122,63,.17), transparent 100%); pointer-events:none; z-index:-1; }
   .nk-glow { position:relative; height:0; pointer-events:none; }
-  .nk-glow::before { content:""; position:absolute; top:var(--gt,-300px); left:50%; width:100vw; height:var(--gh,700px); transform:translateX(-50%); background:radial-gradient(ellipse var(--gw,36%) 50% at var(--gx,78%) var(--gy,50%), rgba(224,122,63,.22), transparent 100%); z-index:-1; }
+  .nk-glow::before { content:""; position:absolute; top:var(--gt,-420px); left:50%; width:100vw; height:var(--gh,1000px); transform:translateX(-50%); background:radial-gradient(ellipse var(--gw,60%) 50% at var(--gx,78%) var(--gy,50%), rgba(224,122,63,.19) 0%, rgba(224,122,63,.15) 18%, rgba(224,122,63,.10) 38%, rgba(224,122,63,.05) 58%, rgba(224,122,63,.015) 78%, transparent 100%); z-index:-1; }
+  .nk-hcard { transition: border-color .2s, background .2s, box-shadow .2s, transform .2s; }
+  .nk-hcard:hover { border-color:#e07a3f !important; background:linear-gradient(160deg,#2f2018,#1d1713 75%) !important; box-shadow:0 10px 30px rgba(224,122,63,.22) !important; transform:translateY(-3px); }
   .nk-hero-text { flex:1 1 440px; min-width:0; padding-top:8px; }
   .nk-eyebrow { display:inline-flex; align-items:center; gap:10px; color:#f2a36b; font-weight:700; font-size:12px; letter-spacing:.16em; text-transform:uppercase; }
   .nk-eyebrow-line { width:28px; height:2px; background:#e07a3f; display:block; }
@@ -2729,7 +2731,7 @@ function EventsThisMonthCarousel({ headingSize = "clamp(18px,2.5vw,26px)", rando
           const e = EVENTS_DB[slug];
           const path = `/events/${e.region}/${slugify(e.country)}/${e.slug}`;
           return (
-            <AppLink key={slug} style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:14, overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)", cursor:"pointer", display:"block" }}
+            <AppLink key={slug} className="nk-hcard" style={{ background:"#1d1713", border:"1.5px solid rgba(255,255,255,.85)", borderRadius:14, overflow:"hidden", boxShadow:"0 1px 3px rgba(0,0,0,.04)", cursor:"pointer", display:"block" }}
               to={path}>
               <div style={{ height:130, background:"linear-gradient(135deg, #241d18, #2e2620)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:34 }}>{e.icon}</div>
               <div style={{ padding:16 }}>
@@ -2765,7 +2767,7 @@ function BlogHighlightsSection() {
       </div>
       <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(270px, 1fr))", gap:20 }}>
         {posts.map((p, i) => (
-          <AppLink key={p.slug || i} style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:14, padding:16, cursor:"pointer", boxShadow:"0 1px 3px rgba(0,0,0,.04)", display:"block" }}
+          <AppLink key={p.slug || i} className="nk-hcard" style={{ background:"#1d1713", border:"1.5px solid rgba(255,255,255,.85)", borderRadius:14, padding:16, cursor:"pointer", boxShadow:"0 1px 3px rgba(0,0,0,.04)", display:"block" }}
             to={`/blog/${p.slug}`}>
             <span style={{ display:"inline-block", fontSize:10, fontWeight:700, letterSpacing:".05em", textTransform:"uppercase", color:"#f2a36b", background:"#2a1d15", borderRadius:12, padding:"4px 10px", marginBottom:10 }}>{p.tag}</span>
             <h3 style={{ fontFamily:"Fraunces", fontSize:17, fontWeight:600, margin:"0 0 6px", lineHeight:1.3 }}>{p.title}</h3>
@@ -3039,7 +3041,7 @@ function RegionMap({ onSelectRegion, navigate }) {
       <ClassicsCarousel marginTop={32} marginBottom={93} />
 
 
-      <div className="nk-glow" aria-hidden="true" style={{ "--gx":"64%", "--gy":"45%", "--gw":"30%", "--gt":"-340px", "--gh":"640px" }} />
+      <div className="nk-glow" aria-hidden="true" style={{ "--gx":"62%", "--gy":"48%", "--gw":"62%", "--gt":"-520px", "--gh":"1100px" }} />
       {/* Region buttons */}
       <div style={{ marginBottom:16 }}>
         <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:"#f6efe8", margin:0 }}>Explore by Region</h2>
@@ -3049,8 +3051,8 @@ function RegionMap({ onSelectRegion, navigate }) {
         {REGIONS.map(region => (
           <AppLink key={region.id} to={`/${region.id}`}
             onMouseEnter={e => e.currentTarget.style.borderColor=region.color}
-            onMouseLeave={e => e.currentTarget.style.borderColor="#ece6db"}
-            className="rg-card" style={{ background:"#1d1713", border:"1.5px solid #2e2620", borderRadius:12, padding:"16px 18px", cursor:"pointer", display:"block", transition:"border-color .2s, box-shadow .2s" }}>
+            onMouseLeave={e => e.currentTarget.style.borderColor="rgba(255,255,255,.85)"}
+            className="rg-card" style={{ background:"#1d1713", border:"1.5px solid rgba(255,255,255,.85)", borderRadius:12, padding:"16px 18px", cursor:"pointer", display:"block", transition:"border-color .2s, box-shadow .2s" }}>
             <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
               <span style={{ fontSize:22 }}>{region.emoji}</span>
               <span style={{ fontFamily:"Fraunces", fontSize:17, fontWeight:700, color:"#f6efe8" }}>{region.name}</span>
@@ -3075,7 +3077,7 @@ function RegionMap({ onSelectRegion, navigate }) {
       <ExploreByMeal />
 
 
-      <div className="nk-glow" aria-hidden="true" style={{ "--gx":"6%", "--gy":"55%", "--gw":"26%", "--gt":"-120px", "--gh":"800px" }} />
+      <div className="nk-glow" aria-hidden="true" style={{ "--gx":"8%", "--gy":"52%", "--gw":"55%", "--gt":"-380px", "--gh":"1150px" }} />
       {/* Seasonal carousel (switches automatically by month) */}
       <SeasonalCarousel />
 
@@ -3092,7 +3094,7 @@ function RegionMap({ onSelectRegion, navigate }) {
       <BlogHighlightsSection />
 
 
-      <div className="nk-glow" aria-hidden="true" style={{ "--gx":"42%", "--gy":"40%", "--gw":"42%", "--gt":"-200px", "--gh":"520px" }} />
+      <div className="nk-glow" aria-hidden="true" style={{ "--gx":"44%", "--gy":"42%", "--gw":"70%", "--gt":"-360px", "--gh":"900px" }} />
       {/* Drinks carousel */}
       <DrinksCarousel />
 
