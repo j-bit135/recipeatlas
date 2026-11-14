@@ -2240,8 +2240,8 @@ const styles = `
   .nk-h1-em { font-style:italic; font-weight:500; color:#f2a36b; }
   .nk-lede { font-size:18px; line-height:1.65; color:#c9bcaf; max-width:460px; margin:22px 0 0; }
   .nk-search { display:flex; align-items:center; gap:12px; max-width:none; margin:24px 0 0; background:#201a16; border:1px solid #3a2f28; border-radius:16px; padding:8px 8px 8px 20px; }
-  .nk-search input { flex:1; min-width:0; background:none; border:none; outline:none; color:#f6efe8; font:inherit; font-size:15px; }
-  .nk-search input::placeholder { color:#b9ada2; }
+  .nk-search input { flex:1; min-width:0; background:none; border:none; outline:none; color:#f6efe8; font:inherit; font-size:16px; }
+  .nk-search input::placeholder { color:#b9ada2; font-size:15px; }
   .nk-search:focus-within { border-color:#e07a3f; }
   .nk-search button { background:#e07a3f; color:#14110f; font-weight:700; font-size:14px; padding:12px 20px; border-radius:12px; border:none; cursor:pointer; font-family:inherit; }
   .nk-stats { display:flex; gap:40px; margin-top:28px; }
@@ -2259,7 +2259,8 @@ const styles = `
     .nk-lede { font-size:16px; margin-top:16px; }
     .nk-search { margin-top:22px; padding:6px 6px 6px 14px; gap:8px; }
     .nk-search svg { display:none; }
-    .nk-search input { font-size:13px; }
+    .nk-search input { font-size:16px; }
+    .nk-search input::placeholder { font-size:13px; }
     .nk-search button { padding:11px 14px; font-size:13px; }
     .nk-stats { margin-top:26px; gap:32px; }
     .nk-stat-n { font-size:30px; }
@@ -2293,7 +2294,7 @@ const styles = `
   input::placeholder, textarea::placeholder { color:#8f8478; }
   .nk-tipblock { background:linear-gradient(135deg,#e07a3f,#c2622a) !important; border:none !important; border-radius:20px !important; }
 
-  @media (max-width: 350px) { .nk-search input { font-size:11px; } .nk-search button { padding:10px 10px; } .nk-search { padding-left:10px; } }
+  @media (max-width: 350px) { .nk-search input::placeholder { font-size:11px; } .nk-search button { padding:10px 10px; } .nk-search { padding-left:10px; } }
   .nav-pill:hover { color: #f2a36b !important; }
   .social-links a:hover, .footer-link:hover { color: #f2a36b !important; }
   .rg-more-m { display: none; }
@@ -5712,7 +5713,7 @@ function App() {
             <SearchBox navigate={navigate} mobile onOpenChange={(isOpen) => { if (isOpen) setMobileMenuOpen(false); }} />
             <button type="button" ref={mobileMenuBtnRef} onClick={() => setMobileMenuOpen(o => !o)}
               style={{ cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", width:34, height:34, borderRadius:8, border:"none", padding:0,
-                color: mobileMenuOpen ? "#fff" : "#f6efe8", background: mobileMenuOpen ? "#f2a36b" : "transparent" }}
+                color: "#fff", background: mobileMenuOpen ? "#c2622a" : "transparent" }}
               aria-label="Menu" aria-expanded={mobileMenuOpen}>
               <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
                 <line x1="4" y1="7" x2="20" y2="7" />
