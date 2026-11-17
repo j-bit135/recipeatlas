@@ -2295,6 +2295,8 @@ const styles = `
   .nk-tipblock { background:linear-gradient(135deg,#e07a3f,#c2622a) !important; border:none !important; border-radius:20px !important; }
 
   @media (max-width: 350px) { .nk-search input::placeholder { font-size:11px; } .nk-search button { padding:10px 10px; } .nk-search { padding-left:10px; } }
+  .nk-rgrid3 { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:16px; }
+  @media (max-width: 899px) { .nk-rgrid3 { grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); } }
   .nk-serve-grid { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:16px; }
   @media (max-width: 899px) { .nk-serve-grid { grid-template-columns:repeat(2, minmax(0,1fr)); gap:12px; } }
   .nav-pill:hover { color: #f2a36b !important; }
@@ -2461,7 +2463,8 @@ const styles = `
   .ptp-card.disabled { opacity: .4; cursor: not-allowed; }
   .ptp-card.disabled:hover { border-color: #2e2620; box-shadow: 0 1px 3px rgba(0,0,0,.04); transform: none; }
   .ptp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
-  .ptp-recipe-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+  .ptp-recipe-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  @media (max-width: 899px) { .ptp-recipe-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } }
   .ptp-recipe-card { background: #1d1713; border: 1.5px solid #2e2620; border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform .15s, box-shadow .15s; }
   .ptp-recipe-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.08); }
   .ptp-chip { display: inline-flex; align-items: center; gap: 6px; background: #c2622a; color: #fff; padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; }
@@ -2821,7 +2824,7 @@ function RecipeInspiration({ recipes: initialRecipes, pool, title, spacing = 74 
           ↻ Randomise
         </button>
       </div>
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(220px, 1fr))", gap:16 }}>
+      <div className="nk-rgrid3">
         {recipes.filter(Boolean).map((recipe, i) => {
           const region = REGIONS.find(r => r.countries?.includes(recipe.country));
           return (
@@ -3953,7 +3956,7 @@ function RecipeView({ country, dish, onBack, navigate, onRatingChange }) {
                     <h2 style={{ fontFamily:"Fraunces", fontSize:"clamp(18px,2.5vw,24px)", fontWeight:700, color:"#f6efe8", margin:0 }}>You may also like</h2>
                     <p style={{ fontSize:13, color:"#b0a498", margin:"4px 0 0" }}>More recipes you might enjoy</p>
                   </div>
-                  <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(220px, 1fr))", gap:16 }}>
+                  <div className="nk-rgrid3">
                     {shuffled.map((key, i) => {
                       const rec = RECIPE_DB[key];
                       const reg = REGIONS.find(r => r.countries?.includes(rec.country));
@@ -4591,7 +4594,7 @@ function SearchResultsPage({ query, navigate }) {
       </p>
 
       {results.length > 0 && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16 }}>
+        <div className="nk-serve-grid">
           {results.map(r => (
             <div key={r.key} onClick={() => goToRecipe(r)}
               style={{ background: "#1d1713", border: "1.5px solid #2e2620", borderRadius: 12, overflow: "hidden", cursor: "pointer", transition: "transform .15s, box-shadow .15s" }}
